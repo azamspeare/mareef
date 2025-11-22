@@ -1,7 +1,10 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\Submission;
 
+use App\Models\Feedback\WritingFeedback;
+use App\Models\User\User;
+use App\Models\Writing\Writing;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;

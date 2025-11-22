@@ -1,7 +1,9 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\Writing;
 
+use App\Models\Submission\WritingSubmission;
+use App\Models\User\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
