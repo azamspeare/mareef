@@ -1,16 +1,43 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models\Submission;
 
 use App\Models\Feedback\WritingFeedback;
+use App\Models\Submission\Traits\HasMethods;
+use App\Models\Submission\Traits\HasRelations;
 use App\Models\User\User;
 use App\Models\Writing\Writing;
+use Carbon\CarbonInterface;
+use Database\Factories\WritingSubmissionFactory;
+use Illuminate\Database\Eloquent\Attributes\UseFactory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 
-class WritingSubmission extends Model
+/**
+ * Attributes:
+ * @property-read int $id
+ * @property-read int $writing_id
+ * @property-read int $student_id
+ * @property-read array $content
+ * @property-read string $spent_time
+ * @property-read CarbonInterface $submitted_at
+ * @property-read CarbonInterface|null $evaluated_at
+ * @property-read CarbonInterface $created_at
+ * @property-read CarbonInterface $updated_at
+ *
+ * Relationships:
+ * @property-read Writing $writing
+ * @property-read User $student
+ * @property-read WritingFeedback|null $feedback
+ */
+#[UseFactory(WritingSubmissionFactory::class)]
+final class WritingSubmission extends Model
 {
+    use HasFactory;
+    use HasRelations, HasMethods;
+
     protected $fillable = [
         'writing_id',
         'student_id',
@@ -27,20 +54,5 @@ class WritingSubmission extends Model
             'submitted_at' => 'datetime',
             'evaluated_at' => 'datetime',
         ];
-    }
-
-    public function writing(): BelongsTo
-    {
-        return $this->belongsTo(Writing::class);
-    }
-
-    public function student(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'student_id');
-    }
-
-    public function feedback(): HasOne
-    {
-        return $this->hasOne(WritingFeedback::class, 'submission_id');
     }
 }

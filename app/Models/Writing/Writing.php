@@ -1,17 +1,42 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models\Writing;
 
 use App\Models\Submission\WritingSubmission;
 use App\Models\User\User;
+use App\Models\Writing\Traits\HasRelations;
+use Carbon\CarbonInterface;
+use Database\Factories\WritingFactory;
+use Illuminate\Database\Eloquent\Attributes\UseFactory;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Writing extends Model
+/**
+ * Attributes:
+ * @property-read int $id
+ * @property-read int $teacher_id
+ * @property-read string $title
+ * @property-read string $slug
+ * @property-read array $content
+ * @property-read string $allocated_time
+ * @property-read CarbonInterface|null $public_at
+ * @property-read CarbonInterface $created_at
+ * @property-read CarbonInterface $updated_at
+ * @property-read CarbonInterface|null $deleted_at
+ *
+ * Relationships:
+ * @property-read User $teacher
+ * @property-read Collection<WritingSubmission> $submissions
+ */
+#[UseFactory(WritingFactory::class)]
+final class Writing extends Model
 {
-    use SoftDeletes;
+    use HasFactory, SoftDeletes;
+    use HasRelations;
 
     protected $fillable = [
         'teacher_id',
@@ -28,15 +53,5 @@ class Writing extends Model
             'content' => 'array',
             'public_at' => 'datetime',
         ];
-    }
-
-    public function teacher(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'teacher_id');
-    }
-
-    public function submissions(): HasMany
-    {
-        return $this->hasMany(WritingSubmission::class);
     }
 }
