@@ -10,12 +10,11 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 Route::domain('app.' . config('app.domain'))->group(function () {
-    // Redirect root to dashboard (auto-login if remembered)
     Route::get('/', function () {
         return Auth::check() ? redirect()->route('dashboard') : redirect()->route('login');
     });
 
-    Route::middleware('redirect_if_authenticated')->group(function () {
+    Route::middleware('guest')->group(function () {
         Route::get('login', [LoginController::class, 'login'])->name('login');
 
         Route::prefix('auth')->group(function () {
@@ -24,7 +23,7 @@ Route::domain('app.' . config('app.domain'))->group(function () {
         });
     });
 
-    Route::middleware(['auth', 'login_not_expired', 'is_role:' . RoleEnum::TEACHER->value])->group(function () {
+    Route::middleware(['auth', 'is_role:' . RoleEnum::TEACHER->value])->group(function () {
         Route::get('dashboard', DashboardController::class)->name('dashboard');
 
         Route::get('writings', function () {

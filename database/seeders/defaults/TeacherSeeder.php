@@ -15,8 +15,18 @@ final class TeacherSeeder extends Seeder
      */
     public function run(): void
     {
+        User::query()
+            ->create([
+                'name' => "A'zam Maxsudov",
+                'email' => 'abduazamdev@gmail.com',
+                'username' => 'abduazamdev',
+                'email_verified_at' => now(),
+                'role' => RoleEnum::TEACHER->value,
+                'avatar' => "https://lh3.googleusercontent.com/a/ACg8ocJeqBWubgaV9te0T8FkFIVqEAQQbu2VBte7z73A895LB2w9A7d0=s96-c"
+            ]);
+
         User::factory()
-            ->count(5)
+            ->count(4)
             ->create([
                 'role' => RoleEnum::TEACHER->value,
             ]);

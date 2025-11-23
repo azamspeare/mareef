@@ -20,7 +20,6 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'is_role' => \App\Http\Middleware\EnsureRoleIsValidMiddleware::class,
             'redirect_if_authenticated' => \App\Http\Middleware\RedirectIfAuthenticated::class,
-            'login_not_expired' => \App\Http\Middleware\EnsureLoginNotExpired::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

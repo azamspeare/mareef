@@ -18,14 +18,29 @@ final class RedirectIfAuthenticated
      */
     public function handle(Request $request, Closure $next, string ...$guards): Response
     {
+        \Log::info('RedirectIfAuthenticated: Checking if user is already authenticated', [
+            'url' => $request->url(),
+            'guards' => $guards,
+        ]);
+
         $guards = empty($guards) ? [null] : $guards;
 
         foreach ($guards as $guard) {
             if (Auth::guard($guard)->check()) {
+                $user = Auth::guard($guard)->user();
+
+                \Log::info('RedirectIfAuthenticated: User is authenticated, redirecting to dashboard', [
+                    'guard' => $guard,
+                    'user_id' => $user?->id,
+                    'user_email' => $user?->email,
+                ]);
+
                 // User is authenticated, redirect to dashboard
                 return redirect()->route('dashboard');
             }
         }
+
+        \Log::info('RedirectIfAuthenticated: User not authenticated, allowing access');
 
         return $next($request);
     }
