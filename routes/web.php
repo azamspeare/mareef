@@ -7,6 +7,7 @@ use App\Http\Controllers\Dashboard\DashboardController;
 use App\Http\Controllers\Landing\LandingController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use Inertia\Inertia;
 
 Route::domain('app.' . config('app.domain'))->group(function () {
     // Redirect root to dashboard (auto-login if remembered)
@@ -25,6 +26,18 @@ Route::domain('app.' . config('app.domain'))->group(function () {
 
     Route::middleware(['auth', 'login_not_expired', 'is_role:' . RoleEnum::TEACHER->value])->group(function () {
         Route::get('dashboard', DashboardController::class)->name('dashboard');
+
+        Route::get('writings', function () {
+            return Inertia::render('Writings');
+        })->name('writings.index');
+
+        Route::get('students', function () {
+            return Inertia::render('Students');
+        })->name('students.index');
+
+        Route::get('writings/create', function () {
+            return Inertia::render('CreateWriting');
+        })->name('writings.create');
 
         Route::post('logout', [LoginController::class, 'logout'])->name('logout');
     });

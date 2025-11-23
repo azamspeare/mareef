@@ -1,5 +1,5 @@
 import { PlusCircle, Mail, type LucideIcon } from "lucide-react"
-import { Link } from "@inertiajs/react"
+import { Link, usePage } from "@inertiajs/react"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -17,6 +17,7 @@ export function NavMain({
     title: string
     url: string
     icon?: LucideIcon
+    disableActive?: boolean
   }[]
 }) {
   return (
@@ -42,16 +43,37 @@ export function NavMain({
           </SidebarMenuItem>
         </SidebarMenu>
         <SidebarMenu>
-          {items.map((item) => (
+          {items.map((item) => {
+            const page = usePage();
+
+            // Simple check: if item.url matches current url (handling full url vs path)
+            // A better way might be to pass 'active' prop from parent, but let's try to infer it.
+            // Since we use route() which returns full URL, and page.url is path.
+            let active = false;
+            if (!item.disableActive) {
+                try {
+                    const itemPath = new URL(item.url).pathname;
+                    active = page.url === itemPath || (page.url.startsWith(itemPath) && itemPath !== '/');
+                } catch (e) {
+                    active = page.url === item.url;
+                }
+            }
+
+            return (
             <SidebarMenuItem key={item.title}>
-              <SidebarMenuButton asChild tooltip={item.title}>
+              <SidebarMenuButton
+                asChild
+                tooltip={item.title}
+                isActive={active}
+                className="data-[active=true]:bg-zinc-200 dark:data-[active=true]:bg-zinc-800"
+              >
                 <Link href={item.url}>
                     {item.icon && <item.icon />}
                     <span>{item.title}</span>
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
-          ))}
+          )})}
         </SidebarMenu>
       </SidebarGroupContent>
     </SidebarGroup>

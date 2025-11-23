@@ -39,18 +39,19 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       },
       {
         title: "My Writings",
-        url: "#",
+        url: route('writings.index'),
         icon: BookOpen,
       },
       {
         title: "Students",
-        url: "#",
+        url: route('students.index'),
         icon: Users,
       },
       {
         title: "Create Task",
-        url: "#",
+        url: route('writings.create'),
         icon: Plus,
+        disableActive: true,
       },
     ],
     navSecondary: [
