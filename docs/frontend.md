@@ -42,7 +42,7 @@ resources/js/
   ├─ Pages/
   │   ├─ Auth/
   │   │   └─ Login.jsx
-  │   ├─ Dashboard/
+  │   ├─ Home/
   │   │   └─ Index.jsx
   │   ├─ Writings/
   │   │   ├─ Index.jsx
@@ -149,7 +149,7 @@ Contains:
 - **Sidebar**
   - Navigation items depending on role:
     - All roles:
-      - Dashboard
+      - Home
     - Teachers:
       - Writings
     - Admin:
@@ -169,10 +169,10 @@ Used for unauthenticated pages (e.g. landing, login prompt for public writing pa
 
 ## 5. Pages (Detailed)
 
-### 5.1 Dashboard Page
+### 5.1 Home Page
 
 **Path:** `/dashboard`
-**Component:** `Pages/Dashboard/Index.jsx`
+**Component:** `Pages/Home/Index.jsx`
 
 **Purpose:**
 - Provide teachers/students/admin a quick overview.

@@ -26,11 +26,17 @@ final class UserFactory extends Factory
      */
     public function definition(): array
     {
+        $email = fake()->unique()->safeEmail();
+        $username = Str::before($email, '@');
+
         return [
             'name' => fake()->name(),
-            'email' => fake()->unique()->safeEmail(),
+            'email' => $email,
+            'username' => $username,
             'email_verified_at' => now(),
             'password' => self::$password ??= Hash::make('password'),
+            'role' => fake()->randomElement(['admin', 'teacher', 'student']),
+            'avatar' => null,
             'remember_token' => Str::random(10),
         ];
     }
@@ -42,6 +48,36 @@ final class UserFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'email_verified_at' => null,
+        ]);
+    }
+
+    /**
+     * Indicate that the user is an admin.
+     */
+    public function admin(): self
+    {
+        return $this->state(fn (array $attributes) => [
+            'role' => 'admin',
+        ]);
+    }
+
+    /**
+     * Indicate that the user is a teacher.
+     */
+    public function teacher(): self
+    {
+        return $this->state(fn (array $attributes) => [
+            'role' => 'teacher',
+        ]);
+    }
+
+    /**
+     * Indicate that the user is a student.
+     */
+    public function student(): self
+    {
+        return $this->state(fn (array $attributes) => [
+            'role' => 'student',
         ]);
     }
 }

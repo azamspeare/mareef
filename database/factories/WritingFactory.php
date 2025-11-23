@@ -25,6 +25,8 @@ final class WritingFactory extends Factory
     public function definition(): array
     {
         $title = fake()->sentence(4);
+        $createdAt = now();
+        $hash = hash('sha256', $title . $createdAt->toDateTimeString());
 
         return [
             'teacher_id' => User::factory(),
@@ -33,6 +35,7 @@ final class WritingFactory extends Factory
             'content' => $this->generateTipTapContent(),
             'allocated_time' => fake()->randomElement(['00:30:00', '00:45:00', '01:00:00', '01:30:00']),
             'public_at' => fake()->optional(0.7)->dateTimeBetween('-1 month', '+1 month'),
+            'hash' => $hash,
         ];
     }
 

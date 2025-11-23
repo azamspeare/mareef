@@ -117,7 +117,7 @@ Backend is built using standard Laravel conventions:
 
 - All web requests are handled through `web.php` routes.
 - Controllers return Inertia responses:
-  - Example: `Inertia::render('Dashboard/Index', [...])`
+  - Example: `Inertia::render('Home/Index', [...])`
 - Validation:
   - Done via `FormRequest` classes
 - Error handling:
@@ -139,7 +139,7 @@ Backend is built using standard Laravel conventions:
   - Used for logged-in users (teachers, students, admin)
   - Contains:
     - Top navigation (user info, logout)
-    - Sidebar (Dashboard, Writings, Admin if applicable)
+    - Sidebar (Home, Writings, Admin if applicable)
     - Main content area
 - `GuestLayout`:
   - Used for login / landing pages
@@ -148,7 +148,7 @@ Backend is built using standard Laravel conventions:
 
 Likely React pages:
 
-- `Dashboard/Index.jsx`
+- `Home/Index.jsx`
 - `Writings/Index.jsx`
 - `Writings/Create.jsx`
 - `Writings/Edit.jsx`

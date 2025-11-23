@@ -19,6 +19,7 @@ return new class extends Migration
             $table->json('content');
             $table->time('allocated_time')->nullable();
             $table->timestamp('public_at')->nullable();
+            $table->string('hash');
             $table->timestamps();
             $table->softDeletes();
         });

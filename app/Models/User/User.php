@@ -6,6 +6,7 @@ namespace App\Models\User;
 
 use App\Models\Feedback\WritingFeedback;
 use App\Models\Submission\WritingSubmission;
+use App\Models\User\Traits\HasMethods;
 use App\Models\User\Traits\HasRelations;
 use App\Models\Writing\Writing;
 use Carbon\CarbonInterface;
@@ -23,7 +24,9 @@ use Illuminate\Notifications\Notifiable;
  * @property-read int $id
  * @property-read string $name
  * @property-read string $email
+ * @property-read string $username
  * @property-read CarbonInterface|null $email_verified_at
+ * @property-read CarbonInterface|null $last_login_at
  * @property-read string $password
  * @property-read string $role
  * @property-read string|null $avatar
@@ -41,12 +44,14 @@ use Illuminate\Notifications\Notifiable;
 final class User extends Authenticatable implements MustVerifyEmail
 {
     use HasFactory, Notifiable, SoftDeletes;
-    use HasRelations;
+    use HasRelations, HasMethods;
 
     protected $fillable = [
         'name',
         'email',
+        'username',
         'email_verified_at',
+        'last_login_at',
         'password',
         'role',
         'avatar',
@@ -61,6 +66,7 @@ final class User extends Authenticatable implements MustVerifyEmail
     {
         return [
             'email_verified_at' => 'datetime',
+            'last_login_at' => 'datetime',
             'password' => 'hashed',
         ];
     }

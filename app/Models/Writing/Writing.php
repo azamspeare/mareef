@@ -24,6 +24,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property-read array $content
  * @property-read string $allocated_time
  * @property-read CarbonInterface|null $public_at
+ * @property-read string $hash
  * @property-read CarbonInterface $created_at
  * @property-read CarbonInterface $updated_at
  * @property-read CarbonInterface|null $deleted_at
@@ -45,6 +46,7 @@ final class Writing extends Model
         'content',
         'allocated_time',
         'public_at',
+        'hash'
     ];
 
     protected function casts(): array

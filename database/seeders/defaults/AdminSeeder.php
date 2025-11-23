@@ -18,6 +18,7 @@ final class AdminSeeder extends Seeder
         $admin = [
             'name' => 'Admin',
             'email' => 'admin@mareff.uz',
+            'username' => 'admin',
             'email_verified_at' => now(),
             'password' => 'password',
             'role' => RoleEnum::ADMIN->value,
