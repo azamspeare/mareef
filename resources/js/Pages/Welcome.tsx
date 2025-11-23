@@ -5,6 +5,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { CheckCircle2, Menu, ArrowRight, FileText, Zap, ShieldCheck, LayoutDashboard, Share2, PenTool, Sparkles } from 'lucide-react';
 import { useState } from 'react';
+import { ThemeToggle } from '@/components/ThemeToggle';
 
 export default function Welcome() {
     const [isOpen, setIsOpen] = useState(false);
@@ -28,6 +29,7 @@ export default function Welcome() {
                         <Link href="#how-it-works" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">How it Works</Link>
                         <Link href="#faq" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">FAQ</Link>
                         <div className="flex items-center gap-3 ml-2">
+                            <ThemeToggle />
                             <a href={teacherLoginUrl}>
                                 <Button size="sm" className="rounded-full px-6 shadow-sm hover:shadow-md transition-all">Get Started</Button>
                             </a>
@@ -48,6 +50,10 @@ export default function Welcome() {
                                     <Link href="#features" className="text-lg font-medium" onClick={() => setIsOpen(false)}>Features</Link>
                                     <Link href="#how-it-works" className="text-lg font-medium" onClick={() => setIsOpen(false)}>How it Works</Link>
                                     <Link href="#faq" className="text-lg font-medium" onClick={() => setIsOpen(false)}>FAQ</Link>
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-lg font-medium">Theme</span>
+                                        <ThemeToggle />
+                                    </div>
                                     <div className="h-px bg-border my-2"></div>
                                     <a href={teacherLoginUrl} onClick={() => setIsOpen(false)}>
                                         <Button className="w-full rounded-full">Get Started</Button>
@@ -375,57 +381,57 @@ export default function Welcome() {
             </section>
 
             {/* Why Teachers Love Mareff */}
-            <section className="py-24 bg-primary text-primary-foreground relative overflow-hidden">
+            <section className="py-24 bg-primary dark:bg-secondary/10 text-primary-foreground dark:text-foreground relative overflow-hidden">
                 <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-10 mix-blend-soft-light"></div>
                 <div className="container mx-auto px-4 md:px-6 relative z-10">
                     <div className="text-center mb-16">
                         <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-6">Why Teachers Love Mareff</h2>
-                        <p className="text-primary-foreground/80 text-lg max-w-2xl mx-auto">
+                        <p className="text-primary-foreground/80 dark:text-muted-foreground text-lg max-w-2xl mx-auto">
                             Designed by educators, for educators. We know what matters in your daily workflow.
                         </p>
                     </div>
 
                     <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                        <Card className="bg-primary-foreground/10 border-primary-foreground/20 text-primary-foreground backdrop-blur-sm">
+                        <Card className="bg-primary-foreground/10 dark:bg-card border-primary-foreground/20 dark:border-border text-primary-foreground dark:text-card-foreground backdrop-blur-sm">
                             <CardHeader>
                                 <CardTitle className="flex items-center gap-2 text-lg">
                                     <CheckCircle2 className="h-5 w-5" /> No Document Chaos
                                 </CardTitle>
                             </CardHeader>
-                            <CardContent className="text-primary-foreground/80 text-sm">
+                            <CardContent className="text-primary-foreground/80 dark:text-muted-foreground text-sm">
                                 Stop searching through chat history for files. Everything is organized by class and assignment.
                             </CardContent>
                         </Card>
 
-                        <Card className="bg-primary-foreground/10 border-primary-foreground/20 text-primary-foreground backdrop-blur-sm">
+                        <Card className="bg-primary-foreground/10 dark:bg-card border-primary-foreground/20 dark:border-border text-primary-foreground dark:text-card-foreground backdrop-blur-sm">
                             <CardHeader>
                                 <CardTitle className="flex items-center gap-2 text-lg">
                                     <CheckCircle2 className="h-5 w-5" /> Fast Evaluation
                                 </CardTitle>
                             </CardHeader>
-                            <CardContent className="text-primary-foreground/80 text-sm">
+                            <CardContent className="text-primary-foreground/80 dark:text-muted-foreground text-sm">
                                 Grading tools are right next to the student's work. Speed up your feedback loop significantly.
                             </CardContent>
                         </Card>
 
-                        <Card className="bg-primary-foreground/10 border-primary-foreground/20 text-primary-foreground backdrop-blur-sm">
+                        <Card className="bg-primary-foreground/10 dark:bg-card border-primary-foreground/20 dark:border-border text-primary-foreground dark:text-card-foreground backdrop-blur-sm">
                             <CardHeader>
                                 <CardTitle className="flex items-center gap-2 text-lg">
                                     <CheckCircle2 className="h-5 w-5" /> Clean UI
                                 </CardTitle>
                             </CardHeader>
-                            <CardContent className="text-primary-foreground/80 text-sm">
+                            <CardContent className="text-primary-foreground/80 dark:text-muted-foreground text-sm">
                                 A modern interface that feels professional and welcoming, not like a complex enterprise tool.
                             </CardContent>
                         </Card>
 
-                        <Card className="bg-primary-foreground/10 border-primary-foreground/20 text-primary-foreground backdrop-blur-sm">
+                        <Card className="bg-primary-foreground/10 dark:bg-card border-primary-foreground/20 dark:border-border text-primary-foreground dark:text-card-foreground backdrop-blur-sm">
                             <CardHeader>
                                 <CardTitle className="flex items-center gap-2 text-lg">
                                     <CheckCircle2 className="h-5 w-5" /> Any Language
                                 </CardTitle>
                             </CardHeader>
-                            <CardContent className="text-primary-foreground/80 text-sm">
+                            <CardContent className="text-primary-foreground/80 dark:text-muted-foreground text-sm">
                                 Whether you teach English, Spanish, Korean, or Arabic, Mareff works perfectly for you.
                             </CardContent>
                         </Card>
