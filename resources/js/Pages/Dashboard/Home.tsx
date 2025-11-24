@@ -6,12 +6,30 @@ import DashboardLayout from '@/Layouts/DashboardLayout';
 import data from "../data.json"
 
 export default function Home() {
+  const metrics = {
+    submissions: {
+      last_week_submissions: 120,
+      this_week_submissions: 150,
+      ctr: 25,
+    },
+    students: {
+      total_students: 450,
+      new_students: 45,
+      ctr: 10,
+    },
+    writings: {
+      total_writings: 30,
+      submitted_writings: 12,
+      ctr: 40,
+    },
+  };
+
   return (
     <DashboardLayout>
       <Head title="Home - Mareff" />
       <div className="@container/main flex flex-1 flex-col gap-2">
         <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
-          <SectionCards />
+          <SectionCards metrics={metrics} />
           <DataTable data={data} />
         </div>
       </div>

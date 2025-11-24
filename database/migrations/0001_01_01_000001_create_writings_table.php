@@ -35,6 +35,7 @@ return new class extends Migration
             $table->timestamps();
 
             $table->unique(['writing_id', 'student_id']);
+            $table->index(['writing_id', 'submitted_at'], 'writing_submissions_writing_id_submitted_at_index');
         });
 
         Schema::create('writing_feedbacks', function (Blueprint $table) {
