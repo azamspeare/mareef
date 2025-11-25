@@ -25,8 +25,17 @@ final class TeacherSeeder extends Seeder
                 'avatar' => "https://lh3.googleusercontent.com/a/ACg8ocJeqBWubgaV9te0T8FkFIVqEAQQbu2VBte7z73A895LB2w9A7d0=s96-c"
             ]);
 
+        User::query()
+            ->create([
+                'name' => "Sanjar Nig'matov",
+                'email' => 'nigmatovsanjar00@gmail.com',
+                'username' => 'nigmatovsanjar00',
+                'email_verified_at' => now(),
+                'role' => RoleEnum::TEACHER->value,
+            ]);
+
         User::factory()
-            ->count(4)
+            ->count(3)
             ->create([
                 'role' => RoleEnum::TEACHER->value,
             ]);
