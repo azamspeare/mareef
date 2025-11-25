@@ -1,5 +1,5 @@
-import DashboardLayout from '@/Layouts/DashboardLayout';
 import { Head } from '@inertiajs/react';
+import DashboardLayout from '@/Layouts/DashboardLayout';
 
 export default function Writings() {
     return (
