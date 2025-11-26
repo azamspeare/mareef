@@ -1,28 +1,18 @@
+
 import { Head } from '@inertiajs/react';
-import { DataTable } from "@/components/data-table.tsx"
+import { DataTable, Counts, Submission } from "@/components/data-table.tsx"
 import { SectionCards } from "@/components/section-cards.tsx"
 import DashboardLayout from '@/Layouts/DashboardLayout';
 
-import data from "../data.json"
+import { Metrics } from "@/components/section-cards";
 
-export default function Home() {
-  const metrics = {
-    submissions: {
-      last_week_submissions: 120,
-      this_week_submissions: 150,
-      ctr: 25,
-    },
-    students: {
-      total_students: 450,
-      new_students: 45,
-      ctr: 10,
-    },
-    writings: {
-      total_writings: 30,
-      submitted_writings: 12,
-      ctr: 40,
-    },
-  };
+interface HomeProps {
+  metrics: Metrics;
+  counts: Counts;
+  submissions: Submission[];
+}
+
+export default function Home({ metrics, counts, submissions }: HomeProps) {
 
   return (
     <DashboardLayout>
@@ -30,7 +20,7 @@ export default function Home() {
       <div className="@container/main flex flex-1 flex-col gap-2">
         <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
           <SectionCards metrics={metrics} />
-          <DataTable data={data} />
+          <DataTable data={submissions} counts={counts} />
         </div>
       </div>
     </DashboardLayout>

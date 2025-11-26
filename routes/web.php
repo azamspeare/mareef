@@ -4,6 +4,7 @@ use App\Contracts\Enums\RoleEnum;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\TeacherAuthController;
 use App\Http\Controllers\Dashboard\DashboardController;
+use App\Http\Controllers\Dashboard\StudentController;
 use App\Http\Controllers\Landing\LandingController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -25,17 +26,14 @@ Route::domain('app.' . config('app.domain'))->group(function () {
 
     Route::middleware(['auth', 'is_role:' . RoleEnum::TEACHER->value])->group(function () {
         Route::get('dashboard', DashboardController::class)->name('dashboard');
+        Route::get('students', [StudentController::class, 'index'])->name('students.index');
 
         Route::get('writings', function () {
-            return Inertia::render('Writings');
+            return Inertia::render('Writings/Index');
         })->name('writings.index');
 
-        Route::get('students', function () {
-            return Inertia::render('Students');
-        })->name('students.index');
-
         Route::get('writings/create', function () {
-            return Inertia::render('CreateWriting');
+            return Inertia::render('Writings/Create');
         })->name('writings.create');
 
         Route::post('logout', [LoginController::class, 'logout'])->name('logout');

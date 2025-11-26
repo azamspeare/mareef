@@ -23,7 +23,7 @@ final class DashboardController extends Controller
         $teacher = $request->user();
         $filter = SubmissionFilter::fromRequest($request, $teacher->id);
 
-        $array = [
+        return Inertia::render('Dashboard/Home', [
             'metrics' => [
                 'submissions' => $metricsRepository->calculateSubmissionsMetrics($teacher->id),
                 'students' => $metricsRepository->calculateStudentsMetrics($teacher->id),
@@ -31,8 +31,6 @@ final class DashboardController extends Controller
             ],
             'counts' => $submissionsRepository->getAllCounts($teacher->id),
             'submissions' => $query->query($filter),
-        ];
-
-        return Inertia::render('Dashboard/Home', $array);
+        ]);
     }
 }

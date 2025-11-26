@@ -1,4 +1,4 @@
-import { IconTrendingUp } from "@tabler/icons-react"
+import { IconTrendingUp, IconTrendingDown, IconMinus } from "@tabler/icons-react"
 
 import { Badge } from "@/components/ui/badge"
 import {
@@ -43,15 +43,18 @@ export function SectionCards({ metrics }: SectionCardsProps) {
             {metrics.submissions.this_week_submissions}
           </CardTitle>
           <CardAction>
-            <Badge variant="outline">
-              <IconTrendingUp />
-              +{metrics.submissions.ctr}%
+            <Badge variant="outline" className={metrics.submissions.ctr > 0 ? "text-green-600 border-green-600" : metrics.submissions.ctr < 0 ? "text-red-600 border-red-600" : ""}>
+              {metrics.submissions.ctr > 0 ? <IconTrendingUp /> : metrics.submissions.ctr < 0 ? <IconTrendingDown /> : <IconMinus />}
+              {metrics.submissions.ctr > 0 ? "+" : ""}{metrics.submissions.ctr}%
             </Badge>
           </CardAction>
         </CardHeader>
         <CardFooter className="flex-col items-start gap-1.5 text-sm">
           <div className="line-clamp-1 flex gap-2 font-medium">
-            Last 7 days vs previous 7 days
+            Total Submissions
+          </div>
+          <div className="text-muted-foreground">
+            {metrics.submissions.this_week_submissions} new submissions in last 7 days
           </div>
         </CardFooter>
       </Card>
@@ -64,15 +67,15 @@ export function SectionCards({ metrics }: SectionCardsProps) {
             {metrics.students.total_students}
           </CardTitle>
           <CardAction>
-            <Badge variant="outline">
-              <IconTrendingUp />
-              +{metrics.students.ctr}%
+            <Badge variant="outline" className={metrics.students.ctr > 0 ? "text-green-600 border-green-600" : metrics.students.ctr < 0 ? "text-red-600 border-red-600" : ""}>
+              {metrics.students.ctr > 0 ? <IconTrendingUp /> : metrics.students.ctr < 0 ? <IconTrendingDown /> : <IconMinus />}
+              {metrics.students.ctr > 0 ? "+" : ""}{metrics.students.ctr}%
             </Badge>
           </CardAction>
         </CardHeader>
         <CardFooter className="flex-col items-start gap-1.5 text-sm">
           <div className="line-clamp-1 flex gap-2 font-medium">
-            Total active students
+            Total Active Students
           </div>
           <div className="text-muted-foreground">
             {metrics.students.new_students} new students in last 7 days
@@ -88,18 +91,18 @@ export function SectionCards({ metrics }: SectionCardsProps) {
             {metrics.writings.total_writings}
           </CardTitle>
           <CardAction>
-            <Badge variant="outline">
-              <IconTrendingUp />
-              +{metrics.writings.ctr}%
+            <Badge variant="outline" className={metrics.writings.ctr > 0 ? "text-green-600 border-green-600" : metrics.writings.ctr < 0 ? "text-red-600 border-red-600" : ""}>
+              {metrics.writings.ctr > 0 ? <IconTrendingUp /> : metrics.writings.ctr < 0 ? <IconTrendingDown /> : <IconMinus />}
+              {metrics.writings.ctr > 0 ? "+" : ""}{metrics.writings.ctr}%
             </Badge>
           </CardAction>
         </CardHeader>
         <CardFooter className="flex-col items-start gap-1.5 text-sm">
           <div className="line-clamp-1 flex gap-2 font-medium">
-            Active writings in last 7 days
+            Total Active Writings
           </div>
           <div className="text-muted-foreground">
-            {metrics.writings.submitted_writings} writings with submissions
+            {metrics.writings.submitted_writings} writings with submissions in last 7 days
           </div>
         </CardFooter>
       </Card>

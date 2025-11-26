@@ -4,19 +4,26 @@ declare(strict_types=1);
 
 namespace App\Filters\Submission;
 
+use App\Contracts\Abstracts\Filter\AbstractFilter;
 use App\Contracts\Enums\SubmissionStatusEnum;
 use Illuminate\Http\Request;
 
-final readonly class SubmissionFilter
+final readonly class SubmissionFilter extends AbstractFilter
 {
     public function __construct(
-        public int $teacherId,
-        public ?string $search,
-        public string $sortBy,
-        public string $sortDirection,
-        public int $perPage,
+        int $teacherId,
+        ?string $search,
+        string $sortBy,
+        string $sortDirection,
+        int $perPage,
         public SubmissionStatusEnum $status,
     ) {
+        parent::__construct($teacherId, $search, $sortBy, $sortDirection, $perPage);
+    }
+
+    public static function sortables(): array
+    {
+        return ['id', 'submitted_at', 'spent_time', 'created_at', 'evaluated_at'];
     }
 
     public static function fromRequest(Request $request, int $teacher_id): self
@@ -37,23 +44,7 @@ final readonly class SubmissionFilter
         );
     }
 
-    private static function validateSortBy(mixed $input): string
-    {
-        return match (strtolower((string) $input)) {
-            'id', 'submitted_at', 'spent_time', 'created_at', 'evaluated_at' => $input,
-            default => 'submitted_at',
-        };
-    }
-
-    private static function validateSortDirection(mixed $input): string
-    {
-        return match (strtolower((string) $input)) {
-            'asc', 'desc' => strtolower((string) $input),
-            default => 'desc',
-        };
-    }
-
-    private static function validateStatus(mixed $input): SubmissionStatusEnum
+    protected static function validateStatus(mixed $input): SubmissionStatusEnum
     {
         $enum = SubmissionStatusEnum::tryFrom((string) $input);
 

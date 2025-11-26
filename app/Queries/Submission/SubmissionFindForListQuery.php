@@ -4,14 +4,24 @@ declare(strict_types=1);
 
 namespace App\Queries\Submission;
 
+use App\Contracts\Abstracts\Filter\AbstractFilter;
 use App\Contracts\Enums\SubmissionStatusEnum;
+use App\Contracts\Interfaces\Query\FilterQueryable;
+use App\Contracts\Interfaces\Queryable;
 use App\Filters\Submission\SubmissionFilter;
 use App\Models\Submission\WritingSubmission;
 use Illuminate\Pagination\LengthAwarePaginator;
 
-final class SubmissionFindForListQuery
+final class SubmissionFindForListQuery implements FilterQueryable, Queryable
 {
-    public function query(SubmissionFilter $filter): LengthAwarePaginator
+    /**
+     * Returns a paginated list of submissions for the given teacher.
+     *
+     * @param SubmissionFilter $filter
+     *
+     * @return LengthAwarePaginator
+     */
+    public function query(AbstractFilter $filter): LengthAwarePaginator
     {
         $query = WritingSubmission::query()
             ->select([
