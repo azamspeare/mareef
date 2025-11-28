@@ -2,9 +2,17 @@ import { Head, Link, router } from '@inertiajs/react';
 import DashboardLayout from '@/Layouts/DashboardLayout';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { IconPlus, IconClock, IconUsers, IconEdit, IconTrash, IconArchive, IconArchiveOff, IconSearch } from '@tabler/icons-react';
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from '@/components/ui/table';
+import { IconPlus, IconEdit, IconTrash, IconArchive, IconArchiveOff, IconSearch, IconDotsVertical } from '@tabler/icons-react';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -12,7 +20,6 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { IconDotsVertical } from '@tabler/icons-react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { useState, useEffect } from 'react';
 
@@ -91,83 +98,6 @@ export default function Writings({ writings }: WritingsProps) {
         }
     };
 
-    const WritingCard = ({ writing }: { writing: Writing }) => (
-        <Card className="hover:shadow-md transition-shadow">
-            <CardHeader>
-                <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                        <CardTitle className="text-xl mb-1">
-                            <Link
-                                href={route('writings.show', writing.id)}
-                                className="hover:text-primary transition-colors"
-                            >
-                                {writing.title}
-                            </Link>
-                        </CardTitle>
-                        <CardDescription>
-                            Created {new Date(writing.created_at).toLocaleDateString()}
-                        </CardDescription>
-                    </div>
-                    <div className="flex items-center gap-2">
-                        {writing.deleted_at && (
-                            <Badge variant="secondary">Archived</Badge>
-                        )}
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="icon" className="h-8 w-8">
-                                    <IconDotsVertical className="h-4 w-4" />
-                                </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                                <DropdownMenuItem asChild>
-                                    <Link href={route('writings.edit', writing.id)}>
-                                        <IconEdit className="h-4 w-4 mr-2" />
-                                        Edit
-                                    </Link>
-                                </DropdownMenuItem>
-                                {writing.deleted_at ? (
-                                    <DropdownMenuItem onClick={() => handleRestore(writing.id)}>
-                                        <IconArchiveOff className="h-4 w-4 mr-2" />
-                                        Restore
-                                    </DropdownMenuItem>
-                                ) : (
-                                    <DropdownMenuItem onClick={() => handleArchive(writing.id)}>
-                                        <IconArchive className="h-4 w-4 mr-2" />
-                                        Archive
-                                    </DropdownMenuItem>
-                                )}
-                                <DropdownMenuSeparator />
-                                <DropdownMenuItem
-                                    onClick={() => handleDelete(writing.id)}
-                                    className="text-red-600"
-                                >
-                                    <IconTrash className="h-4 w-4 mr-2" />
-                                    Delete
-                                </DropdownMenuItem>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
-                    </div>
-                </div>
-            </CardHeader>
-            <CardContent>
-                <div
-                    className="prose prose-sm max-w-none line-clamp-3 dark:prose-invert text-muted-foreground"
-                    dangerouslySetInnerHTML={{ __html: writing.content }}
-                />
-            </CardContent>
-            <CardFooter className="flex justify-between text-sm text-muted-foreground">
-                <div className="flex items-center gap-1">
-                    <IconClock className="h-4 w-4" />
-                    <span>{writing.allocated_time} min</span>
-                </div>
-                <div className="flex items-center gap-1">
-                    <IconUsers className="h-4 w-4" />
-                    <span>{writing.submissions_count || 0} submissions</span>
-                </div>
-            </CardFooter>
-        </Card>
-    );
-
     return (
         <DashboardLayout>
             <Head title="Writings - Mareff" />
@@ -222,7 +152,6 @@ export default function Writings({ writings }: WritingsProps) {
                         </div>
 
                         <Tabs value={currentTrashed}>
-
                             <TabsContent value={currentTrashed} className="mt-0">
                                 {writings.data.length === 0 ? (
                                     <Card>
@@ -243,10 +172,85 @@ export default function Writings({ writings }: WritingsProps) {
                                         </CardContent>
                                     </Card>
                                 ) : (
-                                    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                                        {writings.data.map((writing) => (
-                                            <WritingCard key={writing.id} writing={writing} />
-                                        ))}
+                                    <div className="rounded-md border">
+                                        <Table>
+                                            <TableHeader>
+                                                <TableRow>
+                                                    <TableHead>Title</TableHead>
+                                                    <TableHead>Created At</TableHead>
+                                                    <TableHead>Time Limit</TableHead>
+                                                    <TableHead>Submissions</TableHead>
+                                                    <TableHead>Status</TableHead>
+                                                    <TableHead className="text-right">Actions</TableHead>
+                                                </TableRow>
+                                            </TableHeader>
+                                            <TableBody>
+                                                {writings.data.map((writing) => (
+                                                    <TableRow key={writing.id}>
+                                                        <TableCell className="font-medium">
+                                                            <Link
+                                                                href={route('writings.show', writing.id)}
+                                                                className="hover:text-primary transition-colors"
+                                                            >
+                                                                {writing.title}
+                                                            </Link>
+                                                        </TableCell>
+                                                        <TableCell>
+                                                            {new Date(writing.created_at).toLocaleDateString()}
+                                                        </TableCell>
+                                                        <TableCell>
+                                                            {writing.allocated_time} min
+                                                        </TableCell>
+                                                        <TableCell>
+                                                            {writing.submissions_count || 0}
+                                                        </TableCell>
+                                                        <TableCell>
+                                                            {writing.deleted_at ? (
+                                                                <Badge variant="secondary">Archived</Badge>
+                                                            ) : (
+                                                                <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">Active</Badge>
+                                                            )}
+                                                        </TableCell>
+                                                        <TableCell className="text-right">
+                                                            <DropdownMenu>
+                                                                <DropdownMenuTrigger asChild>
+                                                                    <Button variant="ghost" size="icon" className="h-8 w-8">
+                                                                        <IconDotsVertical className="h-4 w-4" />
+                                                                    </Button>
+                                                                </DropdownMenuTrigger>
+                                                                <DropdownMenuContent align="end">
+                                                                    <DropdownMenuItem asChild>
+                                                                        <Link href={route('writings.edit', writing.id)}>
+                                                                            <IconEdit className="h-4 w-4 mr-2" />
+                                                                            Edit
+                                                                        </Link>
+                                                                    </DropdownMenuItem>
+                                                                    {writing.deleted_at ? (
+                                                                        <DropdownMenuItem onClick={() => handleRestore(writing.id)}>
+                                                                            <IconArchiveOff className="h-4 w-4 mr-2" />
+                                                                            Restore
+                                                                        </DropdownMenuItem>
+                                                                    ) : (
+                                                                        <DropdownMenuItem onClick={() => handleArchive(writing.id)}>
+                                                                            <IconArchive className="h-4 w-4 mr-2" />
+                                                                            Archive
+                                                                        </DropdownMenuItem>
+                                                                    )}
+                                                                    <DropdownMenuSeparator />
+                                                                    <DropdownMenuItem
+                                                                        onClick={() => handleDelete(writing.id)}
+                                                                        className="text-red-600"
+                                                                    >
+                                                                        <IconTrash className="h-4 w-4 mr-2" />
+                                                                        Delete
+                                                                    </DropdownMenuItem>
+                                                                </DropdownMenuContent>
+                                                            </DropdownMenu>
+                                                        </TableCell>
+                                                    </TableRow>
+                                                ))}
+                                            </TableBody>
+                                        </Table>
                                     </div>
                                 )}
                             </TabsContent>
