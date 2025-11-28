@@ -1,69 +1,106 @@
 # Mareff Writing Task Creation Page – Technical Specification
 
 ## Overview
-The **Writing Task Creation** page in Mareff allows instructors to compose a new writing assignment for their students in a focused, minimalistic editor. This page combines a **Medium-like** writing experience (clean interface, large title field, minimal chrome) with **Notion-style** block editing (block-level controls, drag-and-drop reordering). Instructors can enter a title and rich text content for the assignment, format it with headings or lists, and publish it for students.
+The **Writing Task Creation** page in Mareff allows instructors to compose and publish a writing task for their students using a modern, minimal editor. The page is inspired by Medium’s clean writing interface and integrates the **BlockNote editor**, which offers Notion-style block editing in a free and open-source package.
 
-## Design Goals
-- **Clean, Minimal Interface**
-- **Notion-Style Block Editor**
-- **Focused Writing Experience**
-- **Responsive & Accessible**
+---
 
-## Layout Structure
-### Top Navigation Bar
-- **Back Navigation**: Left-pointing arrow + "Create a writing assignment for your students"
-- **Publish Button**: Right-aligned, ShadCN/UI button
+## 🔧 Functional Requirements
 
-### Editor Area
-- **Title Input Field**
-- **Rich Text Content Editor**
-- No visible borders, clean white background
+### 📝 Input Fields
+- **Title**:
+  - Borderless, large text input.
+  - Mapped to `writings.title`.
+- **Content**:
+  - Built with BlockNote editor.
+  - Saved as JSON to `writings.content`.
 
-## React Component Structure
-- `WritingsCreatePage`: Main Inertia page component
-    - **Header Bar**: `<BackLink />` and `<PublishButton />`
-    - **TitleField**: Large input styled like Medium title
-    - **RichTextEditor**: TipTap-based Notion-style editor
+### Supported Editor Blocks (via BlockNote):
+- Headings (H1, H2, H3, H4, H5, H6)
+- Paragraph
+- Bold, Italic, Underline, Strikethrough
+- Quote block
+- Bullet list, Numbered list
+- Code block
+- Divider
+- Image block
+- Table block
 
-## Rich Text Editor Configuration (TipTap)
-- **Core Extensions**: `StarterKit`
-- **Placeholder**
-- **History**
-- **Drag & Drop Reordering**: `DragHandle`
-- **Custom Block Menu**: via "+" button and optional slash command
-- **Styling of Blocks**: Tailwind Typography (`prose`)
+🔔 **Toolbar should be hidden** — only expose block-level features via slash command (`/`).
 
-## User Interactions & UX Behavior
-- Entering Title
-- Writing Content
-- Drag-and-Drop Blocks
-- Formatting Toolbar (optional)
-- Back Navigation
-- Publish Process (validation, API call, redirect)
-- Error Handling
-- Performance Considerations
-- Mobile Behavior
-- Draft Saving (future)
+### ➕ Drag Handle
+- Display `+` and drag icon (`::`) on block hover or focus.
+- Mimics Notion UX for block rearrangement.
 
-## Validation Requirements
-- **Title Required**
-- **Content Required**
-- **Error Display**
+---
 
-## API Integration (Laravel Inertia)
-- **Route & Controller**: `POST /writings -> WritingsController@store`
-- **Request Handling**
-- **Inertia Form Submission**
-- **CSRF & Auth**
-- **Feedback**
+## 🧭 Page Layout
 
-## UI Component Details (Tailwind + ShadCN)
-- **Back Arrow Link**: Flex layout with Lucide `ArrowLeft` icon
-- **Publish Button**: ShadCN `<Button>`
-- **Title Field**: Borderless input styled with Tailwind
-- **Editor Content Area**: `<EditorContent>` with `prose`
-- **Dropdown Menu**: ShadCN Menu or Popover for block insertions
-- **Animations & Transitions**: Subtle hover, dropdown fade, and publish feedback
+| Section         | Description                                                                 |
+|----------------|-----------------------------------------------------------------------------|
+| Top Left       | ← “Create a writing assignment for your students”                          |
+| Top Right      | `Publish` button (ShadCN `<Button>`)                                       |
+| Title Field    | Large, bold, borderless text input for writing title                       |
+| Content Editor | BlockNote editor with supported blocks and clean UI                        |
 
-## Conclusion
-This document outlines the technical implementation of the `writings/create` page in Mareff. Follow this closely to match the expected UI/UX and backend integration.
+---
+
+## 🧪 Publishing Flow
+
+### Step 1: Teacher clicks `Publish`
+- Trigger modal popup (ShadCN `<Dialog>`)
+
+### Step 2: Display "Limit writing time?" modal:
+- Input fields: Hours, Minutes, Seconds (each accepts 0–59)
+- Two buttons:
+  - `Create without time`
+  - `Create`
+- If time fields are all `0`, treat as no time restriction
+- Modal disappears on create or cancel
+
+### Step 3: API Call
+- POST `/writings`
+- Payload:
+  ```json
+  {
+    "title": "...",
+    "content": {BlockNote JSON},
+    "allocated_time": "HH:MM:SS" or null
+  }
+  ```
+- On success: redirect to `/dashboard`
+
+---
+
+## 🛠️ Stack and Libraries
+- **Editor**: [BlockNote](https://blocknotejs.org/)
+- **UI**: TailwindCSS + ShadCN UI
+- **Frontend**: React (with Inertia)
+- **Backend**: Laravel (InertiaJS POST route)
+
+---
+
+## ✅ Validation
+- Title must not be empty
+- Content must have at least one block
+- Allocated time is optional
+- Client-side & server-side checks
+
+---
+
+## 🔐 Auth & Access
+- Page accessible only to logged-in teachers (`role: 'teacher'`)
+- Auth handled via Laravel Sanctum + Google OAuth
+
+---
+
+## 💡 Notes for AI Agents
+- Build with ShadCN components.
+- Do not include unused editor features.
+- BlockNote is required (not TipTap).
+- Keep the UI clean, minimalist, Medium-like.
+- Use Tailwind classes like `prose`, `text-2xl`, `mt-8`, etc. for spacing.
+- Dialog for time should be accessible and dismissible.
+- Submission button state should show loading on submit.
+
+This page lives at: `/writings/create`.
