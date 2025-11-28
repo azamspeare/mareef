@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Filters\Students;
+namespace App\Filters\Student;
 
 use App\Contracts\Abstracts\Filter\AbstractFilter;
 use Illuminate\Http\Request;
@@ -16,10 +16,7 @@ final readonly class StudentFilter extends AbstractFilter
 
     public static function fromRequest(Request $request, int $teacher_id): self
     {
-        $search = $request->filled('search') ? $request->string('search')->trim()->value() : null;
-        $sortBy = self::validateSortBy($request->input('sort_by', 'id'));
-        $sortDirection = self::validateSortDirection($request->input('sort_direction', 'desc'));
-        $perPage = $request->input('per_page', 10);
+        [$search, $sortBy, $sortDirection, $perPage, $trashed] = self::resolveDefaultValues($request);
 
         return new self(
             teacherId: $teacher_id,
@@ -27,6 +24,7 @@ final readonly class StudentFilter extends AbstractFilter
             sortBy: $sortBy,
             sortDirection: $sortDirection,
             perPage: $perPage,
+            trashed: $trashed
         );
     }
 }

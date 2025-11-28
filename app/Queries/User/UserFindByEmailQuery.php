@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Queries\User;
 
+use App\Contracts\Abstracts\Query\AbstractArrayQueryable;
 use App\Contracts\Interfaces\Query\ArrayQueryable;
-use App\Contracts\Interfaces\Queryable;
 use App\Models\User\User;
 
-final class UserFindByEmailQuery implements ArrayQueryable, Queryable
+final class UserFindByEmailQuery extends AbstractArrayQueryable implements ArrayQueryable
 {
     public function query(array $arguments = []): ?User
     {

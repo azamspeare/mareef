@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Filters\Submission;
 
 use App\Contracts\Abstracts\Filter\AbstractFilter;
+use App\Contracts\Enums\ModelStatusEnum;
 use App\Contracts\Enums\SubmissionStatusEnum;
 use Illuminate\Http\Request;
 
@@ -16,9 +17,10 @@ final readonly class SubmissionFilter extends AbstractFilter
         string $sortBy,
         string $sortDirection,
         int $perPage,
+        ModelStatusEnum $trashed,
         public SubmissionStatusEnum $status,
     ) {
-        parent::__construct($teacherId, $search, $sortBy, $sortDirection, $perPage);
+        parent::__construct($teacherId, $search, $sortBy, $sortDirection, $perPage, $trashed);
     }
 
     public static function sortables(): array
@@ -28,10 +30,9 @@ final readonly class SubmissionFilter extends AbstractFilter
 
     public static function fromRequest(Request $request, int $teacher_id): self
     {
-        $search = $request->filled('search') ? $request->string('search')->trim()->value() : null;
+        [$search, $sortBy, $sortDirection, $perPage, $trashed] = self::resolveDefaultValues($request);
+
         $sortBy = self::validateSortBy($request->input('sort_by', 'submitted_at'));
-        $sortDirection = self::validateSortDirection($request->input('sort_direction', 'desc'));
-        $perPage =$request->input('per_page', 10);
         $status = self::validateStatus($request->input('status', 'not_reviewed'));
 
         return new self(
@@ -40,6 +41,7 @@ final readonly class SubmissionFilter extends AbstractFilter
             sortBy: $sortBy,
             sortDirection: $sortDirection,
             perPage: $perPage,
+            trashed: $trashed,
             status: $status,
         );
     }

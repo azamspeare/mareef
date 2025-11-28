@@ -130,3 +130,45 @@
     @apply bg-background text-foreground;
     }
 }
+
+/* TipTap Placeholder */
+.tiptap p.is-editor-empty:first-child::before {
+  color: var(--muted-foreground);
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
+
+.tiptap h1.is-empty::before {
+  color: var(--muted-foreground);
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
+
+/* TipTap Floating Menu */
+.tiptap-floating-menu {
+    display: flex;
+    gap: 0.25rem;
+    padding: 0.25rem;
+    margin-bottom: 0.25rem;
+    border-radius: 0.5rem;
+    background-color: white;
+    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+    border: 1px solid var(--border);
+}
+
+/* TipTap Image */
+.tiptap img {
+  display: block;
+  height: auto;
+  margin: 1.5rem 0;
+  max-width: 100%;
+  border-radius: 0.5rem;
+}
+
+.tiptap img.ProseMirror-selectednode {
+  outline: 3px solid var(--primary);
+}

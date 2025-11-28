@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace App\Queries\User;
 
+use App\Contracts\Abstracts\Query\AbstractArrayQueryable;
 use App\Contracts\Enums\RoleEnum;
 use App\Contracts\Interfaces\Query\ArrayQueryable;
-use App\Contracts\Interfaces\Queryable;
 use App\Models\User\User;
 
-final class TeacherFindByEmailQuery implements ArrayQueryable, Queryable
+final class TeacherFindByEmailQuery extends AbstractArrayQueryable implements ArrayQueryable
 {
     public function query(array $arguments = []): ?User
     {

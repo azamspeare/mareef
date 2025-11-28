@@ -5,14 +5,14 @@ declare(strict_types=1);
 namespace App\Queries\Student;
 
 use App\Contracts\Abstracts\Filter\AbstractFilter;
+use App\Contracts\Abstracts\Query\AbstractFilterQueryable;
 use App\Contracts\Enums\RoleEnum;
 use App\Contracts\Interfaces\Query\FilterQueryable;
-use App\Contracts\Interfaces\Queryable;
-use App\Filters\Students\StudentFilter;
+use App\Filters\Student\StudentFilter;
 use App\Models\User\User;
 use Illuminate\Pagination\LengthAwarePaginator;
 
-final class StudentFindForListQuery implements FilterQueryable, Queryable
+final class StudentFindForListQuery extends AbstractFilterQueryable implements FilterQueryable
 {
     /**
      * Returns a paginated list of students for the given teacher.
@@ -23,21 +23,21 @@ final class StudentFindForListQuery implements FilterQueryable, Queryable
      */
     public function query(AbstractFilter $filter): LengthAwarePaginator
     {
+        // Define the teacher ownership constraint once
+        $teacherWritingConstraint = function ($q) use ($filter) {
+            $q->where('teacher_id', $filter->teacherId)
+              ->whereNull('deleted_at');
+        };
+
         $query = User::query()
             ->select('users.*')
             ->where('users.role', '=', RoleEnum::STUDENT->value)
-            ->whereHas('submissions', function ($q) use ($filter) {
-                $q->whereHas('writing', function ($q) use ($filter) {
-                    $q->where('teacher_id', $filter->teacherId)
-                      ->whereNull('deleted_at');
-                });
+            ->whereHas('submissions', function ($q) use ($teacherWritingConstraint) {
+                $q->whereHas('writing', $teacherWritingConstraint);
             })
             ->withCount([
-                'submissions' => function ($q) use ($filter) {
-                    $q->whereHas('writing', function ($q) use ($filter) {
-                        $q->where('teacher_id', $filter->teacherId)
-                          ->whereNull('deleted_at');
-                    });
+                'submissions' => function ($q) use ($teacherWritingConstraint) {
+                    $q->whereHas('writing', $teacherWritingConstraint);
                 }
             ]);
 

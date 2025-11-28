@@ -1,0 +1,29 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Queries\Writing;
+
+use App\Contracts\Abstracts\Query\AbstractArrayQueryable;
+use App\Contracts\Interfaces\Query\ArrayQueryable;
+use App\Models\Writing\Writing;
+
+final class WritingFindByIDQuery extends AbstractArrayQueryable implements ArrayQueryable
+{
+    public function query(array $arguments = []): ?Writing
+    {
+        $id = $arguments['id'] ?? null;
+        $teacher_id = $arguments['teacher_id'] ?? null;
+
+        if (blank($id) || blank($teacher_id)) {
+            abort(404);
+        }
+
+        return Writing::query()
+            ->select(['id', 'title', 'slug', 'content', 'allocated_time', 'created_at'])
+            ->where('teacher_id', '=', $teacher_id)
+            ->where('id', '=', $id)
+            ->with('submissions')
+            ->first();
+    }
+}
