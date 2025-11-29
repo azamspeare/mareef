@@ -4,6 +4,15 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
 import {
     Table,
     TableBody,
@@ -12,7 +21,19 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
-import { IconPlus, IconEdit, IconTrash, IconArchive, IconArchiveOff, IconSearch, IconDotsVertical } from '@tabler/icons-react';
+import {
+    IconPlus,
+    IconEdit,
+    IconTrash,
+    IconArchive,
+    IconArchiveOff,
+    IconSearch,
+    IconDotsVertical,
+    IconChevronLeft,
+    IconChevronRight,
+    IconChevronsLeft,
+    IconChevronsRight,
+} from '@tabler/icons-react';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -22,6 +43,14 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { useState, useEffect } from 'react';
+import { format } from 'date-fns';
+import {
+    ColumnDef,
+    flexRender,
+    getCoreRowModel,
+    getPaginationRowModel,
+    useReactTable,
+} from '@tanstack/react-table';
 
 interface Writing {
     id: number;
@@ -51,6 +80,11 @@ export default function Writings({ writings }: WritingsProps) {
     const currentSearch = urlParams.get('search') || '';
 
     const [search, setSearch] = useState(currentSearch);
+    const [rowSelection, setRowSelection] = useState({});
+    const [pagination, setPagination] = useState({
+        pageIndex: 0,
+        pageSize: 10,
+    });
 
     const handleTabChange = (value: string) => {
         router.get(route('writings.index'), { trashed: value, search: search || undefined }, {
@@ -97,6 +131,132 @@ export default function Writings({ writings }: WritingsProps) {
             });
         }
     };
+
+    const columns: ColumnDef<Writing>[] = [
+        {
+            id: 'select',
+            header: ({ table }) => (
+                <Checkbox
+                    checked={
+                        table.getIsAllPageRowsSelected() ||
+                        (table.getIsSomePageRowsSelected() && 'indeterminate')
+                    }
+                    onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+                    aria-label="Select all"
+                />
+            ),
+            cell: ({ row }) => (
+                <Checkbox
+                    checked={row.getIsSelected()}
+                    onCheckedChange={(value) => row.toggleSelected(!!value)}
+                    aria-label="Select row"
+                />
+            ),
+            enableSorting: false,
+            enableHiding: false,
+        },
+        {
+            accessorKey: 'title',
+            header: 'Title',
+            cell: ({ row }) => (
+                <Link
+                    href={route('writings.show', row.original.id)}
+                    className="font-medium hover:text-primary transition-colors"
+                >
+                    {row.original.title.length > 50 ? row.original.title.slice(0, 50) + '...' : row.original.title}
+                </Link>
+            ),
+        },
+        {
+            accessorKey: 'created_at',
+            header: 'Created At',
+            cell: ({ row }) => (
+                <div>{format(new Date(row.original.created_at), 'MMM d, yyyy')}</div>
+            ),
+        },
+        {
+            accessorKey: 'allocated_time',
+            header: 'Time Limit',
+            cell: ({ row }) => (
+                <div>{row.original.allocated_time.split(':').reduce((acc, curr) => acc + parseInt(curr), 0)} minutes</div>
+            ),
+        },
+        {
+            accessorKey: 'submissions_count',
+            header: 'Submissions',
+            cell: ({ row }) => (
+                <div>{row.original.submissions_count || 0}</div>
+            ),
+        },
+        {
+            accessorKey: 'deleted_at',
+            header: 'Status',
+            cell: ({ row }) => (
+                row.original.deleted_at ? (
+                    <Badge variant="secondary">Archived</Badge>
+                ) : (
+                    <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">Active</Badge>
+                )
+            ),
+        },
+        {
+            id: 'actions',
+            header: () => <></>,
+            cell: ({ row }) => (
+                <div className="text-right">
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-8 w-8">
+                                <IconDotsVertical className="h-4 w-4" />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                            <DropdownMenuItem asChild>
+                                <Link href={route('writings.edit', row.original.id)}>
+                                    <IconEdit className="h-4 w-4 mr-2" />
+                                    Edit
+                                </Link>
+                            </DropdownMenuItem>
+                            {row.original.deleted_at ? (
+                                <DropdownMenuItem onClick={() => handleRestore(row.original.id)}>
+                                    <IconArchiveOff className="h-4 w-4 mr-2" />
+                                    Restore
+                                </DropdownMenuItem>
+                            ) : (
+                                <DropdownMenuItem onClick={() => handleArchive(row.original.id)}>
+                                    <IconArchive className="h-4 w-4 mr-2" />
+                                    Archive
+                                </DropdownMenuItem>
+                            )}
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem
+                                onClick={() => handleDelete(row.original.id)}
+                                className="text-red-600"
+                            >
+                                <IconTrash className="h-4 w-4 mr-2" />
+                                Delete
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                </div>
+            ),
+        },
+    ];
+
+    const table = useReactTable({
+        data: writings.data,
+        columns,
+        state: {
+            rowSelection,
+            pagination,
+        },
+        getRowId: (row) => row.id.toString(),
+        enableRowSelection: true,
+        onRowSelectionChange: setRowSelection,
+        onPaginationChange: setPagination,
+        getCoreRowModel: getCoreRowModel(),
+        getPaginationRowModel: getPaginationRowModel(),
+    });
 
     return (
         <DashboardLayout>
@@ -172,85 +332,126 @@ export default function Writings({ writings }: WritingsProps) {
                                         </CardContent>
                                     </Card>
                                 ) : (
-                                    <div className="rounded-md border">
-                                        <Table>
-                                            <TableHeader>
-                                                <TableRow>
-                                                    <TableHead>Title</TableHead>
-                                                    <TableHead>Created At</TableHead>
-                                                    <TableHead>Time Limit</TableHead>
-                                                    <TableHead>Submissions</TableHead>
-                                                    <TableHead>Status</TableHead>
-                                                    <TableHead className="text-right">Actions</TableHead>
-                                                </TableRow>
-                                            </TableHeader>
-                                            <TableBody>
-                                                {writings.data.map((writing) => (
-                                                    <TableRow key={writing.id}>
-                                                        <TableCell className="font-medium">
-                                                            <Link
-                                                                href={route('writings.show', writing.id)}
-                                                                className="hover:text-primary transition-colors"
+                                    <div className="flex flex-col gap-4">
+                                        <div className="rounded-md border">
+                                            <Table>
+                                                <TableHeader>
+                                                    {table.getHeaderGroups().map((headerGroup) => (
+                                                        <TableRow key={headerGroup.id}>
+                                                            {headerGroup.headers.map((header, index) => (
+                                                                <TableHead key={header.id} className={index === 0 ? 'pl-6 w-12' : ''}>
+                                                                    {header.isPlaceholder
+                                                                        ? null
+                                                                        : flexRender(
+                                                                            header.column.columnDef.header,
+                                                                            header.getContext()
+                                                                        )}
+                                                                </TableHead>
+                                                            ))}
+                                                        </TableRow>
+                                                    ))}
+                                                </TableHeader>
+                                                <TableBody>
+                                                    {table.getRowModel().rows?.length ? (
+                                                        table.getRowModel().rows.map((row) => (
+                                                            <TableRow
+                                                                key={row.id}
+                                                                data-state={row.getIsSelected() && 'selected'}
                                                             >
-                                                                {writing.title}
-                                                            </Link>
-                                                        </TableCell>
-                                                        <TableCell>
-                                                            {new Date(writing.created_at).toLocaleDateString()}
-                                                        </TableCell>
-                                                        <TableCell>
-                                                            {writing.allocated_time} min
-                                                        </TableCell>
-                                                        <TableCell>
-                                                            {writing.submissions_count || 0}
-                                                        </TableCell>
-                                                        <TableCell>
-                                                            {writing.deleted_at ? (
-                                                                <Badge variant="secondary">Archived</Badge>
-                                                            ) : (
-                                                                <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">Active</Badge>
-                                                            )}
-                                                        </TableCell>
-                                                        <TableCell className="text-right">
-                                                            <DropdownMenu>
-                                                                <DropdownMenuTrigger asChild>
-                                                                    <Button variant="ghost" size="icon" className="h-8 w-8">
-                                                                        <IconDotsVertical className="h-4 w-4" />
-                                                                    </Button>
-                                                                </DropdownMenuTrigger>
-                                                                <DropdownMenuContent align="end">
-                                                                    <DropdownMenuItem asChild>
-                                                                        <Link href={route('writings.edit', writing.id)}>
-                                                                            <IconEdit className="h-4 w-4 mr-2" />
-                                                                            Edit
-                                                                        </Link>
-                                                                    </DropdownMenuItem>
-                                                                    {writing.deleted_at ? (
-                                                                        <DropdownMenuItem onClick={() => handleRestore(writing.id)}>
-                                                                            <IconArchiveOff className="h-4 w-4 mr-2" />
-                                                                            Restore
-                                                                        </DropdownMenuItem>
-                                                                    ) : (
-                                                                        <DropdownMenuItem onClick={() => handleArchive(writing.id)}>
-                                                                            <IconArchive className="h-4 w-4 mr-2" />
-                                                                            Archive
-                                                                        </DropdownMenuItem>
-                                                                    )}
-                                                                    <DropdownMenuSeparator />
-                                                                    <DropdownMenuItem
-                                                                        onClick={() => handleDelete(writing.id)}
-                                                                        className="text-red-600"
-                                                                    >
-                                                                        <IconTrash className="h-4 w-4 mr-2" />
-                                                                        Delete
-                                                                    </DropdownMenuItem>
-                                                                </DropdownMenuContent>
-                                                            </DropdownMenu>
-                                                        </TableCell>
-                                                    </TableRow>
-                                                ))}
-                                            </TableBody>
-                                        </Table>
+                                                                {row.getVisibleCells().map((cell, index) => (
+                                                                    <TableCell key={cell.id} className={index === 0 ? 'pl-6 w-12' : ''}>
+                                                                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                                                                    </TableCell>
+                                                                ))}
+                                                            </TableRow>
+                                                        ))
+                                                    ) : (
+                                                        <TableRow>
+                                                            <TableCell colSpan={columns.length} className="h-24 text-center">
+                                                                No results.
+                                                            </TableCell>
+                                                        </TableRow>
+                                                    )}
+                                                </TableBody>
+                                            </Table>
+                                        </div>
+
+                                        {/* Pagination */}
+                                        <div className="flex items-center justify-between px-4">
+                                            <div className="text-muted-foreground hidden flex-1 text-sm lg:flex">
+                                                {table.getFilteredSelectedRowModel().rows.length} of{' '}
+                                                {table.getFilteredRowModel().rows.length} row(s) selected.
+                                            </div>
+                                            <div className="flex w-full items-center gap-8 lg:w-fit">
+                                                <div className="hidden items-center gap-2 lg:flex">
+                                                    <Label htmlFor="rows-per-page" className="text-sm font-medium">
+                                                        Rows per page
+                                                    </Label>
+                                                    <Select
+                                                        value={`${table.getState().pagination.pageSize}`}
+                                                        onValueChange={(value) => {
+                                                            table.setPageSize(Number(value));
+                                                        }}
+                                                    >
+                                                        <SelectTrigger size="sm" className="w-20" id="rows-per-page">
+                                                            <SelectValue placeholder={table.getState().pagination.pageSize} />
+                                                        </SelectTrigger>
+                                                        <SelectContent side="top">
+                                                            {[10, 20, 30, 40, 50].map((pageSize) => (
+                                                                <SelectItem key={pageSize} value={`${pageSize}`}>
+                                                                    {pageSize}
+                                                                </SelectItem>
+                                                            ))}
+                                                        </SelectContent>
+                                                    </Select>
+                                                </div>
+                                                <div className="flex w-fit items-center justify-center text-sm font-medium">
+                                                    Page {table.getState().pagination.pageIndex + 1} of{' '}
+                                                    {table.getPageCount()}
+                                                </div>
+                                                <div className="ml-auto flex items-center gap-2 lg:ml-0">
+                                                    <Button
+                                                        variant="outline"
+                                                        className="hidden h-8 w-8 p-0 lg:flex"
+                                                        onClick={() => table.setPageIndex(0)}
+                                                        disabled={!table.getCanPreviousPage()}
+                                                    >
+                                                        <span className="sr-only">Go to first page</span>
+                                                        <IconChevronsLeft className="h-4 w-4" />
+                                                    </Button>
+                                                    <Button
+                                                        variant="outline"
+                                                        className="size-8"
+                                                        size="icon"
+                                                        onClick={() => table.previousPage()}
+                                                        disabled={!table.getCanPreviousPage()}
+                                                    >
+                                                        <span className="sr-only">Go to previous page</span>
+                                                        <IconChevronLeft className="h-4 w-4" />
+                                                    </Button>
+                                                    <Button
+                                                        variant="outline"
+                                                        className="size-8"
+                                                        size="icon"
+                                                        onClick={() => table.nextPage()}
+                                                        disabled={!table.getCanNextPage()}
+                                                    >
+                                                        <span className="sr-only">Go to next page</span>
+                                                        <IconChevronRight className="h-4 w-4" />
+                                                    </Button>
+                                                    <Button
+                                                        variant="outline"
+                                                        className="hidden size-8 lg:flex"
+                                                        size="icon"
+                                                        onClick={() => table.setPageIndex(table.getPageCount() - 1)}
+                                                        disabled={!table.getCanNextPage()}
+                                                    >
+                                                        <span className="sr-only">Go to last page</span>
+                                                        <IconChevronsRight className="h-4 w-4" />
+                                                    </Button>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 )}
                             </TabsContent>

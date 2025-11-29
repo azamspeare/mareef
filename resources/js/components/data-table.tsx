@@ -13,6 +13,7 @@ import {
 } from "@tabler/icons-react"
 import { z } from "zod"
 import { Link } from "@inertiajs/react"
+import { format } from "date-fns"
 
 import {
   ColumnDef,
@@ -94,82 +95,6 @@ export interface Counts {
   evaluated: number;
 }
 
-const columns: ColumnDef<Submission>[] = [
-  {
-    accessorKey: "writing.title",
-    header: "Writing",
-    cell: ({ row }) => {
-      return <div className="font-medium">{row.original.writing.title}</div>
-    },
-    enableHiding: false,
-  },
-  {
-    accessorKey: "student.name",
-    header: "Student",
-    cell: ({ row }) => {
-      return <div>{row.original.student.name}</div>
-    },
-    enableHiding: false,
-  },
-  {
-    accessorKey: "spent_time",
-    header: "Spent Time",
-    cell: ({ row }) => {
-      return <div>{row.original.spent_time}</div>
-    },
-  },
-  {
-    accessorKey: "evaluated_at",
-    header: "Status",
-    cell: ({ row }) => (
-      <Badge variant="outline" className="text-muted-foreground px-1.5">
-        {row.original.evaluated_at ? (
-          <IconCircleCheckFilled className="fill-green-500 dark:fill-green-400" />
-        ) : (
-          <IconLoader />
-        )}
-        {row.original.evaluated_at ? "Done" : "Not Reviewed"}
-      </Badge>
-    ),
-    enableHiding: false,
-  },
-  {
-    accessorKey: "feedback.score",
-    header: "Score",
-    cell: ({ row }) => {
-      return <div>{row.original.feedback?.score ?? "-"}</div>
-    },
-  },
-  {
-    accessorKey: "submitted_at",
-    header: "Submitted At",
-    cell: ({ row }) => {
-      return <div>{row.original.submitted_at}</div>
-    },
-  },
-  {
-    id: "actions",
-    cell: () => (
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button
-            variant="ghost"
-            className="data-[state=open]:bg-muted text-muted-foreground flex size-8"
-            size="icon"
-          >
-            <IconDotsVertical />
-            <span className="sr-only">Open menu</span>
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-32">
-          <DropdownMenuItem>Review</DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem variant="destructive">Delete</DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-    ),
-  },
-]
 
 export function DataTable({
   data: initialData,
@@ -189,6 +114,83 @@ export function DataTable({
     pageIndex: 0,
     pageSize: 10,
   })
+
+  const columns: ColumnDef<Submission>[] = [
+    {
+      accessorKey: "writing.title",
+      header: "Writing",
+      cell: ({ row }) => {
+        return <div className="font-medium">{row.original.writing.title.length > 40 ? row.original.writing.title.slice(0, 40) + "..." : row.original.writing.title}</div>
+      },
+      enableHiding: false,
+    },
+    {
+      accessorKey: "student.name",
+      header: "Student",
+      cell: ({ row }) => {
+        return <div>{row.original.student.name}</div>
+      },
+      enableHiding: false,
+    },
+    {
+      accessorKey: "spent_time",
+      header: "Spent Time",
+      cell: ({ row }) => {
+        return <div>{row.original.spent_time}</div>
+      },
+    },
+    {
+      accessorKey: "evaluated_at",
+      header: "Status",
+      cell: ({ row }) => (
+        <Badge variant="outline" className="text-muted-foreground px-1.5">
+          {row.original.evaluated_at ? (
+            <IconCircleCheckFilled className="fill-green-500 dark:fill-green-400" />
+          ) : (
+            <IconLoader />
+          )}
+          {row.original.evaluated_at ? "Done" : "Not Reviewed"}
+        </Badge>
+      ),
+      enableHiding: false,
+    },
+    {
+      accessorKey: "feedback.score",
+      header: "Score",
+      cell: ({ row }) => {
+        return <div>{row.original.feedback?.score ?? "-"}</div>
+      },
+    },
+    {
+      accessorKey: "submitted_at",
+      header: "Submitted At",
+      cell: ({ row }) => {
+        return <div>{row.original.submitted_at ? format(new Date(row.original.submitted_at), "MMM d, yyyy hh:mm") : "-"}</div>
+      },
+    },
+    {
+      id: "actions",
+      cell: () => (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              className="data-[state=open]:bg-muted text-muted-foreground flex size-8"
+              size="icon"
+            >
+              <IconDotsVertical />
+              <span className="sr-only">Open menu</span>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-32">
+            <DropdownMenuItem>Review</DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem variant="destructive">Delete</DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      ),
+    },
+  ]
 
   const table = useReactTable({
     data: initialData,
@@ -294,56 +296,54 @@ export function DataTable({
         className="relative flex flex-col gap-4 overflow-auto px-4 lg:px-6"
       >
         <div className="overflow-hidden rounded-lg border">
-            <Table>
-              <TableHeader className="bg-muted sticky top-0 z-10">
-                {table.getHeaderGroups().map((headerGroup) => (
-                  <TableRow key={headerGroup.id}>
-                    {headerGroup.headers.map((header) => {
-                      return (
-                        <TableHead key={header.id} colSpan={header.colSpan}>
-                          {header.isPlaceholder
-                            ? null
-                            : flexRender(
-                                header.column.columnDef.header,
-                                header.getContext()
-                                )}
-                        </TableHead>
-                      )
-                    })}
+          <Table>
+            <TableHeader className="bg-muted sticky top-0 z-10">
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id}>
+                  {headerGroup.headers.map((header, index) => {
+                    return (
+                      <TableHead key={header.id} colSpan={header.colSpan} className={index === 0 ? "pl-6" : ""}>
+                        {header.isPlaceholder
+                          ? null
+                          : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
+                      </TableHead>
+                    )
+                  })}
+                </TableRow>
+              ))}
+            </TableHeader>
+            <TableBody className="**:data-[slot=table-cell]:first:w-8">
+              {table.getRowModel().rows?.length ? (
+                table.getRowModel().rows.map((row) => (
+                  <TableRow
+                    key={row.id}
+                    data-state={row.getIsSelected() && "selected"}
+                  >
+                    {row.getVisibleCells().map((cell, index) => (
+                      <TableCell key={cell.id} className={index === 0 ? "pl-6" : ""}>
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      </TableCell>
+                    ))}
                   </TableRow>
-                ))}
-              </TableHeader>
-              <TableBody className="**:data-[slot=table-cell]:first:w-8">
-                {table.getRowModel().rows?.length ? (
-                    table.getRowModel().rows.map((row) => (
-                      <TableRow
-                        key={row.id}
-                        data-state={row.getIsSelected() && "selected"}
-                      >
-                        {row.getVisibleCells().map((cell) => (
-                          <TableCell key={cell.id}>
-                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                          </TableCell>
-                        ))}
-                      </TableRow>
-                    ))
-                ) : (
-                  <TableRow>
-                    <TableCell
-                      colSpan={columns.length}
-                      className="h-24 text-center"
-                    >
-                      No results.
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell
+                    colSpan={columns.length}
+                    className="h-24 text-center"
+                  >
+                    No results.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
         </div>
         <div className="flex items-center justify-between px-4">
           <div className="text-muted-foreground hidden flex-1 text-sm lg:flex">
-            {table.getFilteredSelectedRowModel().rows.length} of{" "}
-            {table.getFilteredRowModel().rows.length} row(s) selected.
           </div>
           <div className="flex w-full items-center gap-8 lg:w-fit">
             <div className="hidden items-center gap-2 lg:flex">

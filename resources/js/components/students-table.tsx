@@ -54,6 +54,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { Input } from "@/components/ui/input"
+import { format } from "date-fns"
 
 export const studentSchema = z.object({
   id: z.number(),
@@ -65,81 +66,6 @@ export const studentSchema = z.object({
 })
 
 export type Student = z.infer<typeof studentSchema>
-
-const columns: ColumnDef<Student>[] = [
-  {
-    accessorKey: "name",
-    header: "Name",
-    cell: ({ row }) => {
-      return (
-        <div className="flex items-center gap-3">
-          <div className="bg-muted flex size-10 items-center justify-center rounded-full">
-            <IconUser className="text-muted-foreground size-5" />
-          </div>
-          <div className="flex flex-col">
-            <div className="font-medium">{row.original.name}</div>
-            <div className="text-muted-foreground text-sm">{row.original.username}</div>
-          </div>
-        </div>
-      )
-    },
-    enableHiding: false,
-  },
-  {
-    accessorKey: "email",
-    header: "Email",
-    cell: ({ row }) => {
-      return (
-        <div className="flex items-center gap-2">
-          <IconMail className="text-muted-foreground size-4" />
-          <span>{row.original.email}</span>
-        </div>
-      )
-    },
-  },
-  {
-    accessorKey: "submissions_count",
-    header: "Submissions",
-    cell: ({ row }) => {
-      const count = row.original.submissions_count || 0
-      return (
-        <Badge variant="secondary" className="font-mono">
-          {count}
-        </Badge>
-      )
-    },
-  },
-  {
-    accessorKey: "created_at",
-    header: "Joined",
-    cell: ({ row }) => {
-      return <div className="text-muted-foreground">{row.original.created_at}</div>
-    },
-  },
-  {
-    id: "actions",
-    cell: () => (
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button
-            variant="ghost"
-            className="data-[state=open]:bg-muted text-muted-foreground flex size-8"
-            size="icon"
-          >
-            <IconDotsVertical />
-            <span className="sr-only">Open menu</span>
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-32">
-          <DropdownMenuItem>View Details</DropdownMenuItem>
-          <DropdownMenuItem>View Submissions</DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem variant="destructive">Remove</DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-    ),
-  },
-]
 
 export function StudentsTable({
   data: initialData,
@@ -157,6 +83,81 @@ export function StudentsTable({
     pageIndex: 0,
     pageSize: 10,
   })
+
+  const columns: ColumnDef<Student>[] = [
+    {
+      accessorKey: "name",
+      header: "Name",
+      cell: ({ row }) => {
+        return (
+          <div className="flex items-center gap-3">
+            <div className="bg-muted flex size-10 items-center justify-center rounded-full">
+              <IconUser className="text-muted-foreground size-5" />
+            </div>
+            <div className="flex flex-col">
+              <div className="font-medium">{row.original.name}</div>
+              <div className="text-muted-foreground text-sm">{row.original.username}</div>
+            </div>
+          </div>
+        )
+      },
+      enableHiding: false,
+    },
+    {
+      accessorKey: "email",
+      header: "Email",
+      cell: ({ row }) => {
+        return (
+          <div className="flex items-center gap-2">
+            <IconMail className="text-muted-foreground size-4" />
+            <span>{row.original.email}</span>
+          </div>
+        )
+      },
+    },
+    {
+      accessorKey: "submissions_count",
+      header: "Submissions",
+      cell: ({ row }) => {
+        const count = row.original.submissions_count || 0
+        return (
+          <Badge variant="secondary" className="font-mono">
+            {count}
+          </Badge>
+        )
+      },
+    },
+    {
+      accessorKey: "created_at",
+      header: "Joined",
+      cell: ({ row }) => {
+        return <div className="text-muted-foreground">{row.original.created_at ? format(new Date(row.original.created_at), "MMM d, yyyy") : "-"}</div>
+      },
+    },
+    {
+      id: "actions",
+      cell: () => (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              className="data-[state=open]:bg-muted text-muted-foreground flex size-8"
+              size="icon"
+            >
+              <IconDotsVertical />
+              <span className="sr-only">Open menu</span>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-32">
+            <DropdownMenuItem>View Details</DropdownMenuItem>
+            <DropdownMenuItem>View Submissions</DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem variant="destructive">Remove</DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      ),
+    },
+  ]
 
   const table = useReactTable({
     data: initialData,
@@ -238,15 +239,15 @@ export function StudentsTable({
             <TableHeader className="bg-muted sticky top-0 z-10">
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id}>
-                  {headerGroup.headers.map((header) => {
+                  {headerGroup.headers.map((header, index) => {
                     return (
-                      <TableHead key={header.id} colSpan={header.colSpan}>
+                      <TableHead key={header.id} colSpan={header.colSpan} className={index === 0 ? "pl-6" : ""}>
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
                       </TableHead>
                     )
                   })}
@@ -260,8 +261,8 @@ export function StudentsTable({
                     key={row.id}
                     data-state={row.getIsSelected() && "selected"}
                   >
-                    {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id}>
+                    {row.getVisibleCells().map((cell, index) => (
+                      <TableCell key={cell.id} className={index === 0 ? "pl-6" : ""}>
                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
                       </TableCell>
                     ))}
@@ -282,8 +283,6 @@ export function StudentsTable({
         </div>
         <div className="flex items-center justify-between px-4">
           <div className="text-muted-foreground hidden flex-1 text-sm lg:flex">
-            {table.getFilteredSelectedRowModel().rows.length} of{" "}
-            {table.getFilteredRowModel().rows.length} row(s) selected.
           </div>
           <div className="flex w-full items-center gap-8 lg:w-fit">
             <div className="hidden items-center gap-2 lg:flex">

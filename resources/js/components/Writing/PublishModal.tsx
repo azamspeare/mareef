@@ -1,3 +1,6 @@
+import { useState } from "react";
+import { IconClock, IconLoader2 } from "@tabler/icons-react";
+
 import { Button } from "@/components/ui/button";
 import {
     Dialog,
@@ -7,10 +10,8 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-
-import { useState } from "react";
+import { Switch } from "@/components/ui/switch";
 
 interface PublishModalProps {
     isOpen: boolean;
@@ -25,103 +26,178 @@ export function PublishModal({
     onPublish,
     isSubmitting,
 }: PublishModalProps) {
-    const [hours, setHours] = useState("0");
-    const [minutes, setMinutes] = useState("0");
-    const [seconds, setSeconds] = useState("0");
+    const [hasTimeLimit, setHasTimeLimit] = useState(false);
+    const [hours, setHours] = useState(0);
+    const [minutes, setMinutes] = useState(30);
+    const [seconds, setSeconds] = useState(0);
 
-    const handlePublish = (withTime: boolean) => {
-        if (!withTime) {
+    const handlePublish = () => {
+        if (!hasTimeLimit) {
             onPublish(null);
             return;
         }
 
-        const h = parseInt(hours) || 0;
-        const m = parseInt(minutes) || 0;
-        const s = parseInt(seconds) || 0;
-
-        if (h === 0 && m === 0 && s === 0) {
+        if (hours === 0 && minutes === 0 && seconds === 0) {
             onPublish(null);
         } else {
-            // Format as HH:MM:SS
-            const formattedTime = `${h.toString().padStart(2, "0")}:${m
+            const formattedTime = `${hours.toString().padStart(2, "0")}:${minutes
                 .toString()
-                .padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
+                .padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
             onPublish(formattedTime);
         }
     };
 
+    const adjustValue = (
+        setter: React.Dispatch<React.SetStateAction<number>>,
+        current: number,
+        delta: number,
+        max: number
+    ) => {
+        const newValue = current + delta;
+        if (newValue >= 0 && newValue <= max) {
+            setter(newValue);
+        }
+    };
+
+    const TimeInput = ({
+        label,
+        value,
+        onChange,
+        max,
+    }: {
+        label: string;
+        value: number;
+        onChange: React.Dispatch<React.SetStateAction<number>>;
+        max: number;
+    }) => (
+        <div className="flex flex-col items-center gap-1">
+            <span className="text-xs text-muted-foreground uppercase tracking-wider">
+                {label}
+            </span>
+            <div className="flex flex-col items-center">
+                <button
+                    type="button"
+                    onClick={() => adjustValue(onChange, value, 1, max)}
+                    disabled={!hasTimeLimit}
+                    className="h-8 w-16 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted rounded-t-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                    <svg width="12" height="8" viewBox="0 0 12 8" fill="none" className="stroke-current">
+                        <path d="M1 6.5L6 1.5L11 6.5" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                </button>
+                <div
+                    className={`h-14 w-16 flex items-center justify-center text-2xl font-semibold tabular-nums rounded-lg border transition-colors ${hasTimeLimit
+                        ? "bg-background border-input"
+                        : "bg-muted/50 border-muted text-muted-foreground"
+                        }`}
+                >
+                    {value.toString().padStart(2, "0")}
+                </div>
+                <button
+                    type="button"
+                    onClick={() => adjustValue(onChange, value, -1, max)}
+                    disabled={!hasTimeLimit}
+                    className="h-8 w-16 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted rounded-b-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                    <svg width="12" height="8" viewBox="0 0 12 8" fill="none" className="stroke-current">
+                        <path d="M1 1.5L6 6.5L11 1.5" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+    );
+
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent className="sm:max-w-[425px]">
-                <DialogHeader>
-                    <DialogTitle className="text-center font-handwriting text-2xl">
-                        Do you want to limit writing time?
+            <DialogContent className="sm:max-w-md">
+                <DialogHeader className="text-center sm:text-center">
+                    <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
+                        <IconClock className="h-6 w-6 text-primary" />
+                    </div>
+                    <DialogTitle className="text-xl">
+                        Create Writing Assignment
                     </DialogTitle>
-                    <DialogDescription className="sr-only">
-                        Set a time limit for the writing assignment.
+                    <DialogDescription>
+                        Set a time limit for students to complete this writing, or allow unlimited time.
                     </DialogDescription>
                 </DialogHeader>
-                <div className="grid gap-4 py-4">
-                    <div className="flex justify-center gap-4 text-center">
-                        <div className="grid gap-2">
-                            <Label htmlFor="hours" className="font-handwriting text-lg">
-                                Hours
+
+                <div className="py-6">
+                    <div className="flex items-center justify-between rounded-lg border p-4 mb-6">
+                        <div className="space-y-0.5">
+                            <Label htmlFor="time-limit" className="text-base font-medium">
+                                Enable time limit
                             </Label>
-                            <Input
-                                id="hours"
-                                type="number"
-                                min="0"
-                                max="23"
-                                value={hours}
-                                onChange={(e) => setHours(e.target.value)}
-                                className="h-12 w-16 text-center text-lg"
-                            />
+                            <p className="text-sm text-muted-foreground">
+                                Students must submit within the time limit
+                            </p>
                         </div>
-                        <div className="grid gap-2">
-                            <Label htmlFor="minutes" className="font-handwriting text-lg">
-                                Minutes
-                            </Label>
-                            <Input
-                                id="minutes"
-                                type="number"
-                                min="0"
-                                max="59"
-                                value={minutes}
-                                onChange={(e) => setMinutes(e.target.value)}
-                                className="h-12 w-16 text-center text-lg"
-                            />
-                        </div>
-                        <div className="grid gap-2">
-                            <Label htmlFor="seconds" className="font-handwriting text-lg">
-                                Seconds
-                            </Label>
-                            <Input
-                                id="seconds"
-                                type="number"
-                                min="0"
-                                max="59"
-                                value={seconds}
-                                onChange={(e) => setSeconds(e.target.value)}
-                                className="h-12 w-16 text-center text-lg"
-                            />
-                        </div>
+                        <Switch
+                            id="time-limit"
+                            checked={hasTimeLimit}
+                            onCheckedChange={setHasTimeLimit}
+                        />
                     </div>
+
+                    <div
+                        className={`flex justify-center items-center gap-2 transition-opacity ${hasTimeLimit ? "opacity-100" : "opacity-40"
+                            }`}
+                    >
+                        <TimeInput
+                            label="Hours"
+                            value={hours}
+                            onChange={setHours}
+                            max={23}
+                        />
+                        <span className="text-2xl font-semibold text-muted-foreground mt-6">:</span>
+                        <TimeInput
+                            label="Minutes"
+                            value={minutes}
+                            onChange={setMinutes}
+                            max={59}
+                        />
+                        <span className="text-2xl font-semibold text-muted-foreground mt-6">:</span>
+                        <TimeInput
+                            label="Seconds"
+                            value={seconds}
+                            onChange={setSeconds}
+                            max={59}
+                        />
+                    </div>
+
+                    {hasTimeLimit && (hours > 0 || minutes > 0 || seconds > 0) && (
+                        <p className="text-center text-sm text-muted-foreground mt-4">
+                            Time limit:{" "}
+                            <span className="font-medium text-foreground">
+                                {hours > 0 && `${hours}h `}
+                                {minutes > 0 && `${minutes}m `}
+                                {seconds > 0 && `${seconds}s`}
+                                {hours === 0 && minutes === 0 && seconds === 0 && "No limit"}
+                            </span>
+                        </p>
+                    )}
                 </div>
-                <DialogFooter className="flex-col gap-2 sm:flex-row sm:justify-center sm:gap-4">
+
+                <DialogFooter className="sm:justify-end gap-2">
                     <Button
                         variant="outline"
-                        onClick={() => handlePublish(false)}
+                        onClick={onClose}
                         disabled={isSubmitting}
-                        className="font-handwriting text-lg"
                     >
-                        Create without time
+                        Cancel
                     </Button>
                     <Button
-                        onClick={() => handlePublish(true)}
+                        onClick={handlePublish}
                         disabled={isSubmitting}
-                        className="font-handwriting text-lg"
                     >
-                        {isSubmitting ? "Creating..." : "Create"}
+                        {isSubmitting ? (
+                            <>
+                                <IconLoader2 className="h-4 w-4 animate-spin" />
+                                Creating...
+                            </>
+                        ) : (
+                            "Create Writing"
+                        )}
                     </Button>
                 </DialogFooter>
             </DialogContent>
