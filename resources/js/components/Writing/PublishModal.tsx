@@ -10,8 +10,6 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
 
 interface PublishModalProps {
     isOpen: boolean;
@@ -26,78 +24,146 @@ export function PublishModal({
     onPublish,
     isSubmitting,
 }: PublishModalProps) {
-    const [hasTimeLimit, setHasTimeLimit] = useState(false);
-    const [hours, setHours] = useState(0);
-    const [minutes, setMinutes] = useState(30);
-    const [seconds, setSeconds] = useState(0);
+    const [hours, setHours] = useState("00");
+    const [minutes, setMinutes] = useState("00");
+    const [seconds, setSeconds] = useState("00");
+    const [error, setError] = useState("");
 
-    const handlePublish = () => {
-        if (!hasTimeLimit) {
-            onPublish(null);
+    const parseValue = (value: string, max: number): number => {
+        const num = parseInt(value) || 0;
+        return Math.min(Math.max(0, num), max);
+    };
+
+    const formatValue = (value: string, max: number): string => {
+        const num = parseValue(value, max);
+        return num.toString().padStart(2, "0");
+    };
+
+    const handleInputChange = (
+        value: string,
+        setter: React.Dispatch<React.SetStateAction<string>>,
+        max: number
+    ) => {
+        // Allow empty input
+        if (value === "") {
+            setter(value);
+            setError("");
             return;
         }
 
-        if (hours === 0 && minutes === 0 && seconds === 0) {
-            onPublish(null);
-        } else {
-            const formattedTime = `${hours.toString().padStart(2, "0")}:${minutes
-                .toString()
-                .padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
-            onPublish(formattedTime);
+        // Only allow numeric input
+        if (!/^\d{0,2}$/.test(value)) {
+            return;
         }
+
+        // Parse and clamp to max value
+        const num = parseInt(value) || 0;
+        if (num > max) {
+            setter(max.toString().padStart(2, "0"));
+        } else {
+            setter(value);
+        }
+        setError("");
     };
 
+    const handleBlur = (
+        value: string,
+        setter: React.Dispatch<React.SetStateAction<string>>,
+        max: number
+    ) => {
+        setter(formatValue(value, max));
+    };
+
+    const getTotalSeconds = (): number => {
+        const h = parseValue(hours, 23);
+        const m = parseValue(minutes, 59);
+        const s = parseValue(seconds, 59);
+        return h * 3600 + m * 60 + s;
+    };
+
+    const handlePublish = () => {
+        const totalSeconds = getTotalSeconds();
+
+        // if everything is 0, publish without time limit
+        if (totalSeconds === 0) {
+            onPublish('00:00:00');
+            return;
+        }
+
+        // Validation: must have at least 1 minute (60 seconds)
+        if (totalSeconds < 60) {
+            setError("Please set at least 1 minute for the time limit");
+            return;
+        }
+
+        const h = parseValue(hours, 23);
+        const m = parseValue(minutes, 59);
+        const s = parseValue(seconds, 59);
+
+        const formattedTime = `${h.toString().padStart(2, "0")}:${m
+            .toString()
+            .padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
+        onPublish(formattedTime);
+    };
+
+
     const adjustValue = (
-        setter: React.Dispatch<React.SetStateAction<number>>,
-        current: number,
+        currentValue: string,
+        setter: React.Dispatch<React.SetStateAction<string>>,
         delta: number,
         max: number
     ) => {
-        const newValue = current + delta;
-        if (newValue >= 0 && newValue <= max) {
-            setter(newValue);
-        }
+        const current = parseValue(currentValue, max);
+        let newValue = current + delta;
+        if (newValue < 0) newValue = max;
+        if (newValue > max) newValue = 0;
+        setter(newValue.toString().padStart(2, "0"));
+        setError("");
     };
 
     const TimeInput = ({
         label,
         value,
         onChange,
-        max,
+        onBlur,
+        onIncrement,
+        onDecrement,
     }: {
         label: string;
-        value: number;
-        onChange: React.Dispatch<React.SetStateAction<number>>;
-        max: number;
+        value: string;
+        onChange: (value: string) => void;
+        onBlur: () => void;
+        onIncrement: () => void;
+        onDecrement: () => void;
     }) => (
         <div className="flex flex-col items-center gap-1">
-            <span className="text-xs text-muted-foreground uppercase tracking-wider">
+            <span className="text-xs text-muted-foreground uppercase tracking-wider font-medium">
                 {label}
             </span>
             <div className="flex flex-col items-center">
                 <button
                     type="button"
-                    onClick={() => adjustValue(onChange, value, 1, max)}
-                    disabled={!hasTimeLimit}
-                    className="h-8 w-16 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted rounded-t-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    onClick={onIncrement}
+                    className="h-7 w-16 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted rounded-t-lg transition-colors"
                 >
                     <svg width="12" height="8" viewBox="0 0 12 8" fill="none" className="stroke-current">
                         <path d="M1 6.5L6 1.5L11 6.5" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                     </svg>
                 </button>
-                <div
-                    className={`h-14 w-16 flex items-center justify-center text-2xl font-semibold tabular-nums rounded-lg border transition-colors ${hasTimeLimit
-                        ? "bg-background border-input"
-                        : "bg-muted/50 border-muted text-muted-foreground"
-                        }`}
-                >
-                    {value.toString().padStart(2, "0")}
-                </div>
+                <input
+                    type="text"
+                    inputMode="numeric"
+                    value={value}
+                    onChange={(e) => onChange(e.target.value)}
+                    onBlur={onBlur}
+                    onFocus={(e) => e.target.select()}
+                    className="h-12 w-16 text-center text-2xl font-semibold tabular-nums rounded-lg border bg-background border-input focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 transition-colors"
+                    maxLength={2}
+                />
                 <button
                     type="button"
-                    onClick={() => adjustValue(onChange, value, -1, max)}
-                    disabled={!hasTimeLimit}
-                    className="h-8 w-16 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted rounded-b-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    onClick={onDecrement}
+                    className="h-7 w-16 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted rounded-b-lg transition-colors"
                 >
                     <svg width="12" height="8" viewBox="0 0 12 8" fill="none" className="stroke-current">
                         <path d="M1 1.5L6 6.5L11 1.5" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
@@ -106,6 +172,11 @@ export function PublishModal({
             </div>
         </div>
     );
+
+    const totalSeconds = getTotalSeconds();
+    const displayHours = Math.floor(totalSeconds / 3600);
+    const displayMinutes = Math.floor((totalSeconds % 3600) / 60);
+    const displaySeconds = totalSeconds % 60;
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
@@ -118,87 +189,81 @@ export function PublishModal({
                         Create Writing Assignment
                     </DialogTitle>
                     <DialogDescription>
-                        Set a time limit for students to complete this writing, or allow unlimited time.
+                        Set a time limit for students to complete this writing.
                     </DialogDescription>
                 </DialogHeader>
 
                 <div className="py-6">
-                    <div className="flex items-center justify-between rounded-lg border p-4 mb-6">
-                        <div className="space-y-0.5">
-                            <Label htmlFor="time-limit" className="text-base font-medium">
-                                Enable time limit
-                            </Label>
-                            <p className="text-sm text-muted-foreground">
-                                Students must submit within the time limit
-                            </p>
-                        </div>
-                        <Switch
-                            id="time-limit"
-                            checked={hasTimeLimit}
-                            onCheckedChange={setHasTimeLimit}
-                        />
-                    </div>
-
-                    <div
-                        className={`flex justify-center items-center gap-2 transition-opacity ${hasTimeLimit ? "opacity-100" : "opacity-40"
-                            }`}
-                    >
+                    <div className="flex justify-center items-center gap-2">
                         <TimeInput
                             label="Hours"
                             value={hours}
-                            onChange={setHours}
-                            max={23}
+                            onChange={(v) => handleInputChange(v, setHours, 23)}
+                            onBlur={() => handleBlur(hours, setHours, 23)}
+                            onIncrement={() => adjustValue(hours, setHours, 1, 23)}
+                            onDecrement={() => adjustValue(hours, setHours, -1, 23)}
                         />
-                        <span className="text-2xl font-semibold text-muted-foreground mt-6">:</span>
+                        <span className="text-2xl font-semibold text-muted-foreground mt-5">:</span>
                         <TimeInput
                             label="Minutes"
                             value={minutes}
-                            onChange={setMinutes}
-                            max={59}
+                            onChange={(v) => handleInputChange(v, setMinutes, 59)}
+                            onBlur={() => handleBlur(minutes, setMinutes, 59)}
+                            onIncrement={() => adjustValue(minutes, setMinutes, 1, 59)}
+                            onDecrement={() => adjustValue(minutes, setMinutes, -1, 59)}
                         />
-                        <span className="text-2xl font-semibold text-muted-foreground mt-6">:</span>
+                        <span className="text-2xl font-semibold text-muted-foreground mt-5">:</span>
                         <TimeInput
                             label="Seconds"
                             value={seconds}
-                            onChange={setSeconds}
-                            max={59}
+                            onChange={(v) => handleInputChange(v, setSeconds, 59)}
+                            onBlur={() => handleBlur(seconds, setSeconds, 59)}
+                            onIncrement={() => adjustValue(seconds, setSeconds, 1, 59)}
+                            onDecrement={() => adjustValue(seconds, setSeconds, -1, 59)}
                         />
                     </div>
 
-                    {hasTimeLimit && (hours > 0 || minutes > 0 || seconds > 0) && (
+                    {totalSeconds > 0 && (
                         <p className="text-center text-sm text-muted-foreground mt-4">
                             Time limit:{" "}
                             <span className="font-medium text-foreground">
-                                {hours > 0 && `${hours}h `}
-                                {minutes > 0 && `${minutes}m `}
-                                {seconds > 0 && `${seconds}s`}
-                                {hours === 0 && minutes === 0 && seconds === 0 && "No limit"}
+                                {displayHours > 0 && `${displayHours}h `}
+                                {displayMinutes > 0 && `${displayMinutes}m `}
+                                {displaySeconds > 0 && `${displaySeconds}s`}
                             </span>
+                        </p>
+                    )}
+
+                    {error && (
+                        <p className="text-center text-sm text-destructive mt-3">
+                            {error}
                         </p>
                     )}
                 </div>
 
-                <DialogFooter className="sm:justify-end gap-2">
-                    <Button
-                        variant="outline"
-                        onClick={onClose}
-                        disabled={isSubmitting}
-                    >
-                        Cancel
-                    </Button>
-                    <Button
-                        onClick={handlePublish}
-                        disabled={isSubmitting}
-                    >
-                        {isSubmitting ? (
-                            <>
-                                <IconLoader2 className="h-4 w-4 animate-spin" />
-                                Creating...
-                            </>
-                        ) : (
-                            "Create Writing"
-                        )}
-                    </Button>
+                <DialogFooter className="flex-col gap-2 sm:flex-row sm:justify-end">
+                    <div className="flex gap-2">
+                        <Button
+                            variant="outline"
+                            onClick={onClose}
+                            disabled={isSubmitting}
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            onClick={handlePublish}
+                            disabled={isSubmitting}
+                        >
+                            {isSubmitting ? (
+                                <>
+                                    <IconLoader2 className="h-4 w-4 animate-spin" />
+                                    Creating...
+                                </>
+                            ) : (
+                                "Create Writing"
+                            )}
+                        </Button>
+                    </div>
                 </DialogFooter>
             </DialogContent>
         </Dialog>

@@ -73,7 +73,7 @@ export default function Show({ submission }: ShowProps) {
     };
 
     return (
-        <DashboardLayout>
+        <DashboardLayout title="Submission Review">
             <Head title={`Submission by ${submission.student.name} - Mareff`} />
             <div className="@container/main flex flex-1 flex-col">
                 <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">

@@ -259,7 +259,7 @@ export default function Writings({ writings }: WritingsProps) {
     });
 
     return (
-        <DashboardLayout>
+        <DashboardLayout title="Writings">
             <Head title="Writings - Mareff" />
             <div className="@container/main flex flex-1 flex-col">
                 <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">

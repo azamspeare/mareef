@@ -12,6 +12,9 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { IconDotsVertical } from '@tabler/icons-react';
+import { BlockNoteView } from '@blocknote/mantine';
+import { useCreateBlockNote } from '@blocknote/react';
+import { PartialBlock } from '@blocknote/core';
 
 interface Writing {
     id: number;
@@ -46,7 +49,7 @@ export default function Show({ writing }: ShowProps) {
     };
 
     return (
-        <DashboardLayout>
+        <DashboardLayout title="Writing Details">
             <Head title={`${writing.title} - Mareff`} />
             <div className="@container/main flex flex-1 flex-col">
                 <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
@@ -134,10 +137,9 @@ export default function Show({ writing }: ShowProps) {
                                 <CardTitle>Content</CardTitle>
                             </CardHeader>
                             <CardContent>
-                                <div
-                                    className="prose prose-lg max-w-none dark:prose-invert"
-                                    dangerouslySetInnerHTML={{ __html: writing.content }}
-                                />
+                                {/* <BlockNoteView editor={useCreateBlockNote({
+                                    initialContent: writing.content as unknown as PartialBlock[],
+                                })} /> */}
                             </CardContent>
                         </Card>
                     </div>

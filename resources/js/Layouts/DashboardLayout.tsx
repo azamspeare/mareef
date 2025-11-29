@@ -5,7 +5,12 @@ import {
   SidebarProvider,
 } from "@/components/ui/sidebar"
 
-export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+interface DashboardLayoutProps {
+  children: React.ReactNode;
+  title?: string;
+}
+
+export default function DashboardLayout({ children, title = "Dashboard" }: DashboardLayoutProps) {
   return (
     <SidebarProvider
       style={
@@ -17,7 +22,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     >
       <AppSidebar variant="inset" />
       <SidebarInset>
-        <SiteHeader />
+        <SiteHeader title={title} />
         <div className="flex flex-1 flex-col">
           {children}
         </div>

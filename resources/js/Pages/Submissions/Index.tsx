@@ -60,7 +60,7 @@ export default function Submissions({ submissions }: SubmissionsProps) {
     };
 
     return (
-        <DashboardLayout>
+        <DashboardLayout title="Submissions">
             <Head title="Submissions - Mareff" />
             <div className="@container/main flex flex-1 flex-col">
                 <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
