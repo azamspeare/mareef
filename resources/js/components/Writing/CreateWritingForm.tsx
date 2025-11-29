@@ -26,19 +26,15 @@ import {
 import { ArrowLeft } from "lucide-react";
 import { PublishModal } from "./PublishModal";
 
-
 export default function CreateWritingForm() {
     const { data, setData, post, processing, transform } = useForm({
         title: "",
         content: [] as PartialBlock[],
-
         allocated_time: null as string | null,
     });
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const titleRef = useRef<HTMLTextAreaElement | null>(null);
-
-
 
     // Uploads a file to tmpfiles.org and returns the URL to the uploaded file.
     async function uploadFile(file: File) {
@@ -58,7 +54,6 @@ export default function CreateWritingForm() {
         initialContent: [
             {
                 type: "paragraph",
-                content: "Enter text or type '/' for commands",
             },
         ],
         uploadFile,
@@ -100,8 +95,6 @@ export default function CreateWritingForm() {
         }));
 
         post(route("writings.store"));
-
-
     };
 
     const autoResizeTitle = () => {
@@ -114,7 +107,7 @@ export default function CreateWritingForm() {
 
     return (
         <div className="min-h-screen bg-background text-foreground font-sans">
-            <div className="max-w-6xl mx-auto px-6 lg:px-8">
+            <div className="max-w-3xl lg:max-w-4xl 2xl:max-w-6xl mx-auto px-6 lg:px-8">
                 {/* Header */}
                 <header className="flex items-center justify-between py-6">
                     <div className="flex items-center gap-4 text-muted-foreground">

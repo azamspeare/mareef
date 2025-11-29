@@ -241,29 +241,27 @@ export function PublishModal({
                     )}
                 </div>
 
-                <DialogFooter className="flex-col gap-2 sm:flex-row sm:justify-end">
-                    <div className="flex gap-2">
-                        <Button
-                            variant="outline"
-                            onClick={onClose}
-                            disabled={isSubmitting}
-                        >
-                            Cancel
-                        </Button>
-                        <Button
-                            onClick={handlePublish}
-                            disabled={isSubmitting}
-                        >
-                            {isSubmitting ? (
-                                <>
-                                    <IconLoader2 className="h-4 w-4 animate-spin" />
-                                    Creating...
-                                </>
-                            ) : (
-                                "Create Writing"
-                            )}
-                        </Button>
-                    </div>
+                <DialogFooter className="flex-col gap-2 sm:flex-row sm:justify-between">
+                    <Button
+                        variant="outline"
+                        onClick={onClose}
+                        disabled={isSubmitting}
+                    >
+                        Cancel
+                    </Button>
+                    <Button
+                        onClick={handlePublish}
+                        disabled={isSubmitting}
+                    >
+                        {isSubmitting ? (
+                            <>
+                                <IconLoader2 className="h-4 w-4 animate-spin" />
+                                Creating...
+                            </>
+                        ) : (
+                            "Create Writing"
+                        )}
+                    </Button>
                 </DialogFooter>
             </DialogContent>
         </Dialog>

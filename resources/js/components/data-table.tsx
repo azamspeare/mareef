@@ -12,7 +12,7 @@ import {
   IconPlus,
 } from "@tabler/icons-react"
 import { z } from "zod"
-import { Link } from "@inertiajs/react"
+import { Link, router } from "@inertiajs/react"
 import { format } from "date-fns"
 
 import {
@@ -114,6 +114,17 @@ export function DataTable({
     pageIndex: 0,
     pageSize: 10,
   })
+
+  // URL Params handling
+  const urlParams = new URLSearchParams(window.location.search);
+  const currentStatus = urlParams.get('status') || 'not_reviewed';
+
+  const handleTabChange = (value: string) => {
+    router.get(route('dashboard'), { status: value }, {
+      preserveState: true,
+      preserveScroll: true,
+    });
+  };
 
   const columns: ColumnDef<Submission>[] = [
     {
@@ -219,14 +230,15 @@ export function DataTable({
 
   return (
     <Tabs
-      defaultValue="outline"
+      value={currentStatus}
+      onValueChange={handleTabChange}
       className="w-full flex-col justify-start gap-6"
     >
       <div className="flex items-center justify-between px-4 lg:px-6">
         <Label htmlFor="view-selector" className="sr-only">
           View
         </Label>
-        <Select defaultValue="outline">
+        <Select value={currentStatus} onValueChange={handleTabChange}>
           <SelectTrigger
             className="flex w-fit @4xl/main:hidden"
             size="sm"
@@ -235,17 +247,17 @@ export function DataTable({
             <SelectValue placeholder="Select a view" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="outline">All</SelectItem>
-            <SelectItem value="past-performance">Not Reviewed</SelectItem>
-            <SelectItem value="key-personnel">Evaluated</SelectItem>
+            <SelectItem value="all">All</SelectItem>
+            <SelectItem value="not_reviewed">Not Reviewed</SelectItem>
+            <SelectItem value="evaluated">Evaluated</SelectItem>
           </SelectContent>
         </Select>
         <TabsList className="**:data-[slot=badge]:bg-muted-foreground/30 hidden **:data-[slot=badge]:size-5 **:data-[slot=badge]:rounded-full **:data-[slot=badge]:px-1 @4xl/main:flex">
-          <TabsTrigger value="outline">All</TabsTrigger>
-          <TabsTrigger value="past-performance">
+          <TabsTrigger value="all">All</TabsTrigger>
+          <TabsTrigger value="not_reviewed">
             Not Reviewed <Badge variant="secondary">{counts.not_reviewed}</Badge>
           </TabsTrigger>
-          <TabsTrigger value="key-personnel">
+          <TabsTrigger value="evaluated">
             Evaluated <Badge variant="secondary">{counts.evaluated}</Badge>
           </TabsTrigger>
         </TabsList>
@@ -292,7 +304,7 @@ export function DataTable({
         </div>
       </div>
       <TabsContent
-        value="outline"
+        value={currentStatus}
         className="relative flex flex-col gap-4 overflow-auto px-4 lg:px-6"
       >
         <div className="overflow-hidden rounded-lg border">
@@ -417,21 +429,6 @@ export function DataTable({
             </div>
           </div>
         </div>
-      </TabsContent>
-      <TabsContent
-        value="past-performance"
-        className="flex flex-col px-4 lg:px-6"
-      >
-        <div className="aspect-video w-full flex-1 rounded-lg border border-dashed"></div>
-      </TabsContent>
-      <TabsContent value="key-personnel" className="flex flex-col px-4 lg:px-6">
-        <div className="aspect-video w-full flex-1 rounded-lg border border-dashed"></div>
-      </TabsContent>
-      <TabsContent
-        value="focus-documents"
-        className="flex flex-col px-4 lg:px-6"
-      >
-        <div className="aspect-video w-full flex-1 rounded-lg border border-dashed"></div>
       </TabsContent>
     </Tabs>
   )

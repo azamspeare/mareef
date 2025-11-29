@@ -33,6 +33,7 @@ import {
     IconChevronRight,
     IconChevronsLeft,
     IconChevronsRight,
+    IconX,
 } from '@tabler/icons-react';
 import {
     DropdownMenu,
@@ -282,8 +283,17 @@ export default function Writings({ writings }: WritingsProps) {
                                         placeholder="Search writings..."
                                         value={search}
                                         onChange={(e) => setSearch(e.target.value)}
-                                        className="pl-9"
+                                        className="pl-9 pr-9"
                                     />
+                                    {search && (
+                                        <button
+                                            onClick={() => setSearch('')}
+                                            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer"
+                                        >
+                                            <IconX className="h-4 w-4" />
+                                            <span className="sr-only">Clear search</span>
+                                        </button>
+                                    )}
                                 </div>
 
                                 <Tabs value={currentTrashed} onValueChange={handleTabChange}>
