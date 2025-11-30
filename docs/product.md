@@ -1,208 +1,124 @@
-# Mareff – Product Overview (MVP)
+# Mareff – Product Overview
 
-## 1. What Mareff Is
+## ✨ What is Mareff?
 
-Mareff is a web-based platform designed for **private language tutors** to create, collect, and grade **writing assignments** in a fast, clean, and centralized way.
-It replaces the current workflow where teachers juggle Word/Google Docs, messaging apps, and manual document sharing.
+Mareff is a digital teaching platform built to simplify, streamline, and modernize the way private teachers create, assign, and evaluate student tasks. We’re starting with one of the messiest workflows: **writing assignments** — but our long-term goal is to become the go-to platform for managing all types of teaching tasks in a clean, trackable, and student-friendly way.
 
-Mareff focuses only on **writing tasks**, not full LMS functionality.
-
----
-
-## 2. Target Users
-
-### Primary Users
-
-- Private language tutors (English, Russian, Arabic, Korean, Turkish, etc.)
-
-### Secondary Users
-
-- Students who receive and submit writing tasks
-- Admin (platform owner) who manages system-level operations
+Think of Mareff as the command center for modern educators — a place to design structured tasks, collect student submissions, provide feedback, and track progress over time.
 
 ---
 
-## 3. Core Problem
+## 🎯 The Problem
 
-Most tutors currently evaluate writing assignments through a long, inefficient workflow:
+Teaching online has exploded, but the tools haven’t caught up.
 
-1. Create assignment in Word/Google Doc
-2. Send file or link to students
-3. Students write in a separate document
-4. Students send file back through WhatsApp/Telegram/email
-5. Teacher opens document, comments/highlights
-6. Teacher sends edited file back
-7. No clean tracking, no centralization, no progress overview
+Private tutors and language teachers are still relying on:
 
-This wastes time and causes friction for both teacher and student.
+* Google Docs + Drive folders
+* Telegram/WhatsApp for sending & receiving tasks
+* Screenshots, voice notes, random file chaos
 
----
+This causes:
 
-## 4. Mareff’s Core Solution
+* Disorganized submissions
+* Slow, manual feedback loops
+* No history or progress tracking
+* Lost files, repeated questions, miscommunication
 
-A simple, streamlined workflow:
-
-1. **Teacher creates a writing task**
-    - Title, instructions, optional media
-    - Mareff generates a **shareable link**
-
-2. **Students open link, login, write, and submit**
-    - Everything happens inside Mareff
-    - One submission per student per task
-
-3. **Teacher sees all submissions in a dashboard**
-    - Filter: not evaluated / all
-    - Open any submission to grade
-
-4. **Teacher evaluates the submission**
-    - Inline highlighting and comments (simplified in MVP)
-    - Score (optional)
-    - Overall feedback text
-
-5. **Student later views feedback**
-    - They return to the same link
-    - They see their writing with comments and grade
-
-This removes document chaos and keeps the whole writing process in one place.
+Especially for writing tasks, teachers waste hours managing what tech should automate.
 
 ---
 
-## 5. Product Scope (MVP)
+## ✅ Our Initial Solution (MVP)
 
-### Included in MVP
+We’re starting with a focused, opinionated workflow:
 
-- Google OAuth login (students + teachers)
-- Teacher dashboard
-- Create / update / archive writing tasks
-- Shareable links for writing tasks
-- Student writing submission flow
-- Submission list per writing task
-- View + evaluate submissions
-- General + inline feedback structure (can evolve)
-- Student feedback viewing
-- Admin role (basic platform control)
+### Mareff for Writing Assignments
 
-### Explicitly Not Included in MVP (v0.1)
+1. **Teachers create a writing task**
 
-- AI scoring or AI-generated feedback
-- Payments or subscriptions
-- Multi-language interface (UI)
-- Organization/teams for teachers
-- Advanced analytics or progress dashboards
-- Rich editor plugins beyond basic writing needs
-- Native mobile apps
-- In-app messaging or chat
-- Anything beyond basic email notifications (if used at all)
+   * Block-based instructions
+   * Optional time limits
+   * Auto-generated student submission link
 
-These can be considered only after validating the core writing workflow with real teachers.
+2. **Students submit directly**
+
+   * Clean writing UI
+   * No signup required (Google OAuth)
+   * One-click submission
+
+3. **Teachers evaluate**
+
+   * Inline comments, highlights
+   * Scoring and structured feedback
+   * Submissions saved forever (no more file hunting)
+
+Built-in notifications keep both sides in sync.
 
 ---
 
-## 6. Core Principles for the MVP
+## 🚦 Why Start With Writing?
 
-1. **One problem → one solution**
-   Focus only on writing assignments. No listening, reading, or speaking modules.
+Writing is high-friction:
 
-2. **Fast teacher workflow**
-   Creating and grading a writing task in Mareff should feel noticeably faster and cleaner than doing it via Google Docs + messaging apps.
+* It requires open-ended input
+* Feedback is detailed and nuanced
+* Existing tools (Google Docs, Word) are overkill or unstructured
 
-3. **Low friction for students**
-   Open link → login → write → submit. No complex registration or onboarding steps.
-
-4. **Editor simplicity over complexity**
-   The editor must be stable and predictable. Fancy features are less important than reliability.
-
-5. **Ship small, iterate fast**
-   The MVP should be usable by real tutors within 1–2 weeks of development and improved based on live feedback.
+If we can streamline writing assignments, we build credibility and trust. That becomes our wedge into broader assessment workflows.
 
 ---
 
-## 7. User Roles and Responsibilities
+## 🔭 Where We’re Going
 
-### Teacher
+Mareff is not just a writing tool.
 
-- Logs in via Google
-- Creates writing tasks
-- Shares links with students
-- Views submissions for their tasks
-- Evaluates submissions (score + feedback)
-- Manages their tasks (archive/delete/update)
+We’re building a platform for:
 
-### Student
+* **Digital quizzes & exams**
+* **Spoken/audio tasks**
+* **Structured projects**
+* **Multi-step assignments**
+* **Progress tracking over time**
+* **Grading automation (AI-powered)**
 
-- Logs in via Google when accessing a task link
-- Writes and submits one answer per writing task
-- Cannot edit after submission
-- Returns to the task link to view feedback when the teacher has evaluated
+We want to become the digital backbone for solo teachers, small academies, and online instructors.
 
-### Admin
+Long-term, we imagine:
 
-- Has full access to the platform
-- Can view and (if necessary) manage users, writings, and submissions
-- Used mainly for platform maintenance, debugging, and manual interventions
+> "If Notion & Google Classroom had a baby, but for independent teachers — that’s Mareff."
 
 ---
 
-## 8. High-Level User Flows
+## 💡 Key Product Principles
 
-### Teacher Flow
-
-1. Login
-2. Go to dashboard
-3. Create a writing task
-4. Copy and share the task link with students
-5. Wait for submissions
-6. Open submissions list
-7. Evaluate each submission
-8. Students view feedback through the same link
-
-### Student Flow
-
-1. Open task link from teacher
-2. Login with Google (if not already logged in)
-3. Read the instructions
-4. Write the answer in the editor
-5. Submit the answer
-6. Later, revisit the same link
-7. View teacher’s score and feedback
+* **One problem at a time.** Simplicity wins.
+* **Respect teacher time.** Remove repetitive work.
+* **Build for async.** Students and teachers work on their own schedule.
+* **Beautiful by default.** No tech skills required.
+* **Trackable forever.** Every submission saved, every edit traceable.
 
 ---
 
-## 9. Product Philosophy
+## 🌍 Who It’s For
 
-Mareff is intentionally **not** trying to be:
-
-- A full LMS
-- A replacement for every teaching platform
-- An all-in-one school management solution
-
-Instead, Mareff is a **focused workflow tool** that fixes one specific, painful part of online teaching:
-
-> Managing and evaluating student writing in a fast, clean, and organized way.
-
-If teachers feel that Mareff is:
-
-- Easier than their current method
-- Faster to use for real assignments
-- And worth continuing to use for the next writing task
-
-Then the MVP is considered successful and ready to be expanded.
+* Private language tutors
+* Remote writing coaches
+* Teachers on Zoom, Telegram, WhatsApp
+* Small tutoring teams or academies
+* Instructors who want organization without LMS complexity
 
 ---
 
-## 10. MVP Success Criteria
+## 💬 Summary
 
-The Mareff MVP is successful if:
+Mareff is your digital workspace for teaching.
+We're starting with writing — because it's chaotic and underserved.
 
-- Real tutors use the platform for real writing assignments
-- Students are able to submit and view feedback without confusion
-- The evaluation process feels smooth and reliable
-- At least some tutors say they **prefer Mareff** over their previous method for handling writing tasks
-- Tutors are willing to reuse Mareff for future assignments
+But we’re building toward a future where:
 
-If these criteria are met, the product can move into the next phases:
+* Teachers can run any type of task
+* Students always know what to do
+* And everyone can track learning in one place.
 
-- UX polishing
-- AI assistance
-- Payments/subscriptions
-- More features for analytics and institutions.
+**Mareff simplifies digital teaching. Starting with writing. Expanding everywhere.**

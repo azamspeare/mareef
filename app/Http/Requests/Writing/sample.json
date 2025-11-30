@@ -1,0 +1,44 @@
+[
+    {
+        "id": "8c46028e-11f1-4f92-9238-117521baa0ad",
+        "type": "paragraph",
+        "props": {
+            "textColor": "default",
+            "textAlignment": "left",
+            "backgroundColor": "default"
+        },
+        "content": [
+            {
+                "text": "how are you?",
+                "type": "text",
+                "styles": []
+            }
+        ],
+        "children": []
+    },
+    {
+        "id": "527b4259-f4b7-4486-a289-53f5892a8962",
+        "type": "image",
+        "props": {
+            "url": "writings/images/8e45e469-be0e-4a8f-af69-a1e631b78f87.jpg",
+            "name": "banner.jpg",
+            "caption": null,
+            "showPreview": true,
+            "previewWidth": 512,
+            "textAlignment": "left",
+            "backgroundColor": "default"
+        },
+        "children": []
+    },
+    {
+        "id": "e0451296-a0b9-4643-86ac-383e06c6598f",
+        "type": "paragraph",
+        "props": {
+            "textColor": "default",
+            "textAlignment": "left",
+            "backgroundColor": "default"
+        },
+        "content": [],
+        "children": []
+    }
+]

@@ -19,8 +19,16 @@ final class WritingFindByIDQuery extends AbstractArrayQueryable implements Array
             abort(404);
         }
 
-        return Writing::query()
-            ->select(['id', 'title', 'slug', 'content', 'allocated_time', 'created_at'])
+        $query = Writing::query();
+
+        if ($this->withTrashed) {
+            $query->onlyTrashed();
+        }
+
+        return $query
+            ->when(! empty($this->select), function ($query) {
+                return $query->select($this->select);
+            })
             ->where('teacher_id', '=', $teacher_id)
             ->where('id', '=', $id)
             ->with('submissions')

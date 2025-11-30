@@ -13,7 +13,6 @@ final class CreateUserAction
     {
         $data = $dto->toArray();
 
-        // Ensure username is unique by adding a suffix if needed
         $username = $data['username'];
         $counter = 1;
 

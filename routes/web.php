@@ -36,6 +36,9 @@ Route::domain('app.' . config('app.domain'))->group(function () {
             Route::get('/create', [WritingController::class, 'create'])->name('create');
             Route::post('/', [WritingController::class, 'store'])->name('store');
 
+            // Serve images (before {id} routes to avoid conflicts)
+            Route::get('/images/{filename}', [WritingController::class, 'serveImage'])->name('images.serve');
+
             // Bulk operations (before {id} routes)
             Route::patch('/archive', [WritingBulkController::class, 'archive'])->name('archive.bulk');
             Route::patch('/restore', [WritingBulkController::class, 'restore'])->name('restore.bulk');
@@ -63,3 +66,7 @@ Route::domain('app.' . config('app.domain'))->group(function () {
 });
 
 Route::get('/', LandingController::class);
+
+Route::get('/editors/test', function () {
+    return inertia('Editors/Test');
+});

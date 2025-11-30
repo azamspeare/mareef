@@ -10,6 +10,7 @@ use App\Models\Writing\Traits\HasRelations;
 use Carbon\CarbonInterface;
 use Database\Factories\WritingFactory;
 use Illuminate\Database\Eloquent\Attributes\UseFactory;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -55,5 +56,56 @@ final class Writing extends Model
             'content' => 'array',
             'public_at' => 'datetime',
         ];
+    }
+
+    /**
+     * Transform content to convert storage paths to URLs
+     */
+    protected function content(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($value) => $this->transformContentImagePaths(
+                is_string($value) ? json_decode($value, true) : $value,
+                'toUrl'
+            ),
+            set: fn ($value) => json_encode($value)
+        );
+    }
+
+    /**
+     * Transform image paths in content between storage paths and URLs
+     */
+    private function transformContentImagePaths(?array $content, string $direction): array
+    {
+        if (empty($content)) {
+            return [];
+        }
+
+        foreach ($content as $index => $block) {
+            if (!is_array($block)) {
+                continue;
+            }
+
+            // Transform image blocks
+            if (isset($block['type']) && $block['type'] === 'image' && isset($block['props']['url'])) {
+                $url = $block['props']['url'];
+
+                if ($direction === 'toUrl') {
+                    // Convert storage path to URL
+                    if (!str_starts_with($url, 'http://') && !str_starts_with($url, 'https://')) {
+                        // Extract filename from path (e.g., writings/images/uuid.jpg -> uuid.jpg)
+                        $filename = basename($url);
+                        $content[$index]['props']['url'] = route('writings.images.serve', ['filename' => $filename]);
+                    }
+                }
+            }
+
+            // Recursively process children blocks
+            if (isset($block['children']) && is_array($block['children']) && !empty($block['children'])) {
+                $content[$index]['children'] = $this->transformContentImagePaths($block['children'], $direction);
+            }
+        }
+
+        return $content;
     }
 }

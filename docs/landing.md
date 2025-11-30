@@ -1,6 +1,6 @@
 # Mareff Landing Page Redesign Specification
 
-This document describes the full creative and structural requirements for generating a modern, attractive, teacher-focused landing page for **Mareff**.  
+This document describes the full creative and structural requirements for generating a modern, attractive, teacher-focused landing page for **Mareff**.
 Any AI agent reading this file should follow this specification when producing landing page designs, layouts, mockups, or copywriting.
 
 ---
@@ -18,12 +18,12 @@ Any AI agent reading this file should follow this specification when producing l
 
 Mareff simplifies everything into a clean, unified interface.
 
-Target users:  
-- Private language tutors  
-- Online teachers (English, Russian, Korean, Arabic, etc.)  
-- Small academies  
-- Instructors who teach via Zoom, Telegram, WhatsApp  
-- Teachers looking for a fast, organized writing-evaluation workflow  
+Target users:
+- Private language tutors
+- Online teachers (English, Russian, Korean, Arabic, etc.)
+- Small academies
+- Instructors who teach via Zoom, Telegram, WhatsApp
+- Teachers looking for a fast, organized writing-evaluation workflow
 
 ---
 
@@ -37,15 +37,15 @@ The landing page should draw inspiration from the following designs:
 
 **Desired style qualities:**
 
-- Modern  
-- Clean  
-- Minimal  
-- Slightly futuristic  
-- Professional  
-- Warm and welcoming  
-- Trustworthy and calm  
-- Soft gradients or subtle glassmorphism  
-- Not childish, not corporate  
+- Modern
+- Clean
+- Minimal
+- Slightly futuristic
+- Professional
+- Warm and welcoming
+- Trustworthy and calm
+- Soft gradients or subtle glassmorphism
+- Not childish, not corporate
 
 ---
 
@@ -53,12 +53,12 @@ The landing page should draw inspiration from the following designs:
 
 The landing page should make teachers feel:
 
-- Confident in the product  
-- Understood (we know their struggles)  
-- Safe (simple tool, no complexity)  
-- Excited to try  
-- Supported (the product solves real pain)  
-- Motivated to click "Get Started"  
+- Confident in the product
+- Understood (we know their struggles)
+- Safe (simple tool, no complexity)
+- Excited to try
+- Supported (the product solves real pain)
+- Motivated to click "Get Started"
 
 ---
 
@@ -74,15 +74,15 @@ AI agents must follow or adapt this structure when generating designs.
 
 Must include:
 
-- **Strong headline** describing Mareff's value  
-- **Subheadline** explaining what the platform does  
-- **Primary CTA** (“Get Started”)  
-- Optional secondary CTA (“View Demo”)  
+- **Strong headline** describing Mareff's value
+- **Subheadline** explaining what the platform does
+- **Primary CTA** (“Get Started”)
+- Optional secondary CTA (“View Demo”)
 - A visual hero mockup showing:
-  - Teacher dashboard  
-  - Writing task editor  
-  - OR the student submission interface  
-- Background: soft gradient, pattern, or abstract shapes  
+  - Teacher dashboard
+  - Writing task editor
+  - OR the student submission interface
+- Background: soft gradient, pattern, or abstract shapes
 
 ---
 
@@ -92,11 +92,11 @@ Communicate the teacher’s current pain clearly.
 
 Show common problems:
 
-- Receiving submissions on multiple platforms  
-- Using Google Docs / Word + screenshots  
-- No organized dashboard  
-- Slow feedback workflow  
-- Hard to track student progress  
+- Receiving submissions on multiple platforms
+- Using Google Docs / Word + screenshots
+- No organized dashboard
+- Slow feedback workflow
+- Hard to track student progress
 
 Should use clean icons, illustrations, or minimal graphics.
 
@@ -106,16 +106,16 @@ Should use clean icons, illustrations, or minimal graphics.
 
 Simple 3-step process:
 
-1. **Create a Writing Task**  
-2. **Share the Link**  
+1. **Create a Writing Task**
+2. **Share the Link**
 3. **Receive Submissions & Evaluate**
 
 Each step presented as:
 
-- A card  
-- An icon  
-- A short description  
-- Optional UI mockup snippet  
+- A card
+- An icon
+- A short description
+- Optional UI mockup snippet
 
 ---
 
@@ -123,19 +123,19 @@ Each step presented as:
 
 Highlight core features:
 
-- Block-based writing instructions (JSON)  
-- Clean writing interface for students  
-- One-page submission flow  
-- Teacher evaluation with score & feedback  
-- Student progress tracking  
-- Simple dashboard  
-- Mobile-friendly design  
+- Block-based writing instructions (JSON)
+- Clean writing interface for students
+- One-page submission flow
+- Teacher evaluation with score & feedback
+- Student progress tracking
+- Simple dashboard
+- Mobile-friendly design
 
 Optional additional features:
 
-- Draft saving  
-- Scheduled publishing  
-- Time limits for tasks  
+- Draft saving
+- Scheduled publishing
+- Time limits for tasks
 
 Each feature should be clear, concise, and teacher-centered.
 
@@ -145,13 +145,13 @@ Each feature should be clear, concise, and teacher-centered.
 
 Bullet points or feature cards:
 
-- No document chaos  
-- All-in-one workflow  
-- Fast evaluation  
-- Easy to understand  
-- Clean UI  
-- Perfect for online lessons  
-- Works for any language  
+- No document chaos
+- All-in-one workflow
+- Fast evaluation
+- Easy to understand
+- Clean UI
+- Perfect for online lessons
+- Works for any language
 
 Focus on **teacher benefit**, not tech.
 
@@ -161,9 +161,9 @@ Focus on **teacher benefit**, not tech.
 
 Show actual UI screens (or mockups):
 
-- Writing task creation page  
-- Student submission page  
-- Teacher evaluation page  
+- Writing task creation page
+- Student submission page
+- Teacher evaluation page
 
 Goal: Make the product tangible.
 
@@ -173,9 +173,9 @@ Goal: Make the product tangible.
 
 Strong call-to-action:
 
-- “Start for free — no credit card needed.”  
-- “Built for online teachers.”  
-- “Your writing tasks, finally organized.”  
+- “Start for free — no credit card needed.”
+- “Built for online teachers.”
+- “Your writing tasks, finally organized.”
 
 With supporting visuals and a clear button.
 
@@ -183,19 +183,19 @@ With supporting visuals and a clear button.
 
 # 5. Design Requirements
 
-- Use Tailwind CSS component patterns  
-- Use React structure (conceptually, not code unless asked)  
+- Use Tailwind CSS component patterns
+- Use React structure (conceptually, not code unless asked)
 - Prefer:
-  - glassmorphism  
-  - soft neutral colors  
-  - light gradients  
-  - rounded components  
+  - glassmorphism
+  - soft neutral colors
+  - light gradients
+  - rounded components
 
 **Avoid:**
 
-- Childish colors  
-- Overly corporate tone  
-- Cluttered layout  
+- Childish colors
+- Overly corporate tone
+- Cluttered layout
 
 ---
 
@@ -203,13 +203,13 @@ With supporting visuals and a clear button.
 
 Whenever asked to redesign or generate the landing page, AI agents should output:
 
-- Full landing page section-by-section  
-- Improved headlines  
-- Improved microcopy  
-- Feature descriptions  
-- Layout structure (not code unless requested)  
-- UI mockup descriptions  
-- Color, typography, and spacing recommendations  
+- Full landing page section-by-section
+- Improved headlines
+- Improved microcopy
+- Feature descriptions
+- Layout structure (not code unless requested)
+- UI mockup descriptions
+- Color, typography, and spacing recommendations
 
 ---
 
@@ -217,10 +217,10 @@ Whenever asked to redesign or generate the landing page, AI agents should output
 
 AI outputs should be:
 
-- Clean  
-- Structured  
-- Written in Markdown unless otherwise requested  
-- Easy to plug directly into Figma / frontend implementation  
+- Clean
+- Structured
+- Written in Markdown unless otherwise requested
+- Easy to plug directly into Figma / frontend implementation
 
 ---
 
@@ -228,13 +228,13 @@ AI outputs should be:
 
 To redesign Mareff’s landing page:
 
-- Use inspiration from modern clean templates  
-- Make it understandable and attractive for teachers  
-- Clearly explain the workflow  
-- Highlight the pain points and solution  
-- Push teachers to sign up  
-- Stay minimal + modern  
-- Deliver section-by-section content  
+- Use inspiration from modern clean templates
+- Make it understandable and attractive for teachers
+- Clearly explain the workflow
+- Highlight the pain points and solution
+- Push teachers to sign up
+- Stay minimal + modern
+- Deliver section-by-section content
 
-This file defines the full design spec.  
+This file defines the full design spec.
 Follow it every time when generating landing page ideas or layouts.

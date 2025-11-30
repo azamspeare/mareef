@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { IconClock, IconLoader2 } from "@tabler/icons-react";
 
 import { Button } from "@/components/ui/button";
@@ -23,11 +23,35 @@ export function PublishModal({
     onClose,
     onPublish,
     isSubmitting,
-}: PublishModalProps) {
+    initialTimeLimit,
+    title = "Create Writing Assignment",
+    description = "Set a time limit for students to complete this writing.",
+    actionLabel = "Create Writing",
+}: PublishModalProps & {
+    initialTimeLimit?: string | null;
+    title?: string;
+    description?: string;
+    actionLabel?: string;
+}) {
     const [hours, setHours] = useState("00");
     const [minutes, setMinutes] = useState("00");
     const [seconds, setSeconds] = useState("00");
     const [error, setError] = useState("");
+
+    // Initialize state from initialTimeLimit when modal opens
+    useEffect(() => {
+        if (isOpen && initialTimeLimit) {
+            const [h, m, s] = initialTimeLimit.split(':');
+            setHours(h || "00");
+            setMinutes(m || "00");
+            setSeconds(s || "00");
+        } else if (isOpen) {
+            // Reset if no initial time limit
+            setHours("00");
+            setMinutes("00");
+            setSeconds("00");
+        }
+    }, [isOpen, initialTimeLimit]);
 
     const parseValue = (value: string, max: number): number => {
         const num = parseInt(value) || 0;
@@ -86,7 +110,7 @@ export function PublishModal({
 
         // if everything is 0, publish without time limit
         if (totalSeconds === 0) {
-            onPublish('00:00:00');
+            onPublish(null); // Send null for no time limit
             return;
         }
 
@@ -186,10 +210,10 @@ export function PublishModal({
                         <IconClock className="h-6 w-6 text-primary" />
                     </div>
                     <DialogTitle className="text-xl">
-                        Create Writing Assignment
+                        {title}
                     </DialogTitle>
                     <DialogDescription>
-                        Set a time limit for students to complete this writing.
+                        {description}
                     </DialogDescription>
                 </DialogHeader>
 
@@ -256,10 +280,10 @@ export function PublishModal({
                         {isSubmitting ? (
                             <>
                                 <IconLoader2 className="h-4 w-4 animate-spin" />
-                                Creating...
+                                Processing...
                             </>
                         ) : (
-                            "Create Writing"
+                            actionLabel
                         )}
                     </Button>
                 </DialogFooter>

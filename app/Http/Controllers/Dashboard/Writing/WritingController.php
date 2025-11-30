@@ -4,13 +4,23 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Dashboard\Writing;
 
+use App\Actions\Writing\ArchiveWritingAction;
+use App\Actions\Writing\DeleteWritingAction;
+use App\Actions\Writing\RestoreWritingAction;
+use App\DTOs\Writing\WritingDTO;
 use App\Filters\Writing\WritingFilter;
+use App\Handlers\ServiceHandler;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Writing\StoreWritingRequest;
 use App\Queries\Writing\WritingFindByIDQuery;
 use App\Queries\Writing\WritingFindForListQuery;
+use App\Services\Writing\CreateWritingService;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 final class WritingController extends Controller
 {
@@ -38,9 +48,19 @@ final class WritingController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreWritingRequest $request, ServiceHandler $handler): RedirectResponse
     {
-        //
+        $teacher = $request->user();
+        $attributes = $request->validated();
+
+        $dto = WritingDTO::make($attributes, $teacher->id);
+
+        $result = $handler->handle(new CreateWritingService($dto));
+        if (! $result) {
+            return redirect()->back()->withErrors(['message' => 'Failed to create writing.']);
+        }
+
+        return redirect()->route('writings.index');
     }
 
     /**
@@ -78,24 +98,67 @@ final class WritingController extends Controller
     /**
      * Archive the specified resource from storage.
      */
-    public function archive(Request $request, int $id)
+    public function archive(Request $request, int $id, WritingFindByIDQuery $query, ArchiveWritingAction $action): RedirectResponse
     {
-        //
+        $teacher = $request->user();
+        $writing = $query->query(['id' => $id, 'teacher_id' => $teacher->id]);
+
+        $result = $action->run($writing);
+        if (! $result) {
+            return redirect()->back()->withErrors(['message' => 'Failed to archive writing.']);
+        }
+
+        return redirect()->route('writings.index');
     }
 
     /**
      * Restore the specified resource from storage.
      */
-    public function restore(Request $request, int $id)
+    public function restore(Request $request, int $id, WritingFindByIDQuery $query, RestoreWritingAction $action): RedirectResponse
     {
-        //
+        $teacher = $request->user();
+        $writing = $query->withTrashed()->query(['id' => $id, 'teacher_id' => $teacher->id]);
+
+        $result = $action->run($writing);
+        if (! $result) {
+            return redirect()->back()->withErrors(['message' => 'Failed to restore writing.']);
+        }
+
+        return redirect()->route('writings.index');
     }
 
     /**
      * Delete the specified resource from storage.
      */
-    public function delete(Request $request, int $id)
+    public function delete(Request $request, int $id, WritingFindByIDQuery $query, DeleteWritingAction $action): RedirectResponse
     {
-        //
+        $teacher = $request->user();
+        $writing = $query->withTrashed()->query(['id' => $id, 'teacher_id' => $teacher->id]);
+
+        $result = $action->run($writing);
+        if (! $result) {
+            return redirect()->back()->withErrors(['message' => 'Failed to delete writing.']);
+        }
+
+        return redirect()->route('writings.index');
+    }
+
+    /**
+     * Serve writing image from storage
+     */
+    public function serveImage(string $filename): StreamedResponse
+    {
+        $path = 'writings/images/' . $filename;
+
+        if (!Storage::exists($path)) {
+            abort(404);
+        }
+
+        $mimeType = Storage::mimeType($path);
+
+        return Storage::response($path, null, [
+            'Content-Type' => $mimeType,
+            'Cache-Control' => 'public, max-age=31536000', // Cache for 1 year
+        ]);
     }
 }

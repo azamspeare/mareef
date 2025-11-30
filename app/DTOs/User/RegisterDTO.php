@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 namespace App\DTOs\User;
 
+use App\Contracts\Abstracts\DTO\AbstractDataObject;
 use App\Contracts\Enums\RoleEnum;
 use Illuminate\Support\Str;
 use Laravel\Socialite\Two\User;
 
-final readonly class RegisterDTO
+final readonly class RegisterDTO extends AbstractDataObject
 {
     public function __construct(
         public string $name,
