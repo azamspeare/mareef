@@ -3,10 +3,12 @@ import DashboardLayout from '@/Layouts/DashboardLayout';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
-import { ArrowLeft, Trash2, Calendar, Clock, RotateCcw, Archive, Undo2 } from 'lucide-react';
+import { ArrowLeft, Trash2, Calendar, Clock, RotateCcw, Archive } from 'lucide-react';
 import { BlockNoteView } from '@blocknote/mantine';
 import { useCreateBlockNote } from '@blocknote/react';
 import "@blocknote/mantine/style.css";
+import { ConfirmDialog } from '@/components/ConfirmDialog';
+import { useState } from 'react';
 
 interface Writing {
     id: number;
@@ -28,20 +30,60 @@ interface ShowProps {
 export default function Show({ writing }: ShowProps) {
     const isArchived = writing.deleted_at !== null;
 
+    // Dialog state
+    const [confirmDialog, setConfirmDialog] = useState<{
+        open: boolean;
+        title: string;
+        description: string;
+        actionLabel: string;
+        variant: 'default' | 'destructive';
+        onConfirm: () => void;
+    }>({
+        open: false,
+        title: '',
+        description: '',
+        actionLabel: '',
+        variant: 'default',
+        onConfirm: () => {},
+    });
+
     const handleArchive = () => {
-        if (confirm('Are you sure you want to archive this writing?')) {
-            router.delete(route('writings.destroy', writing.id));
-        }
+        setConfirmDialog({
+            open: true,
+            title: 'Archive Writing',
+            description: 'Are you sure you want to archive this writing? You can restore it later.',
+            actionLabel: 'Archive',
+            variant: 'default',
+            onConfirm: () => {
+                router.patch(route('writings.archive', writing.id));
+            },
+        });
     };
 
     const handleRestore = () => {
-        router.patch(route('writings.restore', writing.id));
+        setConfirmDialog({
+            open: true,
+            title: 'Restore Writing',
+            description: 'Are you sure you want to restore this writing? It will be moved back to active writings.',
+            actionLabel: 'Restore',
+            variant: 'default',
+            onConfirm: () => {
+                router.patch(route('writings.restore', writing.id));
+            },
+        });
     };
 
     const handleDelete = () => {
-        if (confirm('Are you sure you want to permanently delete this writing? This action cannot be undone.')) {
-            router.delete(route('writings.force-delete', writing.id));
-        }
+        setConfirmDialog({
+            open: true,
+            title: 'Delete Writing',
+            description: 'Are you sure you want to permanently delete this writing? This action cannot be undone.',
+            actionLabel: 'Delete',
+            variant: 'destructive',
+            onConfirm: () => {
+                router.delete(route('writings.delete', writing.id));
+            },
+        });
     };
 
     const editor = useCreateBlockNote({
@@ -82,7 +124,7 @@ export default function Show({ writing }: ShowProps) {
                         {isArchived ? (
                             <>
                                 <Button variant="outline" size="icon" onClick={handleRestore} title="Restore" className="bg-background">
-                                    <Undo2 className="h-4 w-4" />
+                                    <RotateCcw className="h-4 w-4" />
                                 </Button>
                                 <Button variant="outline" size="icon" onClick={handleDelete} title="Delete Permanently" className="bg-background hover:bg-destructive/10 hover:text-destructive">
                                     <Trash2 className="h-4 w-4" />
@@ -141,6 +183,16 @@ export default function Show({ writing }: ShowProps) {
                     </div>
                 </div>
             </div>
+
+            <ConfirmDialog
+                open={confirmDialog.open}
+                onOpenChange={(open) => setConfirmDialog({ ...confirmDialog, open })}
+                title={confirmDialog.title}
+                description={confirmDialog.description}
+                actionLabel={confirmDialog.actionLabel}
+                variant={confirmDialog.variant}
+                onConfirm={confirmDialog.onConfirm}
+            />
         </DashboardLayout>
     );
 }

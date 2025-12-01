@@ -10,7 +10,7 @@ final class RestoreWritingsAction
 {
     public function run(array $ids, int $teacher_id): bool
     {
-        return Writing::query()
+        return (bool) Writing::query()
             ->withTrashed()
             ->where('teacher_id', '=', $teacher_id)
             ->whereIn('id', $ids)

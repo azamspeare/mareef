@@ -42,7 +42,6 @@ Route::domain('app.' . config('app.domain'))->group(function () {
             // Bulk operations (before {id} routes)
             Route::patch('/archive', [WritingBulkController::class, 'archive'])->name('archive.bulk');
             Route::patch('/restore', [WritingBulkController::class, 'restore'])->name('restore.bulk');
-            Route::delete('/delete', [WritingBulkController::class, 'delete'])->name('delete.bulk');
 
             // Single resource operations
             Route::get('/{id}', [WritingController::class, 'show'])->name('show')->where('id', '[0-9]+');

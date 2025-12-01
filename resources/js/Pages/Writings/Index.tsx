@@ -26,7 +26,7 @@ import {
     IconEdit,
     IconTrash,
     IconArchive,
-    IconArchiveOff,
+    IconRestore,
     IconSearch,
     IconDotsVertical,
     IconChevronLeft,
@@ -52,6 +52,7 @@ import {
     getPaginationRowModel,
     useReactTable,
 } from '@tanstack/react-table';
+import { ConfirmDialog } from '@/components/ConfirmDialog';
 
 interface Writing {
     id: number;
@@ -87,6 +88,23 @@ export default function Writings({ writings }: WritingsProps) {
         pageSize: 10,
     });
 
+    // Dialog state
+    const [confirmDialog, setConfirmDialog] = useState<{
+        open: boolean;
+        title: string;
+        description: string;
+        actionLabel: string;
+        variant: 'default' | 'destructive';
+        onConfirm: () => void;
+    }>({
+        open: false,
+        title: '',
+        description: '',
+        actionLabel: '',
+        variant: 'default',
+        onConfirm: () => {},
+    });
+
     const handleTabChange = (value: string) => {
         router.get(route('writings.index'), { trashed: value, search: search || undefined }, {
             preserveState: true,
@@ -112,25 +130,95 @@ export default function Writings({ writings }: WritingsProps) {
     }, [search]);
 
     const handleArchive = (id: number) => {
-        if (confirm('Are you sure you want to archive this writing?')) {
-            router.patch(route('writings.archive', id), {}, {
-                preserveScroll: true,
-            });
-        }
+        setConfirmDialog({
+            open: true,
+            title: 'Archive Writing',
+            description: 'Are you sure you want to archive this writing? You can restore it later.',
+            actionLabel: 'Archive',
+            variant: 'default',
+            onConfirm: () => {
+                router.patch(route('writings.archive', id), {}, {
+                    preserveScroll: true,
+                });
+            },
+        });
     };
 
     const handleRestore = (id: number) => {
-        router.patch(route('writings.restore', id), {}, {
-            preserveScroll: true,
+        setConfirmDialog({
+            open: true,
+            title: 'Restore Writing',
+            description: 'Are you sure you want to restore this writing? It will be moved back to active writings.',
+            actionLabel: 'Restore',
+            variant: 'default',
+            onConfirm: () => {
+                router.patch(route('writings.restore', id), {}, {
+                    preserveScroll: true,
+                });
+            },
         });
     };
 
     const handleDelete = (id: number) => {
-        if (confirm('Are you sure you want to delete this writing? This action cannot be undone.')) {
-            router.delete(route('writings.delete', id), {
-                preserveScroll: true,
-            });
-        }
+        setConfirmDialog({
+            open: true,
+            title: 'Delete Writing',
+            description: 'Are you sure you want to permanently delete this writing? This action cannot be undone.',
+            actionLabel: 'Delete',
+            variant: 'destructive',
+            onConfirm: () => {
+                router.delete(route('writings.delete', id), {
+                    preserveScroll: true,
+                });
+            },
+        });
+    };
+
+    // Bulk action handlers
+    const getSelectedIds = () => {
+        return table.getFilteredSelectedRowModel().rows.map(row => row.original.id);
+    };
+
+    const handleBulkArchive = () => {
+        const ids = getSelectedIds();
+        if (ids.length === 0) return;
+
+        setConfirmDialog({
+            open: true,
+            title: 'Archive Writings',
+            description: `Are you sure you want to archive ${ids.length} writing${ids.length > 1 ? 's' : ''}? You can restore them later.`,
+            actionLabel: 'Archive',
+            variant: 'default',
+            onConfirm: () => {
+                router.patch(route('writings.archive.bulk'), { ids }, {
+                    preserveScroll: true,
+                    onSuccess: () => {
+                        setRowSelection({});
+                    },
+                });
+            },
+        });
+    };
+
+    const handleBulkRestore = () => {
+        const ids = getSelectedIds();
+        if (ids.length === 0) return;
+
+        setConfirmDialog({
+            open: true,
+            title: 'Restore Writings',
+            description: `Are you sure you want to restore ${ids.length} writing${ids.length > 1 ? 's' : ''}? They will be moved back to active writings.`,
+            actionLabel: 'Restore',
+            variant: 'default',
+            onConfirm: () => {
+                router.patch(route('writings.restore.bulk'), { ids }, {
+                    preserveScroll: true,
+                    onSuccess: () => {
+                        setRowSelection({});
+                    },
+                });
+            },
+        });
     };
 
     const columns: ColumnDef<Writing>[] = [
@@ -226,24 +314,26 @@ export default function Writings({ writings }: WritingsProps) {
                                 </Link>
                             </DropdownMenuItem>
                             {row.original.deleted_at ? (
-                                <DropdownMenuItem onClick={() => handleRestore(row.original.id)}>
-                                    <IconArchiveOff className="h-4 w-4 mr-2" />
-                                    Restore
-                                </DropdownMenuItem>
+                                <>
+                                    <DropdownMenuItem onClick={() => handleRestore(row.original.id)}>
+                                        <IconRestore className="h-4 w-4 mr-2" />
+                                        Restore
+                                    </DropdownMenuItem>
+                                    <DropdownMenuSeparator />
+                                    <DropdownMenuItem
+                                        onClick={() => handleDelete(row.original.id)}
+                                        className="text-red-600"
+                                    >
+                                        <IconTrash className="h-4 w-4 mr-2" />
+                                        Delete
+                                    </DropdownMenuItem>
+                                </>
                             ) : (
                                 <DropdownMenuItem onClick={() => handleArchive(row.original.id)}>
                                     <IconArchive className="h-4 w-4 mr-2" />
                                     Archive
                                 </DropdownMenuItem>
                             )}
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem
-                                onClick={() => handleDelete(row.original.id)}
-                                className="text-red-600"
-                            >
-                                <IconTrash className="h-4 w-4 mr-2" />
-                                Delete
-                            </DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>
                 </div>
@@ -395,9 +485,43 @@ export default function Writings({ writings }: WritingsProps) {
 
                                         {/* Pagination */}
                                         <div className="flex items-center justify-between px-4">
-                                            <div className="text-muted-foreground hidden flex-1 text-sm lg:flex">
-                                                {table.getFilteredSelectedRowModel().rows.length} of{' '}
-                                                {table.getFilteredRowModel().rows.length} row(s) selected.
+                                            <div className="hidden flex-1 lg:flex">
+                                                {table.getFilteredSelectedRowModel().rows.length > 0 ? (
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="text-sm text-muted-foreground">
+                                                            {table.getFilteredSelectedRowModel().rows.length} of{' '}
+                                                            {table.getFilteredRowModel().rows.length} row(s) selected
+                                                        </span>
+                                                        <div className="flex items-center gap-1 ml-2">
+                                                            {currentTrashed === 'active' && (
+                                                                <Button
+                                                                    variant="outline"
+                                                                    size="sm"
+                                                                    onClick={handleBulkArchive}
+                                                                    className="h-8"
+                                                                >
+                                                                    <IconArchive className="h-3.5 w-3.5 mr-1.5" />
+                                                                    Archive
+                                                                </Button>
+                                                            )}
+                                                            {currentTrashed === 'archived' && (
+                                                                <Button
+                                                                    variant="outline"
+                                                                    size="sm"
+                                                                    onClick={handleBulkRestore}
+                                                                    className="h-8"
+                                                                >
+                                                                    <IconRestore className="h-3.5 w-3.5 mr-1.5" />
+                                                                    Restore
+                                                                </Button>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                ) : (
+                                                    <span className="text-sm text-muted-foreground">
+                                                        {table.getFilteredRowModel().rows.length} row(s) total
+                                                    </span>
+                                                )}
                                             </div>
                                             <div className="flex w-full items-center gap-8 lg:w-fit">
                                                 <div className="hidden items-center gap-2 lg:flex">
@@ -476,6 +600,16 @@ export default function Writings({ writings }: WritingsProps) {
                     </div>
                 </div>
             </div>
+
+            <ConfirmDialog
+                open={confirmDialog.open}
+                onOpenChange={(open) => setConfirmDialog({ ...confirmDialog, open })}
+                title={confirmDialog.title}
+                description={confirmDialog.description}
+                actionLabel={confirmDialog.actionLabel}
+                variant={confirmDialog.variant}
+                onConfirm={confirmDialog.onConfirm}
+            />
         </DashboardLayout>
     );
 }

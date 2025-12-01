@@ -10,7 +10,7 @@ final class ArchiveWritingsAction
 {
     public function run(array $ids, int $teacher_id): bool
     {
-        return Writing::query()
+        return (bool) Writing::query()
             ->where('teacher_id', '=', $teacher_id)
             ->whereIn('id', $ids)
             ->delete();
