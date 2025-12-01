@@ -178,9 +178,16 @@ export default function Writings({ writings }: WritingsProps) {
         {
             accessorKey: 'allocated_time',
             header: 'Time Limit',
-            cell: ({ row }) => (
-                <div>{row.original.allocated_time.split(':').reduce((acc, curr) => acc + parseInt(curr), 0)} minutes</div>
-            ),
+            cell: ({ row }) => {
+                const time = row.original.allocated_time;
+                if (!time) return 'No limit';
+                const [hours, minutes, seconds] = time.split(':').map(Number);
+                if (hours === 0 && minutes === 0) return <div>{seconds}s</div>;
+                if (hours === 0 && seconds === 0) return <div>{minutes}m</div>;
+                if (minutes === 0 && seconds === 0) return <div>{hours}h</div>;
+                if (minutes === 0) return <div>{hours}h {seconds}s</div>;
+                return <div>{hours}h {minutes}m {seconds}s</div>;
+            }
         },
         {
             accessorKey: 'submissions_count',
