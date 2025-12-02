@@ -2,13 +2,25 @@ import { Head, Link, router } from '@inertiajs/react';
 import DashboardLayout from '@/Layouts/DashboardLayout';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent } from '@/components/ui/card';
-import { ArrowLeft, Trash2, Calendar, Clock, RotateCcw, Archive } from 'lucide-react';
+import { ArrowLeft, Trash2, Calendar, RotateCcw, Archive } from 'lucide-react';
 import { BlockNoteView } from '@blocknote/mantine';
 import { useCreateBlockNote } from '@blocknote/react';
 import "@blocknote/mantine/style.css";
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { useState } from 'react';
+import { format } from 'date-fns';
+import { Separator } from '@/components/ui/separator';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { calculateTime } from '@/utils';
+
+interface Submission {
+    id: number;
+    student_id: number;
+    student: {
+        name: string;
+        avatar: string;
+    };
+}
 
 interface Writing {
     id: number;
@@ -19,7 +31,7 @@ interface Writing {
     deleted_at: string | null;
     created_at: string;
     updated_at: string;
-    submissions_count?: number;
+    submissions: Submission[];
     status: string;
 }
 
@@ -44,7 +56,7 @@ export default function Show({ writing }: ShowProps) {
         description: '',
         actionLabel: '',
         variant: 'default',
-        onConfirm: () => {},
+        onConfirm: () => { },
     });
 
     const handleArchive = () => {
@@ -90,14 +102,6 @@ export default function Show({ writing }: ShowProps) {
         initialContent: writing.content ? (Array.isArray(writing.content) ? writing.content : JSON.parse(writing.content as string)) : undefined,
     });
 
-    // Helper to format date
-    const formatDate = (dateString: string) => {
-        return new Date(dateString).toLocaleDateString('en-GB', {
-            day: 'numeric',
-            month: 'short',
-            year: 'numeric'
-        });
-    };
 
     return (
         <DashboardLayout title="Writing Details">
@@ -139,40 +143,71 @@ export default function Show({ writing }: ShowProps) {
                 </div>
 
                 {/* Main Content Card */}
-                <div className="bg-background border rounded-xl shadow-sm p-8 md:p-12 min-h-[600px]">
+                <div>
                     {/* Meta Info */}
-                    <div className="flex flex-wrap items-center gap-x-8 gap-y-4 text-sm text-muted-foreground mb-12">
-                        <div className="flex items-center gap-2">
-                            <span className="font-medium text-foreground">Status:</span>
-                            <Badge variant="outline" className="font-normal">
-                                {isArchived ? 'Archived' : 'Active'}
-                            </Badge>
+                    <div className="grid gap-6 mb-8">
+                        <div className="flex flex-wrap items-center gap-6">
+                            <div className="flex items-center gap-2">
+                                <span className="text-sm font-medium text-muted-foreground">Status:</span>
+                                <Badge
+                                    variant={isArchived ? "secondary" : "outline"}
+                                    className={`px-2.5 py-0.5 text-sm font-normal ${!isArchived ? "border-green-200 bg-green-50 text-green-700 dark:border-green-900 dark:bg-green-900/20 dark:text-green-400" : ""
+                                        }`}
+                                >
+                                    {isArchived ? 'Archived' : 'Active'}
+                                </Badge>
+                            </div>
+
+                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                <Calendar className="h-4 w-4" />
+                                <span>{format(new Date(writing.created_at), 'dd MMM yyyy')}</span>
+                            </div>
                         </div>
 
-                        <div className="flex items-center gap-2">
-                            <Calendar className="h-4 w-4" />
-                            <span>{formatDate(writing.created_at)}</span>
+                        <div className="space-y-2">
+                            <span className="text-sm font-medium text-muted-foreground">Allocated Time</span>
+                            <div className="flex flex-wrap gap-2 mt-2">
+                                <span className="inline-flex items-center rounded-full border bg-muted/60 px-3 py-1 text-xs font-medium text-muted-foreground">
+                                    {calculateTime(writing.allocated_time)}
+                                </span>
+                            </div>
                         </div>
 
-                        <div className="flex items-center gap-2">
-                            <Clock className="h-4 w-4" />
-                            <span>Allocated Time: <span className="text-foreground font-medium">{writing.allocated_time || 'No limit'} minutes</span></span>
-                        </div>
+                        {writing.submissions && writing.submissions.length > 0 && (
+                            <div className="space-y-2">
+                                <span className="text-sm font-medium text-muted-foreground">Submissions</span>
+                                <div className="flex flex-wrap gap-3 mt-2">
+                                    {writing.submissions.map((submission) => (
+                                        <div
+                                            key={submission.id}
+                                            className="flex items-center gap-2 rounded-full border bg-background px-3 py-1.5"
+                                        >
+                                            <Avatar className="size-7">
+                                                <AvatarImage src={submission.student.avatar} alt={submission.student.name} />
+                                                <AvatarFallback className="text-[10px]">
+                                                    {submission.student.name.charAt(0).toUpperCase()}
+                                                </AvatarFallback>
+                                            </Avatar>
+                                            <span className="text-xs font-medium">{submission.student.name}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                    </div>
 
-                        <div className="flex items-center gap-2">
-                            <RotateCcw className="h-4 w-4" />
-                            <span>Submissions: <span className="text-foreground font-medium">{writing.submissions_count || 0}</span></span>
-                        </div>
+                    <div className='w-20 mx-auto py-8'>
+                        <Separator />
                     </div>
 
                     {/* Title & Content */}
                     <div className="space-y-6">
                         <h1 className="text-3xl font-bold tracking-tight">
-                            Writing task: {writing.title}
+                            {writing.title}
                         </h1>
 
                         <div className="prose prose-stone dark:prose-invert max-w-none">
-                             <div className="[&_.bn-editor]:pl-0 [&_.bn-block-group]:ml-0 pointer-events-none">
+                            <div className="[&_.bn-editor]:pl-0 [&_.bn-block-group]:ml-0 pointer-events-none writing-details">
                                 <BlockNoteView
                                     editor={editor}
                                     theme="light"

@@ -1,4 +1,4 @@
-@import 'tailwindcss';
+@import "tailwindcss";
 @import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
@@ -11,8 +11,9 @@
 @source '../**/*.ts';
 
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-sans: "Instrument Sans", ui-sans-serif, system-ui, sans-serif,
+        "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol",
+        "Noto Color Emoji";
 }
 
 @theme inline {
@@ -123,29 +124,29 @@
 }
 
 @layer base {
-  * {
-    @apply border-border outline-ring/50;
+    * {
+        @apply border-border outline-ring/50;
     }
-  body {
-    @apply bg-background text-foreground;
+    body {
+        @apply bg-background text-foreground;
     }
 }
 
 /* TipTap Placeholder */
 .tiptap p.is-editor-empty:first-child::before {
-  color: var(--muted-foreground);
-  content: attr(data-placeholder);
-  float: left;
-  height: 0;
-  pointer-events: none;
+    color: var(--muted-foreground);
+    content: attr(data-placeholder);
+    float: left;
+    height: 0;
+    pointer-events: none;
 }
 
 .tiptap h1.is-empty::before {
-  color: var(--muted-foreground);
-  content: attr(data-placeholder);
-  float: left;
-  height: 0;
-  pointer-events: none;
+    color: var(--muted-foreground);
+    content: attr(data-placeholder);
+    float: left;
+    height: 0;
+    pointer-events: none;
 }
 
 /* TipTap Floating Menu */
@@ -162,13 +163,17 @@
 
 /* TipTap Image */
 .tiptap img {
-  display: block;
-  height: auto;
-  margin: 1.5rem 0;
-  max-width: 100%;
-  border-radius: 0.5rem;
+    display: block;
+    height: auto;
+    margin: 1.5rem 0;
+    max-width: 100%;
+    border-radius: 0.5rem;
 }
 
 .tiptap img.ProseMirror-selectednode {
-  outline: 3px solid var(--primary);
+    outline: 3px solid var(--primary);
+}
+
+.writing-details .ProseMirror  {
+    padding: 0 !important;
 }
