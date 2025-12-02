@@ -39,6 +39,30 @@ interface ShowProps {
     writing: Writing;
 }
 
+const sampleSubmissions = [
+    {
+        id: 1,
+        student: {
+            name: 'John Doe',
+            avatar: 'https://github.com/shadcn.png',
+        },
+    },
+    {
+        id: 2,
+        student: {
+            name: 'Jane Doe',
+            avatar: 'https://github.com/shadcn.png',
+        },
+    },
+    {
+        id: 3,
+        student: {
+            name: 'Jim Beam',
+            avatar: 'https://github.com/shadcn.png',
+        },
+    },
+];
+
 export default function Show({ writing }: ShowProps) {
     const isArchived = writing.deleted_at !== null;
 
@@ -148,10 +172,10 @@ export default function Show({ writing }: ShowProps) {
                     <div className="grid gap-6 mb-8">
                         <div className="flex flex-wrap items-center gap-6">
                             <div className="flex items-center gap-2">
-                                <span className="text-sm font-medium text-muted-foreground">Status:</span>
+                                <span className="text-sm text-muted-foreground">Status:</span>
                                 <Badge
                                     variant={isArchived ? "secondary" : "outline"}
-                                    className={`px-2.5 py-0.5 text-sm font-normal ${!isArchived ? "border-green-200 bg-green-50 text-green-700 dark:border-green-900 dark:bg-green-900/20 dark:text-green-400" : ""
+                                    className={`px-2.5 py-0.5 rounded-lg text-sm font-normal ${!isArchived ? "border-green-200 bg-green-50 text-green-700 dark:border-green-900 dark:bg-green-900/20 dark:text-green-400" : ""
                                         }`}
                                 >
                                     {isArchived ? 'Archived' : 'Active'}
@@ -165,30 +189,33 @@ export default function Show({ writing }: ShowProps) {
                         </div>
 
                         <div className="space-y-2">
-                            <span className="text-sm font-medium text-muted-foreground">Allocated Time</span>
+                            <span className="text-sm text-muted-foreground">Allocated Time</span>
                             <div className="flex flex-wrap gap-2 mt-2">
-                                <span className="inline-flex items-center rounded-full border bg-muted/60 px-3 py-1 text-xs font-medium text-muted-foreground">
+                                <span className="inline-flex items-center rounded-lg border bg-card p-2 text-xs font-medium text-muted-foreground">
                                     {calculateTime(writing.allocated_time)}
                                 </span>
                             </div>
                         </div>
 
-                        {writing.submissions && writing.submissions.length > 0 && (
+                        {sampleSubmissions && sampleSubmissions.length > 0 && (
                             <div className="space-y-2">
-                                <span className="text-sm font-medium text-muted-foreground">Submissions</span>
+                                <span className="text-sm text-muted-foreground">Submissions</span>
                                 <div className="flex flex-wrap gap-3 mt-2">
-                                    {writing.submissions.map((submission) => (
+                                    {sampleSubmissions.map((submission) => (
                                         <div
                                             key={submission.id}
-                                            className="flex items-center gap-2 rounded-full border bg-background px-3 py-1.5"
+                                            className="flex items-center gap-2 rounded-lg border bg-card p-2"
                                         >
-                                            <Avatar className="size-7">
-                                                <AvatarImage src={submission.student.avatar} alt={submission.student.name} />
-                                                <AvatarFallback className="text-[10px]">
+                                            <Avatar className="size-6">
+                                                <AvatarImage
+                                                    alt={submission.student.name}
+                                                    src={submission.student.avatar}
+                                                />
+                                                <AvatarFallback>
                                                     {submission.student.name.charAt(0).toUpperCase()}
                                                 </AvatarFallback>
                                             </Avatar>
-                                            <span className="text-xs font-medium">{submission.student.name}</span>
+                                            <span className="text-sm">{submission.student.name}</span>
                                         </div>
                                     ))}
                                 </div>
