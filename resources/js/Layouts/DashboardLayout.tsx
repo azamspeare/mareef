@@ -4,6 +4,7 @@ import {
   SidebarInset,
   SidebarProvider,
 } from "@/components/ui/sidebar"
+import { Toaster } from "@/components/ui/sonner"
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -27,6 +28,7 @@ export default function DashboardLayout({ children, title = "Dashboard" }: Dashb
           {children}
         </div>
       </SidebarInset>
+      <Toaster />
     </SidebarProvider>
   )
 }

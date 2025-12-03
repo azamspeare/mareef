@@ -9,6 +9,7 @@ use App\Http\Controllers\Dashboard\Writing\WritingBulkController;
 use App\Http\Controllers\Dashboard\Writing\WritingController;
 use App\Http\Controllers\Dashboard\Writing\SubmissionController;
 use App\Http\Controllers\Landing\LandingController;
+use App\Http\Controllers\Landing\WritingController as StudentWritingController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -65,7 +66,8 @@ Route::domain('app.' . config('app.domain'))->group(function () {
 });
 
 Route::get('/', LandingController::class);
+Route::get('/{handle}/writing/{slug}', [StudentWritingController::class, 'create'])->name('writing.task');
 
-Route::get('/editors/test', function () {
-    return inertia('Editors/Test');
+Route::get('/writing-task-demo', function () {
+    return inertia('WritingTask');
 });

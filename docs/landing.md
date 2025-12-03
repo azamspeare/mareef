@@ -34,6 +34,10 @@ The landing page should draw inspiration from the following designs:
 1. https://claude-code-dev.netlify.app/
 2. https://neural-flow.netlify.app/
 3. https://plasma-nextjs-template.vercel.app/
+4. https://canvas-dev-0.netlify.app/
+5. https://athel-dev.netlify.app/
+6. https://prismadev.netlify.app/
+
 
 **Desired style qualities:**
 

@@ -1,0 +1,173 @@
+import { useState, useEffect } from "react";
+import { Head } from "@inertiajs/react";
+import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/ThemeToggle";
+import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
+import { BlockNoteView } from '@blocknote/mantine';
+import { useCreateBlockNote } from '@blocknote/react';
+import "@blocknote/mantine/style.css";
+import { Clock } from "lucide-react";
+import { calculateTime } from "@/utils";
+
+interface Writing {
+    id: number;
+    title: string;
+    content: any;
+    allocated_time: string;
+    slug: string;
+}
+
+interface WritingTaskProps {
+    writing: Writing;
+}
+
+export default function WritingTask({ writing }: WritingTaskProps) {
+    // Convert allocated_time (HH:MM:SS) to minutes
+    const [hours, minutes] = writing.allocated_time.split(':').map(Number);
+    const totalMinutes = (hours * 60) + minutes;
+
+    const [timeLeft, setTimeLeft] = useState(totalMinutes);
+    const [wordCount, setWordCount] = useState(0);
+
+    // Create read-only editor for task content
+    const taskEditor = useCreateBlockNote({
+        initialContent: writing.content ? (Array.isArray(writing.content) ? writing.content : JSON.parse(writing.content as string)) : undefined,
+    });
+
+    // Create plain text editor for student writing (no formatting)
+    const writingEditor = useCreateBlockNote({
+        initialContent: [
+            {
+                type: "paragraph",
+                content: "",
+            },
+        ],
+        domAttributes: {
+            editor: {
+                class: "bn-editor-plain",
+                onPaste: (event: ClipboardEvent) => {
+                    event.preventDefault();
+                    const text = event.clipboardData?.getData('text/plain');
+                    if (text) {
+                        document.execCommand('insertText', false, text);
+                    }
+                },
+            },
+        },
+    });
+
+    // Timer countdown
+    useEffect(() => {
+        if (timeLeft <= 0) return;
+
+        const timer = setInterval(() => {
+            setTimeLeft((prev) => {
+                if (prev <= 1) {
+                    clearInterval(timer);
+                    return 0;
+                }
+                return prev - 1;
+            });
+        }, 60000); // Decrease every minute
+
+        return () => clearInterval(timer);
+    }, [timeLeft]);
+
+    const handleEditorChange = () => {
+        let text = "";
+        writingEditor.document.forEach((block) => {
+            if (block.content) {
+                if (Array.isArray(block.content)) {
+                    block.content.forEach((span: any) => {
+                        if (span.text) {
+                            text += span.text + " ";
+                        }
+                    });
+                } else if (typeof block.content === "string") {
+                     text += block.content + " ";
+                }
+            }
+        });
+
+        // Simple word count
+        const words = text.trim().split(/\s+/).filter(word => word.length > 0);
+        setWordCount(words.length);
+    };
+
+    return (
+        <div className="h-screen flex flex-col bg-background text-foreground overflow-hidden">
+            <Head title="Writing Task" />
+
+            {/* Navbar */}
+            <header className="flex items-center justify-between px-6 py-3 border-b border-border bg-card">
+                <div className="flex items-center">
+                    <h1 className="text-xl font-bold tracking-tight">Writing Task</h1>
+                </div>
+                <div className="flex items-center gap-4">
+                    <div className={`flex items-center gap-2 px-3 py-1.5 rounded-md font-medium text-sm ${
+                        timeLeft <= 5 ? 'bg-destructive/20 text-destructive' : 'bg-muted'
+                    }`}>
+                        <Clock className="w-4 h-4" />
+                        <span>{timeLeft} minute{timeLeft !== 1 ? 's' : ''} left</span>
+                    </div>
+                    <ThemeToggle />
+                    <Button variant="default">
+                        Finish
+                    </Button>
+                </div>
+            </header>
+
+            {/* Main Content - Split Pane */}
+            <div className="flex-1 overflow-hidden">
+                <ResizablePanelGroup direction="horizontal">
+                    {/* Left Panel - Task Content */}
+                    <ResizablePanel
+                        defaultSize={50}
+                        minSize={20}
+                        maxSize={50}
+                        className="bg-muted/30"
+                    >
+                        <div className="h-full overflow-y-auto p-8">
+                            <div className="max-w-3xl mx-auto">
+                                <h1 className="text-3xl font-semibold tracking-tight mb-6">
+                                    {writing.title}
+                                </h1>
+
+                                <div className="prose prose-stone dark:prose-invert max-w-none [&_.bn-container]:bg-transparent [&_.bn-editor]:p-0 [&_.bn-editor]:bg-transparent">
+                                    <BlockNoteView
+                                        editor={taskEditor}
+                                        theme="light"
+                                        editable={false}
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    </ResizablePanel>
+
+                    <ResizableHandle withHandle />
+
+                    {/* Right Panel - Editor */}
+                    <ResizablePanel defaultSize={50} minSize={30}>
+                        <div className="h-full flex flex-col p-8">
+                            <div className="flex-1 overflow-y-auto">
+                                <div className="[&_.bn-editor]:pl-0 [&_.bn-block-group]:ml-0">
+                                    <BlockNoteView
+                                        editor={writingEditor}
+                                        theme="light"
+                                        slashMenu={false}
+                                        sideMenu={false}
+                                        formattingToolbar={false}
+                                        onChange={handleEditorChange}
+                                    />
+                                </div>
+                            </div>
+                            <div className="mt-4 text-right text-sm text-muted-foreground">
+                                Words: {wordCount}
+                            </div>
+                        </div>
+                    </ResizablePanel>
+                </ResizablePanelGroup>
+            </div>
+        </div>
+    );
+}
