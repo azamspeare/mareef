@@ -25,6 +25,7 @@ import {
 } from "@blocknote/react";
 import { ArrowLeft } from "lucide-react";
 import { PublishModal } from "./PublishModal";
+import { useTheme } from "next-themes";
 
 export default function CreateWritingForm() {
     const { data, setData, post, processing, transform } = useForm({
@@ -33,6 +34,7 @@ export default function CreateWritingForm() {
         allocated_time: null as string | null,
     });
 
+    const theme = useTheme();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const titleRef = useRef<HTMLTextAreaElement | null>(null);
 
@@ -145,7 +147,7 @@ export default function CreateWritingForm() {
                     <div className="mt-6 [&_.bn-editor]:pl-0 [&_.bn-block-group]:ml-0 lg:-ml-12">
                         <BlockNoteView
                             editor={editor}
-                            theme="light"
+                            theme={theme.theme === "dark" ? "dark" : "light"}
                             slashMenu={false}
                             sideMenu={false}
                             formattingToolbar={false}

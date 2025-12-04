@@ -7,8 +7,7 @@ import { BlockNoteView } from '@blocknote/mantine';
 import { useCreateBlockNote } from '@blocknote/react';
 import "@blocknote/mantine/style.css";
 import { Clock } from "lucide-react";
-import { calculateTime } from "@/utils";
-
+import { useTheme } from "next-themes";
 interface Writing {
     id: number;
     title: string;
@@ -29,6 +28,8 @@ export default function WritingTask({ writing }: WritingTaskProps) {
     const [timeLeft, setTimeLeft] = useState(totalMinutes);
     const [wordCount, setWordCount] = useState(0);
 
+    const { theme } = useTheme();
+
     // Create read-only editor for task content
     const taskEditor = useCreateBlockNote({
         initialContent: writing.content ? (Array.isArray(writing.content) ? writing.content : JSON.parse(writing.content as string)) : undefined,
@@ -45,16 +46,26 @@ export default function WritingTask({ writing }: WritingTaskProps) {
         domAttributes: {
             editor: {
                 class: "bn-editor-plain",
-                onPaste: (event: ClipboardEvent) => {
-                    event.preventDefault();
-                    const text = event.clipboardData?.getData('text/plain');
-                    if (text) {
-                        document.execCommand('insertText', false, text);
-                    }
-                },
             },
         },
     });
+
+    // Force paste as plain text inside the writing editor
+    useEffect(() => {
+        const editorElement = document.querySelector(".bn-editor-plain") as HTMLElement | null;
+        if (!editorElement) return;
+
+        const handlePaste = (event: ClipboardEvent) => {
+            event.preventDefault();
+            const text = event.clipboardData?.getData("text/plain");
+            if (text) {
+                document.execCommand("insertText", false, text);
+            }
+        };
+
+        editorElement.addEventListener("paste", handlePaste as any);
+        return () => editorElement.removeEventListener("paste", handlePaste as any);
+    }, [writingEditor]);
 
     // Timer countdown
     useEffect(() => {
@@ -75,7 +86,7 @@ export default function WritingTask({ writing }: WritingTaskProps) {
 
     const handleEditorChange = () => {
         let text = "";
-        writingEditor.document.forEach((block) => {
+        writingEditor.document.forEach((block: any) => {
             if (block.content) {
                 if (Array.isArray(block.content)) {
                     block.content.forEach((span: any) => {
@@ -84,7 +95,7 @@ export default function WritingTask({ writing }: WritingTaskProps) {
                         }
                     });
                 } else if (typeof block.content === "string") {
-                     text += block.content + " ";
+                    text += block.content + " ";
                 }
             }
         });
@@ -104,9 +115,8 @@ export default function WritingTask({ writing }: WritingTaskProps) {
                     <h1 className="text-xl font-bold tracking-tight">Writing Task</h1>
                 </div>
                 <div className="flex items-center gap-4">
-                    <div className={`flex items-center gap-2 px-3 py-1.5 rounded-md font-medium text-sm ${
-                        timeLeft <= 5 ? 'bg-destructive/20 text-destructive' : 'bg-muted'
-                    }`}>
+                    <div className={`flex items-center gap-2 px-3 py-1.5 rounded-md font-medium text-sm ${timeLeft <= 5 ? 'bg-destructive/20 text-destructive' : 'bg-muted'
+                        }`}>
                         <Clock className="w-4 h-4" />
                         <span>{timeLeft} minute{timeLeft !== 1 ? 's' : ''} left</span>
                     </div>
@@ -133,10 +143,10 @@ export default function WritingTask({ writing }: WritingTaskProps) {
                                     {writing.title}
                                 </h1>
 
-                                <div className="prose prose-stone dark:prose-invert max-w-none [&_.bn-container]:bg-transparent [&_.bn-editor]:p-0 [&_.bn-editor]:bg-transparent">
+                                <div className="prose prose-stone dark:prose-invert max-w-none [&_.bn-container]:bg-transparent [&_.bn-editor]:p-0 [&_.bn-editor]:bg-transparent writing-details">
                                     <BlockNoteView
                                         editor={taskEditor}
-                                        theme="light"
+                                        theme={theme === "dark" ? "dark" : "light"}
                                         editable={false}
                                     />
                                 </div>
@@ -148,12 +158,12 @@ export default function WritingTask({ writing }: WritingTaskProps) {
 
                     {/* Right Panel - Editor */}
                     <ResizablePanel defaultSize={50} minSize={30}>
-                        <div className="h-full flex flex-col p-8">
+                        <div className="h-full flex flex-col px-8 pt-8">
                             <div className="flex-1 overflow-y-auto">
-                                <div className="[&_.bn-editor]:pl-0 [&_.bn-block-group]:ml-0">
+                                <div className="[&_.bn-editor]:pl-0 [&_.bn-block-group]:ml-0 writing-details">
                                     <BlockNoteView
                                         editor={writingEditor}
-                                        theme="light"
+                                        theme={theme === "dark" ? "dark" : "light"}
                                         slashMenu={false}
                                         sideMenu={false}
                                         formattingToolbar={false}
@@ -161,7 +171,7 @@ export default function WritingTask({ writing }: WritingTaskProps) {
                                     />
                                 </div>
                             </div>
-                            <div className="mt-4 text-right text-sm text-muted-foreground">
+                            <div className="my-4 text-right text-sm text-muted-foreground">
                                 Words: {wordCount}
                             </div>
                         </div>

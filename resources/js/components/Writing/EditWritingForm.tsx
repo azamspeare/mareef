@@ -25,6 +25,7 @@ import {
 } from "@blocknote/react";
 import { ArrowLeft } from "lucide-react";
 import { PublishModal } from "./PublishModal";
+import { useTheme } from "next-themes";
 
 interface Writing {
     id: number;
@@ -46,7 +47,7 @@ export default function EditWritingForm({ writing }: EditWritingFormProps) {
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const titleRef = useRef<HTMLTextAreaElement | null>(null);
-
+    const theme = useTheme();
     // Uploads a file to tmpfiles.org and returns the URL to the uploaded file.
     async function uploadFile(file: File) {
         const body = new FormData();
@@ -137,7 +138,7 @@ export default function EditWritingForm({ writing }: EditWritingFormProps) {
                     <div className="mt-6 [&_.bn-editor]:pl-0 [&_.bn-block-group]:ml-0 lg:-ml-12">
                         <BlockNoteView
                             editor={editor}
-                            theme="light"
+                            theme={theme.theme === "dark" ? "dark" : "light"}
                             slashMenu={false}
                             sideMenu={false}
                             formattingToolbar={false}

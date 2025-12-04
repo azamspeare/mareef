@@ -174,6 +174,10 @@
     outline: 3px solid var(--primary);
 }
 
-.writing-details .ProseMirror  {
+.writing-details .ProseMirror {
     padding: 0 !important;
+}
+
+.writing-details .bn-editor {
+    background-color: transparent !important;
 }

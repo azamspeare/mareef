@@ -14,6 +14,7 @@ import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { calculateTime } from '@/utils';
+import { useTheme } from 'next-themes';
 
 interface Submission {
     id: number;
@@ -69,7 +70,7 @@ const sampleSubmissions = [
 export default function Show({ writing }: ShowProps) {
     const { auth } = usePage().props as any;
     const isArchived = writing.deleted_at !== null;
-
+    const theme = useTheme();
     const handleShare = async () => {
         // Get the main domain without subdomain (mareff.test instead of app.mareff.test)
         const hostname = window.location.hostname;
@@ -298,7 +299,7 @@ export default function Show({ writing }: ShowProps) {
                             <div className="[&_.bn-editor]:pl-0 [&_.bn-block-group]:ml-0 pointer-events-none writing-details">
                                 <BlockNoteView
                                     editor={editor}
-                                    theme="light"
+                                    theme={theme.theme === "dark" ? "dark" : "light"}
                                     editable={false}
                                 />
                             </div>
