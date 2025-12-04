@@ -76,3 +76,10 @@ Route::prefix('student/auth')->name('student.')->group(function () {
 
 // Writing task route - authentication checked in the frontend
 Route::get('/{handle}/writing/{slug}', [StudentWritingController::class, 'create'])->name('writing.task');
+
+// Submission routes - require authentication
+Route::middleware(['auth', 'is_role:' . RoleEnum::STUDENT->value])->group(function () {
+    Route::post('/submissions/start', [StudentWritingController::class, 'start'])->name('submissions.start');
+    Route::post('/submissions/save', [StudentWritingController::class, 'store'])->name('submissions.save');
+    Route::post('/submissions/finish', [StudentWritingController::class, 'finish'])->name('submissions.finish');
+});

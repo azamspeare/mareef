@@ -24,6 +24,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property-read string $spent_time
  * @property-read CarbonInterface $submitted_at
  * @property-read CarbonInterface|null $evaluated_at
+ * @property-read string $status
  * @property-read CarbonInterface $created_at
  * @property-read CarbonInterface $updated_at
  *
@@ -45,6 +46,7 @@ final class WritingSubmission extends Model
         'spent_time',
         'submitted_at',
         'evaluated_at',
+        'status',
     ];
 
     protected function casts(): array

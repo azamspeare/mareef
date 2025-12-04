@@ -1,5 +1,6 @@
 <?php
 
+use App\Contracts\Enums\SubmissionProcessEnum;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -32,6 +33,7 @@ return new class extends Migration
             $table->time('spent_time');
             $table->timestamp('submitted_at');
             $table->timestamp('evaluated_at')->nullable();
+            $table->string('status')->default(SubmissionProcessEnum::IN_PROGRESS->value);
             $table->timestamps();
 
             $table->unique(['writing_id', 'student_id']);

@@ -24,24 +24,56 @@ interface Writing {
     slug: string;
 }
 
-interface WritingTaskProps {
-    writing: Writing;
+interface Submission {
+    id: number;
+    writing_id: number;
+    student_id: number;
+    content: any;
+    spent_time: string;
+    submitted_at: string;
+    status: 'in_progress' | 'completed' | 'failed';
+    created_at: string;
+    updated_at: string;
 }
 
-export default function WritingTask({ writing }: WritingTaskProps) {
+interface WritingTaskProps {
+    writing: Writing;
+    submission: Submission | null;
+}
+
+export default function WritingTask({ writing, submission }: WritingTaskProps) {
     const { props } = usePage<{
         auth?: { user?: any };
         flash?: { success?: string; error?: string; message?: string }
     }>();
     const isAuthenticated = !!props.auth?.user;
 
-    // Convert allocated_time (HH:MM:SS) to minutes
-    const [hours, minutes] = writing.allocated_time.split(':').map(Number);
-    const totalMinutes = (hours * 60) + minutes;
+    // Calculate time remaining based on submission or use full allocated time
+    const calculateInitialTime = () => {
+        const [hours, minutes] = writing.allocated_time.split(':').map(Number);
+        const totalMinutes = (hours * 60) + minutes;
 
-    const [timeLeft, setTimeLeft] = useState(totalMinutes);
+        if (submission && submission.status === 'in_progress') {
+            // Calculate time elapsed since submission was created
+            const createdAt = new Date(submission.created_at).getTime();
+            const now = Date.now();
+            const elapsedMinutes = Math.floor((now - createdAt) / 1000 / 60);
+            const remainingMinutes = totalMinutes - elapsedMinutes;
+
+            return Math.max(0, remainingMinutes);
+        }
+
+        return totalMinutes;
+    };
+
+    const hasStarted = !!submission;
+    const isCompleted = submission?.status === 'completed';
+    const isInProgress = submission?.status === 'in_progress';
+
+    const [timeLeft, setTimeLeft] = useState(calculateInitialTime());
     const [wordCount, setWordCount] = useState(0);
     const [isLoginDrawerOpen, setIsLoginDrawerOpen] = useState(!isAuthenticated);
+    const [isSaving, setIsSaving] = useState(false);
 
     const { theme } = useTheme();
 
@@ -71,19 +103,47 @@ export default function WritingTask({ writing }: WritingTaskProps) {
     });
 
     // Create plain text editor for student writing (no formatting)
+    // Load existing submission content if available
     const writingEditor = useCreateBlockNote({
-        initialContent: [
-            {
-                type: "paragraph",
-                content: "",
-            },
-        ],
+        initialContent: submission?.content && Array.isArray(submission.content) && submission.content.length > 0
+            ? submission.content
+            : [
+                {
+                    type: "paragraph",
+                    content: "",
+                },
+            ],
         domAttributes: {
             editor: {
                 class: "bn-editor-plain",
             },
         },
     });
+
+    // Update editor content when submission changes
+    useEffect(() => {
+        if (!submission?.content) return;
+
+        try {
+            let content = submission.content;
+
+            // If content is a string, parse it
+            if (typeof content === 'string') {
+                content = JSON.parse(content);
+            }
+
+            // Ensure it's an array
+            if (!Array.isArray(content)) return;
+
+            // Replace editor blocks with submission content
+            writingEditor.replaceBlocks(writingEditor.document, content);
+
+            // Recalculate word count
+            handleEditorChange();
+        } catch (error) {
+            console.error('Error loading submission content:', error);
+        }
+    }, [submission?.id, submission?.status, writingEditor]);
 
     // Force paste as plain text inside the writing editor
     useEffect(() => {
@@ -140,6 +200,57 @@ export default function WritingTask({ writing }: WritingTaskProps) {
         setWordCount(words.length);
     };
 
+    // Start the task
+    const handleStart = () => {
+        router.post(route('submissions.start'), {
+            writing_id: writing.id,
+        });
+    };
+
+    // Finish the task
+    const handleFinish = () => {
+        if (timeLeft <= 0 || !isInProgress) return;
+
+        const [allocHours, allocMinutes] = writing.allocated_time.split(':').map(Number);
+        const totalMinutes = (allocHours * 60) + allocMinutes;
+        const spentMinutes = totalMinutes - timeLeft;
+        const spentHours = Math.floor(spentMinutes / 60);
+        const spentMins = spentMinutes % 60;
+        const spentTime = `${String(spentHours).padStart(2, '0')}:${String(spentMins).padStart(2, '0')}:00`;
+
+        router.post(route('submissions.finish'), {
+            writing_id: writing.id,
+            content: JSON.stringify(writingEditor.document),
+            spent_time: spentTime,
+        });
+    };
+
+    // Auto-save functionality
+    useEffect(() => {
+        if (!isInProgress) return;
+
+        const autoSaveInterval = setInterval(() => {
+            setIsSaving(true);
+            router.post(route('submissions.save'), {
+                writing_id: writing.id,
+                content: JSON.stringify(writingEditor.document),
+            }, {
+                preserveScroll: true,
+                onFinish: () => setIsSaving(false),
+            });
+        }, 30000); // Auto-save every 30 seconds
+
+        return () => clearInterval(autoSaveInterval);
+    }, [isInProgress, writingEditor]);
+
+    // Auto-submit when time runs out
+    useEffect(() => {
+        if (timeLeft <= 0 && isInProgress) {
+            toast.error("Time's up! Submitting your work automatically.");
+            handleFinish();
+        }
+    }, [timeLeft, isInProgress]);
+
     return (
         <div className="h-screen flex flex-col bg-background text-foreground overflow-hidden">
             <Head title="Writing Task" />
@@ -150,15 +261,32 @@ export default function WritingTask({ writing }: WritingTaskProps) {
                     <h1 className="text-xl font-bold tracking-tight">Writing Task</h1>
                 </div>
                 <div className="flex items-center gap-4">
-                    <div className={`flex items-center gap-2 px-3 py-1.5 rounded-md font-medium text-sm ${timeLeft <= 5 ? 'bg-destructive/20 text-destructive' : 'bg-muted'
-                        }`}>
-                        <Clock className="w-4 h-4" />
-                        <span>{timeLeft} minute{timeLeft !== 1 ? 's' : ''} left</span>
-                    </div>
+                    {isSaving && (
+                        <span className="text-sm text-muted-foreground">Saving...</span>
+                    )}
+                    {hasStarted && (
+                        <div className={`flex items-center gap-2 px-3 py-1.5 rounded-md font-medium text-sm ${timeLeft <= 5 ? 'bg-destructive/20 text-destructive' : 'bg-muted'
+                            }`}>
+                            <Clock className="w-4 h-4" />
+                            <span>{timeLeft} minute{timeLeft !== 1 ? 's' : ''} left</span>
+                        </div>
+                    )}
                     <ThemeToggle />
-                    <Button variant="default">
-                        Finish
-                    </Button>
+                    {!hasStarted && isAuthenticated && (
+                        <Button variant="default" onClick={handleStart}>
+                            Start
+                        </Button>
+                    )}
+                    {isInProgress && (
+                        <Button variant="default" onClick={handleFinish} disabled={timeLeft <= 0}>
+                            Finish
+                        </Button>
+                    )}
+                    {isCompleted && (
+                        <Button variant="outline" disabled>
+                            Completed
+                        </Button>
+                    )}
                 </div>
             </header>
 
@@ -195,16 +323,25 @@ export default function WritingTask({ writing }: WritingTaskProps) {
                     <ResizablePanel defaultSize={50} minSize={30}>
                         <div className="h-full flex flex-col px-8 pt-8">
                             <div className="flex-1 overflow-y-auto">
-                                <div className="[&_.bn-editor]:pl-0 [&_.bn-block-group]:ml-0 writing-details">
-                                    <BlockNoteView
-                                        editor={writingEditor}
-                                        theme={theme === "dark" ? "dark" : "light"}
-                                        slashMenu={false}
-                                        sideMenu={false}
-                                        formattingToolbar={false}
-                                        onChange={handleEditorChange}
-                                    />
-                                </div>
+                                {!hasStarted && (
+                                    <div className="flex items-center justify-center h-full text-muted-foreground">
+                                        <p>Click "Start" to begin writing</p>
+                                    </div>
+                                )}
+                                {hasStarted && (
+                                    <div className="[&_.bn-editor]:pl-0 [&_.bn-block-group]:ml-0 writing-details">
+                                        <BlockNoteView
+                                            key={`editor-${submission?.status}-${submission?.id}`}
+                                            editor={writingEditor}
+                                            theme={theme === "dark" ? "dark" : "light"}
+                                            slashMenu={false}
+                                            sideMenu={false}
+                                            formattingToolbar={false}
+                                            editable={isInProgress && timeLeft > 0}
+                                            onChange={handleEditorChange}
+                                        />
+                                    </div>
+                                )}
                             </div>
                             <div className="my-4 text-right text-sm text-muted-foreground">
                                 Words: {wordCount}
