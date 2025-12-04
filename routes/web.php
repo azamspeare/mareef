@@ -2,6 +2,7 @@
 
 use App\Contracts\Enums\RoleEnum;
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Auth\StudentAuthController;
 use App\Http\Controllers\Auth\TeacherAuthController;
 use App\Http\Controllers\Dashboard\DashboardController;
 use App\Http\Controllers\Dashboard\StudentController;
@@ -66,8 +67,12 @@ Route::domain('app.' . config('app.domain'))->group(function () {
 });
 
 Route::get('/', LandingController::class);
-Route::get('/{handle}/writing/{slug}', [StudentWritingController::class, 'create'])->name('writing.task');
 
-Route::get('/writing-task-demo', function () {
-    return inertia('WritingTask');
+// Student auth routes (must be before the writing task route)
+Route::prefix('student/auth')->name('student.')->group(function () {
+    Route::get('google/redirect', [StudentAuthController::class, 'redirect'])->name('google.redirect');
+    Route::get('google/callback', [StudentAuthController::class, 'callback'])->name('google.callback');
 });
+
+// Writing task route - authentication checked in the frontend
+Route::get('/{handle}/writing/{slug}', [StudentWritingController::class, 'create'])->name('writing.task');

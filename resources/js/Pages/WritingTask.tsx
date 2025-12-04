@@ -1,13 +1,21 @@
 import { useState, useEffect } from "react";
-import { Head } from "@inertiajs/react";
+import { Head, usePage, router } from "@inertiajs/react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 import { BlockNoteView } from '@blocknote/mantine';
 import { useCreateBlockNote } from '@blocknote/react';
 import "@blocknote/mantine/style.css";
-import { Clock } from "lucide-react";
+import { Clock, UserCheck, GraduationCap } from "lucide-react";
 import { useTheme } from "next-themes";
+import { toast } from "sonner";
+import {
+    Drawer,
+    DrawerContent,
+    DrawerDescription,
+    DrawerHeader,
+    DrawerTitle,
+} from "@/components/ui/drawer";
 interface Writing {
     id: number;
     title: string;
@@ -21,14 +29,41 @@ interface WritingTaskProps {
 }
 
 export default function WritingTask({ writing }: WritingTaskProps) {
+    const { props } = usePage<{
+        auth?: { user?: any };
+        flash?: { success?: string; error?: string; message?: string }
+    }>();
+    const isAuthenticated = !!props.auth?.user;
+
     // Convert allocated_time (HH:MM:SS) to minutes
     const [hours, minutes] = writing.allocated_time.split(':').map(Number);
     const totalMinutes = (hours * 60) + minutes;
 
     const [timeLeft, setTimeLeft] = useState(totalMinutes);
     const [wordCount, setWordCount] = useState(0);
+    const [isLoginDrawerOpen, setIsLoginDrawerOpen] = useState(!isAuthenticated);
 
     const { theme } = useTheme();
+
+    // Update drawer state when authentication changes
+    useEffect(() => {
+        setIsLoginDrawerOpen(!isAuthenticated);
+    }, [isAuthenticated]);
+
+    // Handle flash messages
+    useEffect(() => {
+        const flash = props.flash;
+
+        if (flash?.success) {
+            toast.success(flash.success);
+        }
+        if (flash?.error) {
+            toast.error(flash.error);
+        }
+        if (flash?.message) {
+            toast.info(flash.message);
+        }
+    }, [props.flash]);
 
     // Create read-only editor for task content
     const taskEditor = useCreateBlockNote({
@@ -178,6 +213,55 @@ export default function WritingTask({ writing }: WritingTaskProps) {
                     </ResizablePanel>
                 </ResizablePanelGroup>
             </div>
+
+            {/* Login/Register Drawer */}
+            <Drawer open={isLoginDrawerOpen} dismissible={false}>
+                <DrawerContent className="max-w-full">
+                    <DrawerHeader className="text-center pb-6">
+                        <div className="flex justify-center mb-4">
+                            <div className="p-4 rounded-full bg-primary/10">
+                                <GraduationCap className="w-10 h-10 text-primary" />
+                            </div>
+                        </div>
+                        <DrawerTitle className="text-2xl mb-2">
+                            Ready to Start Your Writing Test?
+                        </DrawerTitle>
+                        <DrawerDescription className="text-base max-w-md mx-auto">
+                            Please log in to begin your writing task.
+                            This allows us to save your progress, track your performance,
+                            and enable your teacher to provide personalized feedback.
+                        </DrawerDescription>
+                    </DrawerHeader>
+
+                    <div className="px-4 pb-8">
+                        <div className="max-w-sm mx-auto">
+                            <Button
+                                className="w-full"
+                                size="default"
+                                onClick={() => window.location.href = route('student.google.redirect')}
+                            >
+                                <UserCheck className="w-4 h-4 mr-2" />
+                                Log In with Google
+                            </Button>
+                        </div>
+
+                        <div className="mt-6 flex items-center justify-center gap-6 text-sm text-muted-foreground max-w-md mx-auto">
+                            <div className="flex items-center gap-2">
+                                <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                                <span>Track Progress</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+                                <span>Get Feedback</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <div className="w-2 h-2 rounded-full bg-purple-500"></div>
+                                <span>Save Work</span>
+                            </div>
+                        </div>
+                    </div>
+                </DrawerContent>
+            </Drawer>
         </div>
     );
 }
