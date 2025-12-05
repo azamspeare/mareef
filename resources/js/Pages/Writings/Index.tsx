@@ -1,8 +1,16 @@
-import { Head, Link, router } from '@inertiajs/react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
 import DashboardLayout from '@/Layouts/DashboardLayout';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
+import {
+    Empty,
+    EmptyContent,
+    EmptyDescription,
+    EmptyHeader,
+    EmptyMedia,
+    EmptyTitle,
+} from '@/components/ui/empty';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
@@ -22,11 +30,9 @@ import {
     TableRow,
 } from '@/components/ui/table';
 import {
-    IconPlus,
     IconEdit,
     IconTrash,
     IconArchive,
-    IconRestore,
     IconSearch,
     IconDotsVertical,
     IconChevronLeft,
@@ -35,6 +41,7 @@ import {
     IconChevronsRight,
     IconX,
 } from '@tabler/icons-react';
+import { ArchiveRestore, FileText, ArrowUpRightIcon } from 'lucide-react';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -43,17 +50,48 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useState, useEffect } from 'react';
 import { format } from 'date-fns';
+import { toast } from 'sonner';
 import {
     ColumnDef,
     flexRender,
     getCoreRowModel,
-    getPaginationRowModel,
     useReactTable,
 } from '@tanstack/react-table';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
-import { calculateTime } from '@/utils';
+
+// LocalStorage keys for filter persistence
+const STORAGE_KEYS = {
+    TRASHED: 'writings.filter.trashed',
+    SEARCH: 'writings.filter.search',
+    PAGE: 'writings.filter.page',
+    PER_PAGE: 'writings.filter.per_page',
+};
+
+// Helper functions for localStorage
+const getStoredFilter = (key: string, defaultValue: any) => {
+    if (typeof window === 'undefined') return defaultValue;
+    const stored = localStorage.getItem(key);
+    return stored ? JSON.parse(stored) : defaultValue;
+};
+
+const setStoredFilter = (key: string, value: any) => {
+    if (typeof window === 'undefined') return;
+    localStorage.setItem(key, JSON.stringify(value));
+};
+
+// Format time to minutes and seconds
+const formatTime = (timeString: string) => {
+    const [hours, minutes, seconds] = timeString.split(':').map(Number);
+    const totalMinutes = hours * 60 + minutes;
+
+    if (seconds > 0) {
+        return `${totalMinutes}m ${seconds}s`;
+    }
+    return `${totalMinutes}m`;
+};
 
 interface Writing {
     id: number;
@@ -78,16 +116,94 @@ interface WritingsProps {
 }
 
 export default function Writings({ writings }: WritingsProps) {
-    const urlParams = new URLSearchParams(window.location.search);
-    const currentTrashed = urlParams.get('trashed') || 'active';
-    const currentSearch = urlParams.get('search') || '';
-
-    const [search, setSearch] = useState(currentSearch);
+    const { flash } = usePage().props as any;
     const [rowSelection, setRowSelection] = useState({});
-    const [pagination, setPagination] = useState({
-        pageIndex: 0,
-        pageSize: 10,
+
+    // Initialize filters from localStorage or URL params
+    const [currentTrashed, setCurrentTrashed] = useState(() => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlTrashed = urlParams.get('trashed');
+        if (urlTrashed) {
+            setStoredFilter(STORAGE_KEYS.TRASHED, urlTrashed);
+            return urlTrashed;
+        }
+        return getStoredFilter(STORAGE_KEYS.TRASHED, 'active');
     });
+
+    const [search, setSearch] = useState(() => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlSearch = urlParams.get('search');
+        if (urlSearch) {
+            setStoredFilter(STORAGE_KEYS.SEARCH, urlSearch);
+            return urlSearch;
+        }
+        return getStoredFilter(STORAGE_KEYS.SEARCH, '');
+    });
+
+    const [currentPage, setCurrentPage] = useState(() => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlPage = urlParams.get('page');
+        if (urlPage) {
+            setStoredFilter(STORAGE_KEYS.PAGE, parseInt(urlPage));
+            return parseInt(urlPage);
+        }
+        return getStoredFilter(STORAGE_KEYS.PAGE, 1);
+    });
+
+    const [currentPerPage, setCurrentPerPage] = useState(() => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlPerPage = urlParams.get('per_page');
+        if (urlPerPage) {
+            setStoredFilter(STORAGE_KEYS.PER_PAGE, parseInt(urlPerPage));
+            return parseInt(urlPerPage);
+        }
+        return getStoredFilter(STORAGE_KEYS.PER_PAGE, 10);
+    });
+
+    // Clear URL params on mount and load data with stored filters
+    useEffect(() => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const hasParams = urlParams.has('trashed') || urlParams.has('search') || urlParams.has('page') || urlParams.has('per_page');
+
+        if (!hasParams) {
+            // No URL params means fresh page load - fetch with localStorage values
+            const needsFetch =
+                currentTrashed !== 'active' ||
+                search !== '' ||
+                currentPage !== 1 ||
+                currentPerPage !== 10;
+
+            if (needsFetch) {
+                router.get(route('writings.index'), {
+                    trashed: currentTrashed,
+                    search: search || undefined,
+                    page: currentPage,
+                    per_page: currentPerPage,
+                }, {
+                    preserveState: true,
+                    preserveScroll: true,
+                    replace: true,
+                    only: ['writings'],
+                    onSuccess: () => {
+                        window.history.replaceState({}, '', route('writings.index'));
+                    },
+                });
+            }
+        } else {
+            // URL has params, just clear them
+            window.history.replaceState({}, '', route('writings.index'));
+        }
+    }, []);
+
+    // Handle flash messages
+    useEffect(() => {
+        if (flash?.success) {
+            toast.success(flash.success);
+        }
+        if (flash?.error) {
+            toast.error(flash.error);
+        }
+    }, [flash]);
 
     // Dialog state
     const [confirmDialog, setConfirmDialog] = useState<{
@@ -107,22 +223,49 @@ export default function Writings({ writings }: WritingsProps) {
     });
 
     const handleTabChange = (value: string) => {
-        router.get(route('writings.index'), { trashed: value, search: search || undefined }, {
+        setCurrentTrashed(value);
+        setCurrentPage(1);
+        setStoredFilter(STORAGE_KEYS.TRASHED, value);
+        setStoredFilter(STORAGE_KEYS.PAGE, 1);
+
+        router.get(route('writings.index'), {
+            trashed: value,
+            search: search || undefined,
+            page: 1,
+            per_page: currentPerPage,
+        }, {
             preserveState: true,
             preserveScroll: true,
+            replace: true,
+            only: ['writings'],
+            onSuccess: () => {
+                window.history.replaceState({}, '', route('writings.index'));
+            },
         });
     };
 
     // Debounce search
     useEffect(() => {
         const timer = setTimeout(() => {
-            if (search !== currentSearch) {
+            const storedSearch = getStoredFilter(STORAGE_KEYS.SEARCH, '');
+            if (search !== storedSearch) {
+                setCurrentPage(1);
+                setStoredFilter(STORAGE_KEYS.SEARCH, search);
+                setStoredFilter(STORAGE_KEYS.PAGE, 1);
+
                 router.get(route('writings.index'), {
                     trashed: currentTrashed,
-                    search: search || undefined
+                    search: search || undefined,
+                    page: 1,
+                    per_page: currentPerPage,
                 }, {
                     preserveState: true,
                     preserveScroll: true,
+                    replace: true,
+                    only: ['writings'],
+                    onSuccess: () => {
+                        window.history.replaceState({}, '', route('writings.index'));
+                    },
                 });
             }
         }, 500);
@@ -138,8 +281,15 @@ export default function Writings({ writings }: WritingsProps) {
             actionLabel: 'Archive',
             variant: 'default',
             onConfirm: () => {
-                router.patch(route('writings.archive', id), {}, {
+                router.patch(route('writings.archive', id), {
+                    trashed: currentTrashed,
+                    search: search || undefined,
+                    page: currentPage,
+                    per_page: currentPerPage,
+                }, {
                     preserveScroll: true,
+                    preserveState: true,
+                    only: ['writings', 'flash'],
                 });
             },
         });
@@ -153,8 +303,15 @@ export default function Writings({ writings }: WritingsProps) {
             actionLabel: 'Restore',
             variant: 'default',
             onConfirm: () => {
-                router.patch(route('writings.restore', id), {}, {
+                router.patch(route('writings.restore', id), {
+                    trashed: currentTrashed,
+                    search: search || undefined,
+                    page: currentPage,
+                    per_page: currentPerPage,
+                }, {
                     preserveScroll: true,
+                    preserveState: true,
+                    only: ['writings', 'flash'],
                 });
             },
         });
@@ -169,7 +326,15 @@ export default function Writings({ writings }: WritingsProps) {
             variant: 'destructive',
             onConfirm: () => {
                 router.delete(route('writings.delete', id), {
+                    data: {
+                        trashed: currentTrashed,
+                        search: search || undefined,
+                        page: currentPage,
+                        per_page: currentPerPage,
+                    },
                     preserveScroll: true,
+                    preserveState: true,
+                    only: ['writings', 'flash'],
                 });
             },
         });
@@ -191,8 +356,16 @@ export default function Writings({ writings }: WritingsProps) {
             actionLabel: 'Archive',
             variant: 'default',
             onConfirm: () => {
-                router.patch(route('writings.archive.bulk'), { ids }, {
+                router.patch(route('writings.archive.bulk'), {
+                    ids,
+                    trashed: currentTrashed,
+                    search: search || undefined,
+                    page: currentPage,
+                    per_page: currentPerPage,
+                }, {
                     preserveScroll: true,
+                    preserveState: true,
+                    only: ['writings', 'flash'],
                     onSuccess: () => {
                         setRowSelection({});
                     },
@@ -212,12 +385,62 @@ export default function Writings({ writings }: WritingsProps) {
             actionLabel: 'Restore',
             variant: 'default',
             onConfirm: () => {
-                router.patch(route('writings.restore.bulk'), { ids }, {
+                router.patch(route('writings.restore.bulk'), {
+                    ids,
+                    trashed: currentTrashed,
+                    search: search || undefined,
+                    page: currentPage,
+                    per_page: currentPerPage,
+                }, {
                     preserveScroll: true,
+                    preserveState: true,
+                    only: ['writings', 'flash'],
                     onSuccess: () => {
                         setRowSelection({});
                     },
                 });
+            },
+        });
+    };
+
+    const handlePageChange = (page: number) => {
+        setCurrentPage(page + 1);
+        setStoredFilter(STORAGE_KEYS.PAGE, page + 1);
+
+        router.get(route('writings.index'), {
+            trashed: currentTrashed,
+            search: search || undefined,
+            page: page + 1,
+            per_page: currentPerPage,
+        }, {
+            preserveState: true,
+            preserveScroll: true,
+            replace: true,
+            only: ['writings'],
+            onSuccess: () => {
+                window.history.replaceState({}, '', route('writings.index'));
+            },
+        });
+    };
+
+    const handlePageSizeChange = (pageSize: number) => {
+        setCurrentPerPage(pageSize);
+        setCurrentPage(1);
+        setStoredFilter(STORAGE_KEYS.PER_PAGE, pageSize);
+        setStoredFilter(STORAGE_KEYS.PAGE, 1);
+
+        router.get(route('writings.index'), {
+            trashed: currentTrashed,
+            search: search || undefined,
+            page: 1,
+            per_page: pageSize,
+        }, {
+            preserveState: true,
+            preserveScroll: true,
+            replace: true,
+            only: ['writings'],
+            onSuccess: () => {
+                window.history.replaceState({}, '', route('writings.index'));
             },
         });
     };
@@ -258,18 +481,11 @@ export default function Writings({ writings }: WritingsProps) {
             ),
         },
         {
-            accessorKey: 'created_at',
-            header: 'Created At',
-            cell: ({ row }) => (
-                <div>{format(new Date(row.original.created_at), 'MMM d, yyyy')}</div>
-            ),
-        },
-        {
             accessorKey: 'allocated_time',
             header: 'Time Limit',
             cell: ({ row }) => {
                 const time = row.original.allocated_time;
-                return <div>{calculateTime(time)}</div>;
+                return <div>{formatTime(time)}</div>;
             }
         },
         {
@@ -284,10 +500,17 @@ export default function Writings({ writings }: WritingsProps) {
             header: 'Status',
             cell: ({ row }) => (
                 row.original.deleted_at ? (
-                    <Badge variant="secondary">Archived</Badge>
+                    <Badge className="bg-yellow-600 text-white hover:bg-yellow-700">Archived</Badge>
                 ) : (
-                    <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">Active</Badge>
+                    <Badge className="bg-green-700 text-white hover:bg-green-800">Active</Badge>
                 )
+            ),
+        },
+        {
+            accessorKey: 'created_at',
+            header: 'Created At',
+            cell: ({ row }) => (
+                <div>{format(new Date(row.original.created_at), 'MMM d, yyyy')}</div>
             ),
         },
         {
@@ -310,21 +533,27 @@ export default function Writings({ writings }: WritingsProps) {
                             </DropdownMenuItem>
                             {row.original.deleted_at ? (
                                 <>
-                                    <DropdownMenuItem onClick={() => handleRestore(row.original.id)}>
-                                        <IconRestore className="h-4 w-4 mr-2" />
+                                    <DropdownMenuItem
+                                        onClick={() => handleRestore(row.original.id)}
+                                        className="hover:bg-sky-500/30 focus:bg-sky-500/30"
+                                    >
+                                        <ArchiveRestore className="h-4 w-4 mr-2" />
                                         Restore
                                     </DropdownMenuItem>
                                     <DropdownMenuSeparator />
                                     <DropdownMenuItem
                                         onClick={() => handleDelete(row.original.id)}
-                                        className="text-red-600"
+                                        className="hover:bg-red-500/30 focus:bg-red-500/30"
                                     >
                                         <IconTrash className="h-4 w-4 mr-2" />
                                         Delete
                                     </DropdownMenuItem>
                                 </>
                             ) : (
-                                <DropdownMenuItem onClick={() => handleArchive(row.original.id)}>
+                                <DropdownMenuItem
+                                    onClick={() => handleArchive(row.original.id)}
+                                    className="hover:bg-yellow-500/30 focus:bg-yellow-500/30"
+                                >
                                     <IconArchive className="h-4 w-4 mr-2" />
                                     Archive
                                 </DropdownMenuItem>
@@ -339,16 +568,19 @@ export default function Writings({ writings }: WritingsProps) {
     const table = useReactTable({
         data: writings.data,
         columns,
+        pageCount: writings.last_page,
         state: {
             rowSelection,
-            pagination,
+            pagination: {
+                pageIndex: writings.current_page - 1,
+                pageSize: writings.per_page,
+            },
         },
         getRowId: (row) => row.id.toString(),
         enableRowSelection: true,
         onRowSelectionChange: setRowSelection,
-        onPaginationChange: setPagination,
+        manualPagination: true,
         getCoreRowModel: getCoreRowModel(),
-        getPaginationRowModel: getPaginationRowModel(),
     });
 
     return (
@@ -404,9 +636,8 @@ export default function Writings({ writings }: WritingsProps) {
                             </div>
 
                             {writings.total > 0 && (
-                                <Button asChild>
+                                <Button asChild size="sm">
                                     <Link href={route('writings.create')}>
-                                        <IconPlus className="h-4 w-4 mr-2" />
                                         Create Writing
                                     </Link>
                                 </Button>
@@ -416,23 +647,63 @@ export default function Writings({ writings }: WritingsProps) {
                         <Tabs value={currentTrashed}>
                             <TabsContent value={currentTrashed} className="mt-0">
                                 {writings.data.length === 0 ? (
-                                    <Card>
-                                        <CardContent className="flex flex-col items-center justify-center py-12">
-                                            <p className="text-muted-foreground mb-4">
-                                                {currentTrashed === 'active' && 'No active writings yet'}
-                                                {currentTrashed === 'archived' && 'No archived writings'}
-                                                {currentTrashed === 'all' && 'No writings yet'}
-                                            </p>
-                                            {currentTrashed === 'active' && (
-                                                <Button asChild>
-                                                    <Link href={route('writings.create')}>
-                                                        <IconPlus className="h-4 w-4 mr-2" />
-                                                        Create Your First Writing
-                                                    </Link>
+                                    currentTrashed === 'archived' ? (
+                                        <Card>
+                                            <CardContent className="flex flex-col items-center justify-center py-12">
+                                                <p className="text-muted-foreground">
+                                                    No archived writings
+                                                </p>
+                                            </CardContent>
+                                        </Card>
+                                    ) : (
+                                        <Empty>
+                                            <EmptyHeader>
+                                                <EmptyMedia variant="icon">
+                                                    <FileText />
+                                                </EmptyMedia>
+                                                <EmptyTitle>
+                                                    No Writings Yet
+                                                </EmptyTitle>
+                                                <EmptyDescription>
+                                                    You haven&apos;t created any writings yet. Get started by creating
+                                                    your first writing.
+                                                </EmptyDescription>
+                                            </EmptyHeader>
+                                            <EmptyContent>
+                                                <div className="flex items-center gap-2">
+                                                    <Button asChild>
+                                                        <Link href={route('writings.create')}>
+                                                            Create Writing
+                                                        </Link>
+                                                    </Button>
+                                                    <TooltipProvider>
+                                                        <Tooltip>
+                                                            <TooltipTrigger asChild>
+                                                                <span className="inline-block">
+                                                                    <Button variant="outline" disabled>
+                                                                        Import Writing
+                                                                    </Button>
+                                                                </span>
+                                                            </TooltipTrigger>
+                                                            <TooltipContent>
+                                                                <p>Coming soon..</p>
+                                                            </TooltipContent>
+                                                        </Tooltip>
+                                                    </TooltipProvider>
+                                                </div>
+                                                <Button
+                                                    variant="link"
+                                                    asChild
+                                                    className="text-muted-foreground"
+                                                    size="sm"
+                                                >
+                                                    <a href="#">
+                                                        Learn More <ArrowUpRightIcon />
+                                                    </a>
                                                 </Button>
-                                            )}
-                                        </CardContent>
-                                    </Card>
+                                            </EmptyContent>
+                                        </Empty>
+                                    )
                                 ) : (
                                     <div className="flex flex-col gap-4">
                                         <div className="rounded-md border">
@@ -490,10 +761,9 @@ export default function Writings({ writings }: WritingsProps) {
                                                         <div className="flex items-center gap-1 ml-2">
                                                             {currentTrashed === 'active' && (
                                                                 <Button
-                                                                    variant="outline"
                                                                     size="sm"
                                                                     onClick={handleBulkArchive}
-                                                                    className="h-8"
+                                                                    className="h-8 bg-yellow-600 text-white hover:bg-yellow-700"
                                                                 >
                                                                     <IconArchive className="h-3.5 w-3.5 mr-1.5" />
                                                                     Archive
@@ -501,12 +771,11 @@ export default function Writings({ writings }: WritingsProps) {
                                                             )}
                                                             {currentTrashed === 'archived' && (
                                                                 <Button
-                                                                    variant="outline"
                                                                     size="sm"
                                                                     onClick={handleBulkRestore}
-                                                                    className="h-8"
+                                                                    className="h-8 bg-sky-600 text-white hover:bg-sky-700"
                                                                 >
-                                                                    <IconRestore className="h-3.5 w-3.5 mr-1.5" />
+                                                                    <ArchiveRestore className="h-3.5 w-3.5 mr-1.5" />
                                                                     Restore
                                                                 </Button>
                                                             )}
@@ -524,13 +793,13 @@ export default function Writings({ writings }: WritingsProps) {
                                                         Rows per page
                                                     </Label>
                                                     <Select
-                                                        value={`${table.getState().pagination.pageSize}`}
+                                                        value={`${writings.per_page}`}
                                                         onValueChange={(value) => {
-                                                            table.setPageSize(Number(value));
+                                                            handlePageSizeChange(Number(value));
                                                         }}
                                                     >
                                                         <SelectTrigger size="sm" className="w-20" id="rows-per-page">
-                                                            <SelectValue placeholder={table.getState().pagination.pageSize} />
+                                                            <SelectValue placeholder={writings.per_page} />
                                                         </SelectTrigger>
                                                         <SelectContent side="top">
                                                             {[10, 20, 30, 40, 50].map((pageSize) => (
@@ -549,8 +818,8 @@ export default function Writings({ writings }: WritingsProps) {
                                                     <Button
                                                         variant="outline"
                                                         className="hidden h-8 w-8 p-0 lg:flex"
-                                                        onClick={() => table.setPageIndex(0)}
-                                                        disabled={!table.getCanPreviousPage()}
+                                                        onClick={() => handlePageChange(0)}
+                                                        disabled={writings.current_page === 1}
                                                     >
                                                         <span className="sr-only">Go to first page</span>
                                                         <IconChevronsLeft className="h-4 w-4" />
@@ -559,8 +828,8 @@ export default function Writings({ writings }: WritingsProps) {
                                                         variant="outline"
                                                         className="size-8"
                                                         size="icon"
-                                                        onClick={() => table.previousPage()}
-                                                        disabled={!table.getCanPreviousPage()}
+                                                        onClick={() => handlePageChange(writings.current_page - 2)}
+                                                        disabled={writings.current_page === 1}
                                                     >
                                                         <span className="sr-only">Go to previous page</span>
                                                         <IconChevronLeft className="h-4 w-4" />
@@ -569,8 +838,8 @@ export default function Writings({ writings }: WritingsProps) {
                                                         variant="outline"
                                                         className="size-8"
                                                         size="icon"
-                                                        onClick={() => table.nextPage()}
-                                                        disabled={!table.getCanNextPage()}
+                                                        onClick={() => handlePageChange(writings.current_page)}
+                                                        disabled={writings.current_page === writings.last_page}
                                                     >
                                                         <span className="sr-only">Go to next page</span>
                                                         <IconChevronRight className="h-4 w-4" />
@@ -579,8 +848,8 @@ export default function Writings({ writings }: WritingsProps) {
                                                         variant="outline"
                                                         className="hidden size-8 lg:flex"
                                                         size="icon"
-                                                        onClick={() => table.setPageIndex(table.getPageCount() - 1)}
-                                                        disabled={!table.getCanNextPage()}
+                                                        onClick={() => handlePageChange(writings.last_page - 1)}
+                                                        disabled={writings.current_page === writings.last_page}
                                                     >
                                                         <span className="sr-only">Go to last page</span>
                                                         <IconChevronsRight className="h-4 w-4" />

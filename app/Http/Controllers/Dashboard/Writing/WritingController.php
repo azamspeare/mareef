@@ -105,10 +105,13 @@ final class WritingController extends Controller
 
         $result = $action->run($writing);
         if (! $result) {
-            return redirect()->back()->withErrors(['message' => 'Failed to archive writing.']);
+            return redirect()->back()->with('error', 'Failed to archive writing.');
         }
 
-        return redirect()->route('writings.index');
+        $filter = WritingFilter::fromRequest($request, $teacher->id);
+
+        return redirect()->route('writings.index', $filter->toRedirectParams())
+            ->with('success', 'Writing archived successfully.');
     }
 
     /**
@@ -121,10 +124,13 @@ final class WritingController extends Controller
 
         $result = $action->run($writing);
         if (! $result) {
-            return redirect()->back()->withErrors(['message' => 'Failed to restore writing.']);
+            return redirect()->back()->with('error', 'Failed to restore writing.');
         }
 
-        return redirect()->route('writings.index');
+        $filter = WritingFilter::fromRequest($request, $teacher->id);
+
+        return redirect()->route('writings.index', $filter->toRedirectParams())
+            ->with('success', 'Writing restored successfully.');
     }
 
     /**
@@ -137,10 +143,13 @@ final class WritingController extends Controller
 
         $result = $action->run($writing);
         if (! $result) {
-            return redirect()->back()->withErrors(['message' => 'Failed to delete writing.']);
+            return redirect()->back()->with('error', 'Failed to delete writing.');
         }
 
-        return redirect()->route('writings.index');
+        $filter = WritingFilter::fromRequest($request, $teacher->id);
+
+        return redirect()->route('writings.index', $filter->toRedirectParams())
+            ->with('success', 'Writing deleted successfully.');
     }
 
     /**

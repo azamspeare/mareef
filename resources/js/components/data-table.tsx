@@ -23,7 +23,6 @@ import {
   getFacetedRowModel,
   getFacetedUniqueValues,
   getFilteredRowModel,
-  getPaginationRowModel,
   getSortedRowModel,
   SortingState,
   useReactTable,
@@ -139,7 +138,7 @@ export function DataTable({
     []
   )
   const [sorting, setSorting] = React.useState<SortingState>([])
-  const [isLoadingFilters, setIsLoadingFilters] = React.useState(false)
+  const [_, setIsLoadingFilters] = React.useState(false)
 
   // Initialize filters from localStorage or URL params
   const [currentStatus, setCurrentStatus] = React.useState(() => {

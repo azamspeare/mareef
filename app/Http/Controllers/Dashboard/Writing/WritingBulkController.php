@@ -6,6 +6,7 @@ namespace App\Http\Controllers\Dashboard\Writing;
 
 use App\Actions\Writing\Bulk\ArchiveWritingsAction;
 use App\Actions\Writing\Bulk\RestoreWritingsAction;
+use App\Filters\Writing\WritingFilter;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Writing\BulkWritingRequest;
 use Illuminate\Http\RedirectResponse;
@@ -22,10 +23,14 @@ final class WritingBulkController extends Controller
 
         $result = $action->run($attributes['ids'], $teacher->id);
         if (! $result) {
-            return back()->withErrors(['error' => 'Failed to archive writings.']);
+            return back()->with('error', 'Failed to archive writings.');
         }
 
-        return redirect()->route('writings.index');
+        $filter = WritingFilter::fromRequest($request, $teacher->id);
+        $count = count($attributes['ids']);
+
+        return redirect()->route('writings.index', $filter->toRedirectParams())
+            ->with('success', "{$count} writing" . ($count > 1 ? 's' : '') . " archived successfully.");
     }
 
     /**
@@ -38,9 +43,13 @@ final class WritingBulkController extends Controller
 
         $result = $action->run($attributes['ids'], $teacher->id);
         if (! $result) {
-            return back()->withErrors(['error' => 'Failed to restore writings.']);
+            return back()->with('error', 'Failed to restore writings.');
         }
 
-        return redirect()->route('writings.index');
+        $filter = WritingFilter::fromRequest($request, $teacher->id);
+        $count = count($attributes['ids']);
+
+        return redirect()->route('writings.index', $filter->toRedirectParams())
+            ->with('success', "{$count} writing" . ($count > 1 ? 's' : '') . " restored successfully.");
     }
 }

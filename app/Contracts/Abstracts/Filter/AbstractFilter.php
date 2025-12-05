@@ -20,7 +20,6 @@ abstract readonly class AbstractFilter implements Filterable
     ) {
     }
 
-
     abstract public static function sortables(): array;
 
     abstract public static function fromRequest(Request $request, int $teacher_id): self;
@@ -62,5 +61,16 @@ abstract readonly class AbstractFilter implements Filterable
         $trashed = self::validateTrashed($request->input('trashed'));
 
         return [$search, $sortBy, $sortDirection, $perPage, $trashed];
+    }
+
+    public function toRedirectParams(): array
+    {
+        $params = [
+            'trashed' => $this->trashed->value,
+            'search' => $this->search,
+            'per_page' => $this->perPage,
+        ];
+
+        return array_filter($params, fn($value) => $value !== null);
     }
 }
