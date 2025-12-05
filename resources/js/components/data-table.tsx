@@ -95,13 +95,42 @@ export interface Counts {
   evaluated: number;
 }
 
+export interface PaginationMeta {
+  current_page: number;
+  last_page: number;
+  per_page: number;
+  total: number;
+  from: number | null;
+  to: number | null;
+}
+
+// LocalStorage keys for filter persistence
+const STORAGE_KEYS = {
+  STATUS: 'dashboard.filter.status',
+  PAGE: 'dashboard.filter.page',
+  PER_PAGE: 'dashboard.filter.per_page',
+};
+
+// Helper functions for localStorage
+const getStoredFilter = (key: string, defaultValue: any) => {
+  if (typeof window === 'undefined') return defaultValue;
+  const stored = localStorage.getItem(key);
+  return stored ? JSON.parse(stored) : defaultValue;
+};
+
+const setStoredFilter = (key: string, value: any) => {
+  if (typeof window === 'undefined') return;
+  localStorage.setItem(key, JSON.stringify(value));
+};
 
 export function DataTable({
   data: initialData,
   counts,
+  pagination: paginationMeta,
 }: {
   data: Submission[]
   counts: Counts
+  pagination: PaginationMeta
 }) {
   const [rowSelection, setRowSelection] = React.useState({})
   const [columnVisibility, setColumnVisibility] =
@@ -110,19 +139,135 @@ export function DataTable({
     []
   )
   const [sorting, setSorting] = React.useState<SortingState>([])
-  const [pagination, setPagination] = React.useState({
-    pageIndex: 0,
-    pageSize: 10,
-  })
+  const [isLoadingFilters, setIsLoadingFilters] = React.useState(false)
 
-  // URL Params handling
-  const urlParams = new URLSearchParams(window.location.search);
-  const currentStatus = urlParams.get('status') || 'not_reviewed';
+  // Initialize filters from localStorage or URL params
+  const [currentStatus, setCurrentStatus] = React.useState(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlStatus = urlParams.get('status');
+    if (urlStatus) {
+      setStoredFilter(STORAGE_KEYS.STATUS, urlStatus);
+      return urlStatus;
+    }
+    return getStoredFilter(STORAGE_KEYS.STATUS, 'not_reviewed');
+  });
+
+  const [currentPage, setCurrentPage] = React.useState(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlPage = urlParams.get('page');
+    if (urlPage) {
+      setStoredFilter(STORAGE_KEYS.PAGE, parseInt(urlPage));
+      return parseInt(urlPage);
+    }
+    return getStoredFilter(STORAGE_KEYS.PAGE, 1);
+  });
+
+  const [currentPerPage, setCurrentPerPage] = React.useState(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlPerPage = urlParams.get('per_page');
+    if (urlPerPage) {
+      setStoredFilter(STORAGE_KEYS.PER_PAGE, parseInt(urlPerPage));
+      return parseInt(urlPerPage);
+    }
+    return getStoredFilter(STORAGE_KEYS.PER_PAGE, 10);
+  });
+
+  // On mount: load data with stored filters if no URL params
+  React.useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const hasParams = urlParams.has('status') || urlParams.has('page') || urlParams.has('per_page');
+
+    if (!hasParams) {
+      // No URL params means fresh page load - fetch with localStorage values
+      const needsFetch =
+        currentStatus !== 'not_reviewed' ||
+        currentPage !== 1 ||
+        currentPerPage !== 10;
+
+      if (needsFetch) {
+        setIsLoadingFilters(true);
+        router.get(route('dashboard'), {
+          status: currentStatus,
+          page: currentPage,
+          per_page: currentPerPage,
+        }, {
+          preserveState: true,
+          preserveScroll: true,
+          replace: true,
+          only: ['submissions', 'counts'],
+          onSuccess: () => {
+            window.history.replaceState({}, '', route('dashboard'));
+            setIsLoadingFilters(false);
+          },
+          onError: () => {
+            setIsLoadingFilters(false);
+          },
+        });
+      }
+    } else {
+      // URL has params, just clear them after component mounts
+      window.history.replaceState({}, '', route('dashboard'));
+    }
+  }, []); // Empty dependency array - only run once on mount
 
   const handleTabChange = (value: string) => {
-    router.get(route('dashboard'), { status: value }, {
+    setCurrentStatus(value);
+    setCurrentPage(1);
+    setStoredFilter(STORAGE_KEYS.STATUS, value);
+    setStoredFilter(STORAGE_KEYS.PAGE, 1);
+
+    router.get(route('dashboard'), {
+      status: value,
+      page: 1,
+      per_page: currentPerPage,
+    }, {
       preserveState: true,
       preserveScroll: true,
+      replace: true,
+      only: ['submissions', 'counts'],
+      onSuccess: () => {
+        window.history.replaceState({}, '', route('dashboard'));
+      },
+    });
+  };
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page + 1);
+    setStoredFilter(STORAGE_KEYS.PAGE, page + 1);
+
+    router.get(route('dashboard'), {
+      page: page + 1,
+      status: currentStatus,
+      per_page: currentPerPage,
+    }, {
+      preserveState: true,
+      preserveScroll: true,
+      replace: true,
+      only: ['submissions', 'counts'],
+      onSuccess: () => {
+        window.history.replaceState({}, '', route('dashboard'));
+      },
+    });
+  };
+
+  const handlePageSizeChange = (pageSize: number) => {
+    setCurrentPerPage(pageSize);
+    setCurrentPage(1);
+    setStoredFilter(STORAGE_KEYS.PER_PAGE, pageSize);
+    setStoredFilter(STORAGE_KEYS.PAGE, 1);
+
+    router.get(route('dashboard'), {
+      per_page: pageSize,
+      page: 1,
+      status: currentStatus,
+    }, {
+      preserveState: true,
+      preserveScroll: true,
+      replace: true,
+      only: ['submissions', 'counts'],
+      onSuccess: () => {
+        window.history.replaceState({}, '', route('dashboard'));
+      },
     });
   };
 
@@ -206,12 +351,16 @@ export function DataTable({
   const table = useReactTable({
     data: initialData,
     columns,
+    pageCount: paginationMeta.last_page,
     state: {
       sorting,
       columnVisibility,
       rowSelection,
       columnFilters,
-      pagination,
+      pagination: {
+        pageIndex: paginationMeta.current_page - 1,
+        pageSize: paginationMeta.per_page,
+      },
     },
     getRowId: (row) => row.id.toString(),
     enableRowSelection: true,
@@ -219,10 +368,9 @@ export function DataTable({
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     onColumnVisibilityChange: setColumnVisibility,
-    onPaginationChange: setPagination,
+    manualPagination: true,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFacetedRowModel: getFacetedRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues(),
@@ -252,7 +400,7 @@ export function DataTable({
             <SelectItem value="evaluated">Evaluated</SelectItem>
           </SelectContent>
         </Select>
-        <TabsList className="**:data-[slot=badge]:bg-muted-foreground/30 hidden **:data-[slot=badge]:size-5 **:data-[slot=badge]:rounded-full **:data-[slot=badge]:px-1 @4xl/main:flex">
+        <TabsList className="**:data-[slot=badge]:bg-muted-foreground/30 hidden **:data-[slot=badge]:size-5 **:data-[slot=badge]:rounded-full **:data-[slot=badge]:px-3 @4xl/main:flex">
           <TabsTrigger value="all">All</TabsTrigger>
           <TabsTrigger value="not_reviewed">
             Not Reviewed <Badge variant="secondary">{counts.not_reviewed}</Badge>
@@ -363,14 +511,14 @@ export function DataTable({
                 Rows per page
               </Label>
               <Select
-                value={`${table.getState().pagination.pageSize}`}
+                value={`${paginationMeta.per_page}`}
                 onValueChange={(value) => {
-                  table.setPageSize(Number(value))
+                  handlePageSizeChange(Number(value))
                 }}
               >
                 <SelectTrigger size="sm" className="w-20" id="rows-per-page">
                   <SelectValue
-                    placeholder={table.getState().pagination.pageSize}
+                    placeholder={paginationMeta.per_page}
                   />
                 </SelectTrigger>
                 <SelectContent side="top">
@@ -390,8 +538,8 @@ export function DataTable({
               <Button
                 variant="outline"
                 className="hidden h-8 w-8 p-0 lg:flex"
-                onClick={() => table.setPageIndex(0)}
-                disabled={!table.getCanPreviousPage()}
+                onClick={() => handlePageChange(0)}
+                disabled={paginationMeta.current_page === 1}
               >
                 <span className="sr-only">Go to first page</span>
                 <IconChevronsLeft />
@@ -400,8 +548,8 @@ export function DataTable({
                 variant="outline"
                 className="size-8"
                 size="icon"
-                onClick={() => table.previousPage()}
-                disabled={!table.getCanPreviousPage()}
+                onClick={() => handlePageChange(paginationMeta.current_page - 2)}
+                disabled={paginationMeta.current_page === 1}
               >
                 <span className="sr-only">Go to previous page</span>
                 <IconChevronLeft />
@@ -410,8 +558,8 @@ export function DataTable({
                 variant="outline"
                 className="size-8"
                 size="icon"
-                onClick={() => table.nextPage()}
-                disabled={!table.getCanNextPage()}
+                onClick={() => handlePageChange(paginationMeta.current_page)}
+                disabled={paginationMeta.current_page === paginationMeta.last_page}
               >
                 <span className="sr-only">Go to next page</span>
                 <IconChevronRight />
@@ -420,8 +568,8 @@ export function DataTable({
                 variant="outline"
                 className="hidden size-8 lg:flex"
                 size="icon"
-                onClick={() => table.setPageIndex(table.getPageCount() - 1)}
-                disabled={!table.getCanNextPage()}
+                onClick={() => handlePageChange(paginationMeta.last_page - 1)}
+                disabled={paginationMeta.current_page === paginationMeta.last_page}
               >
                 <span className="sr-only">Go to last page</span>
                 <IconChevronsRight />

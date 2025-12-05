@@ -25,11 +25,11 @@ final class WritingSeeder extends Seeder
         foreach ($teachers as $teacher) {
             // Create 2 writing tasks for each teacher
             Writing::factory()
-                ->count(2)
+                ->count(15)
                 ->create(['teacher_id' => $teacher->id])
                 ->each(function (Writing $writing) use ($students, $teacher) {
                     // Create 3-7 submissions for each writing task
-                    $submissionCount = fake()->numberBetween(3, 7);
+                    $submissionCount = fake()->numberBetween(10, 20);
                     $selectedStudents = $students->random(min($submissionCount, $students->count()));
 
                     $submissions = [];

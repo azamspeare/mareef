@@ -58,7 +58,7 @@ abstract readonly class AbstractFilter implements Filterable
         $search = $request->filled('search') ? $request->string('search')->trim()->value() : null;
         $sortBy = self::validateSortBy($request->input('sort_by'));
         $sortDirection = self::validateSortDirection($request->input('sort_direction', 'desc'));
-        $perPage = $request->input('per_page', 10);
+        $perPage = $request->integer('per_page', 10);
         $trashed = self::validateTrashed($request->input('trashed'));
 
         return [$search, $sortBy, $sortDirection, $perPage, $trashed];
