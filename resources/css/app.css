@@ -180,4 +180,5 @@
 
 .writing-details .bn-editor {
     background-color: transparent !important;
+    color: inherit !important;
 }
