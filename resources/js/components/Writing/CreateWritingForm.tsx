@@ -7,10 +7,6 @@ import { Button } from "@/components/ui/button";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
 import {
-    BasicTextStyleButton,
-    BlockTypeSelect,
-    FormattingToolbar,
-    FormattingToolbarController,
     getDefaultReactSlashMenuItems,
     SuggestionMenuController,
     useCreateBlockNote,
@@ -150,7 +146,6 @@ export default function CreateWritingForm() {
                             theme={theme.theme === "dark" ? "dark" : "light"}
                             slashMenu={false}
                             sideMenu={false}
-                            formattingToolbar={false}
                         >
                             {/* Custom Side Menu - Remove Colors option */}
                             <SideMenuController
@@ -174,18 +169,6 @@ export default function CreateWritingForm() {
                                 }
                             />
 
-                            {/* Custom Formatting Toolbar - Only show specific items */}
-                            <FormattingToolbarController
-                                formattingToolbar={() => (
-                                    <FormattingToolbar>
-                                        <BlockTypeSelect key="blockTypeSelect" />
-                                        <BasicTextStyleButton basicTextStyle="bold" key="boldStyleButton" />
-                                        <BasicTextStyleButton basicTextStyle="italic" key="italicStyleButton" />
-                                        <BasicTextStyleButton basicTextStyle="underline" key="underlineStyleButton" />
-                                        <BasicTextStyleButton basicTextStyle="strike" key="strikeStyleButton" />
-                                    </FormattingToolbar>
-                                )}
-                            />
                         </BlockNoteView>
                     </div>
                 </main>
