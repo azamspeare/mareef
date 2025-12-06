@@ -18,6 +18,7 @@ import {
     DragHandleMenu,
     RemoveBlockItem,
 } from "@blocknote/react";
+import { useTheme } from "next-themes";
 
 interface BlockNoteProps {
     content?: PartialBlock[];
@@ -25,6 +26,8 @@ interface BlockNoteProps {
 }
 
 export default function BlockNote({ content, onChange }: BlockNoteProps) {
+    const { resolvedTheme } = useTheme();
+
     // Uploads a file to tmpfiles.org and returns the URL to the uploaded file.
     async function uploadFile(file: File) {
         const body = new FormData();
@@ -62,10 +65,10 @@ export default function BlockNote({ content, onChange }: BlockNoteProps) {
     };
 
     return (
-        <div className="[&_.bn-editor]:pl-0 [&_.bn-block-group]:ml-0 lg:-ml-12" onChange={handleChange}>
+        <div className="[&_.bn-editor]:pl-0 [&_.bn-block-group]:ml-0 lg:-ml-12 [&_.bn-editor]:bg-transparent [&_.bn-container]:bg-transparent" onChange={handleChange}>
             <BlockNoteView
                 editor={editor}
-                theme="light"
+                theme={resolvedTheme === "dark" ? "dark" : "light"}
                 slashMenu={false}
                 sideMenu={false}
                 formattingToolbar={false}

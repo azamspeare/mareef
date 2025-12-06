@@ -1,5 +1,6 @@
 import { Head, Link, router } from '@inertiajs/react';
 import DashboardLayout from '@/Layouts/DashboardLayout';
+import { ActivityChart } from '@/components/activity-chart';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -69,9 +70,14 @@ interface PaginatedSubmissions {
     total: number;
 }
 
+interface ActivityData {
+    [date: string]: number;
+}
+
 interface StudentShowProps {
     student: Student;
     submissions: PaginatedSubmissions;
+    activity: ActivityData;
 }
 
 // LocalStorage keys for filter persistence
@@ -92,7 +98,7 @@ const setStoredFilter = (key: string, value: any) => {
     localStorage.setItem(key, JSON.stringify(value));
 };
 
-export default function StudentShow({ student, submissions }: StudentShowProps) {
+export default function StudentShow({ student, submissions, activity }: StudentShowProps) {
     const [currentStatus, setCurrentStatus] = useState(() => {
         const urlParams = new URLSearchParams(window.location.search);
         const urlStatus = urlParams.get('status');
@@ -246,13 +252,18 @@ export default function StudentShow({ student, submissions }: StudentShowProps) 
                                         Joined {format(new Date(student.created_at), 'MMMM d, yyyy')}
                                     </p>
                                 </div>
-                                <div className="text-right">
+                                <div className="text-right hidden sm:block">
                                     <div className="text-3xl font-bold">{submissions.total}</div>
                                     <div className="text-sm text-muted-foreground">
                                         Total Submissions
                                     </div>
                                 </div>
                             </div>
+                        </div>
+
+                        {/* Activity Chart */}
+                        <div className="mb-6">
+                            <ActivityChart data={activity} />
                         </div>
 
                         {/* Submissions Section */}
