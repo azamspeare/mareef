@@ -2,27 +2,16 @@ import { Head } from '@inertiajs/react';
 import { StudentsTable, Student } from "@/components/students-table"
 import DashboardLayout from '@/Layouts/DashboardLayout';
 
-interface PaginatedResponse<T> {
-  data: T[];
-  links: {
-    first: string | null;
-    last: string | null;
-    prev: string | null;
-    next: string | null;
-  };
-  meta: {
-    current_page: number;
-    from: number;
-    last_page: number;
-    path: string;
-    per_page: number;
-    to: number;
-    total: number;
-  };
+interface PaginatedStudents {
+  data: Student[];
+  current_page: number;
+  last_page: number;
+  per_page: number;
+  total: number;
 }
 
 interface StudentsProps {
-  students: PaginatedResponse<Student>;
+  students: PaginatedStudents;
 }
 
 export default function Students({ students }: StudentsProps) {
@@ -37,7 +26,7 @@ export default function Students({ students }: StudentsProps) {
               Manage and view all students who have submitted to your writings.
             </p>
           </div>
-          <StudentsTable data={students.data} />
+          <StudentsTable students={students} />
         </div>
       </div>
     </DashboardLayout>

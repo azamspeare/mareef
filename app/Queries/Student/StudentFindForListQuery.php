@@ -8,22 +8,13 @@ use App\Contracts\Abstracts\Filter\AbstractFilter;
 use App\Contracts\Abstracts\Query\AbstractFilterQueryable;
 use App\Contracts\Enums\RoleEnum;
 use App\Contracts\Interfaces\Query\FilterQueryable;
-use App\Filters\Student\StudentFilter;
 use App\Models\User\User;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 final class StudentFindForListQuery extends AbstractFilterQueryable implements FilterQueryable
 {
-    /**
-     * Returns a paginated list of students for the given teacher.
-     *
-     * @param StudentFilter $filter
-     *
-     * @return LengthAwarePaginator
-     */
     public function query(AbstractFilter $filter): LengthAwarePaginator
     {
-        // Define the teacher ownership constraint once
         $teacherWritingConstraint = function ($q) use ($filter) {
             $q->where('teacher_id', $filter->teacherId)
               ->whereNull('deleted_at');
@@ -41,13 +32,11 @@ final class StudentFindForListQuery extends AbstractFilterQueryable implements F
                 }
             ]);
 
-        // Search filter: search in student name
         if ($filter->search) {
             $search = '%' . $filter->search . '%';
             $query->whereAny(['users.name', 'users.email'], 'like', $search);
         }
 
-        // Sorting
         $sortColumn = match ($filter->sortBy) {
             'id' => 'users.id',
             'submission_count' => 'submissions_count',

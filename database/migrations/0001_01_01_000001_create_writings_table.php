@@ -35,6 +35,7 @@ return new class extends Migration
             $table->timestamp('evaluated_at')->nullable();
             $table->string('status')->default(SubmissionProcessEnum::IN_PROGRESS->value);
             $table->timestamps();
+            $table->softDeletes();
 
             $table->unique(['writing_id', 'student_id']);
             $table->index(['writing_id', 'submitted_at'], 'writing_submissions_writing_id_submitted_at_index');
@@ -48,6 +49,7 @@ return new class extends Migration
             $table->decimal('score');
             $table->mediumText('feedback');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

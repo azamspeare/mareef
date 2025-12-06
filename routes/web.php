@@ -30,22 +30,22 @@ Route::domain('app.' . config('app.domain'))->group(function () {
 
     Route::middleware(['auth', 'is_role:' . RoleEnum::TEACHER->value])->group(function () {
         Route::get('dashboard', DashboardController::class)->name('dashboard');
-        Route::get('students', [StudentController::class, 'index'])->name('students.index');
+
+        Route::prefix('students')->name('students.')->group(function () {
+            Route::get('/', [StudentController::class, 'index'])->name('index');
+            Route::get('/{id}', [StudentController::class, 'show'])->name('show')->where('id', '[0-9]+');
+        });
 
         Route::prefix('writings')->name('writings.')->group(function () {
-            // List & Create (order matters - create before {id})
             Route::get('/', [WritingController::class, 'index'])->name('index');
             Route::get('/create', [WritingController::class, 'create'])->name('create');
             Route::post('/', [WritingController::class, 'store'])->name('store');
 
-            // Serve images (before {id} routes to avoid conflicts)
             Route::get('/images/{filename}', [WritingController::class, 'serveImage'])->name('images.serve');
 
-            // Bulk operations (before {id} routes)
             Route::patch('/archive', [WritingBulkController::class, 'archive'])->name('archive.bulk');
             Route::patch('/restore', [WritingBulkController::class, 'restore'])->name('restore.bulk');
 
-            // Single resource operations
             Route::get('/{id}', [WritingController::class, 'show'])->name('show')->where('id', '[0-9]+');
             Route::get('/{id}/edit', [WritingController::class, 'edit'])->name('edit')->where('id', '[0-9]+');
             Route::put('/{id}', [WritingController::class, 'update'])->name('update')->where('id', '[0-9]+');
@@ -57,8 +57,6 @@ Route::domain('app.' . config('app.domain'))->group(function () {
         Route::prefix('submissions')->name('submissions.')->group(function () {
             Route::get('/', [SubmissionController::class, 'index'])->name('index');
             Route::get('/{id}', [SubmissionController::class, 'show'])->name('show')->where('id', '[0-9]+');
-
-            // Feedback: create and update only (displayed within the submission page)
             Route::post('/{id}/evaluate', [SubmissionController::class, 'evaluate'])->name('feedback.evaluate')->where('id', '[0-9]+');
         });
 

@@ -1,37 +1,29 @@
-import * as React from "react"
+import { useState, useEffect } from "react"
+import { router, Link } from "@inertiajs/react"
 import {
-  IconChevronDown,
   IconChevronLeft,
   IconChevronRight,
   IconChevronsLeft,
   IconChevronsRight,
   IconDotsVertical,
-  IconLayoutColumns,
   IconMail,
   IconUser,
+  IconSearch,
+  IconX,
 } from "@tabler/icons-react"
 import { z } from "zod"
 
 import {
   ColumnDef,
-  ColumnFiltersState,
   flexRender,
   getCoreRowModel,
-  getFacetedRowModel,
-  getFacetedUniqueValues,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
-  SortingState,
   useReactTable,
-  VisibilityState,
 } from "@tanstack/react-table"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
-  DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
@@ -67,22 +59,166 @@ export const studentSchema = z.object({
 
 export type Student = z.infer<typeof studentSchema>
 
-export function StudentsTable({
-  data: initialData,
-}: {
+interface PaginatedStudents {
   data: Student[]
+  current_page: number
+  last_page: number
+  per_page: number
+  total: number
+}
+
+// LocalStorage keys for filter persistence
+const STORAGE_KEYS = {
+  SEARCH: 'students.filter.search',
+  PAGE: 'students.filter.page',
+  PER_PAGE: 'students.filter.per_page',
+}
+
+const getStoredFilter = (key: string, defaultValue: any) => {
+  if (typeof window === 'undefined') return defaultValue
+  const stored = localStorage.getItem(key)
+  return stored ? JSON.parse(stored) : defaultValue
+}
+
+const setStoredFilter = (key: string, value: any) => {
+  if (typeof window === 'undefined') return
+  localStorage.setItem(key, JSON.stringify(value))
+}
+
+export function StudentsTable({
+  students,
+}: {
+  students: PaginatedStudents
 }) {
-  const [rowSelection, setRowSelection] = React.useState({})
-  const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({})
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    []
-  )
-  const [sorting, setSorting] = React.useState<SortingState>([])
-  const [pagination, setPagination] = React.useState({
-    pageIndex: 0,
-    pageSize: 10,
+  // Initialize filters from localStorage or URL params
+  const [search, setSearch] = useState(() => {
+    const urlParams = new URLSearchParams(window.location.search)
+    const urlSearch = urlParams.get('search')
+    if (urlSearch) {
+      setStoredFilter(STORAGE_KEYS.SEARCH, urlSearch)
+      return urlSearch
+    }
+    return getStoredFilter(STORAGE_KEYS.SEARCH, '')
   })
+
+  const [currentPage, setCurrentPage] = useState(() => {
+    const urlParams = new URLSearchParams(window.location.search)
+    const urlPage = urlParams.get('page')
+    if (urlPage) {
+      setStoredFilter(STORAGE_KEYS.PAGE, parseInt(urlPage))
+      return parseInt(urlPage)
+    }
+    return getStoredFilter(STORAGE_KEYS.PAGE, 1)
+  })
+
+  const [currentPerPage, setCurrentPerPage] = useState(() => {
+    const urlParams = new URLSearchParams(window.location.search)
+    const urlPerPage = urlParams.get('per_page')
+    if (urlPerPage) {
+      setStoredFilter(STORAGE_KEYS.PER_PAGE, parseInt(urlPerPage))
+      return parseInt(urlPerPage)
+    }
+    return getStoredFilter(STORAGE_KEYS.PER_PAGE, 10)
+  })
+
+  // Clear URL params on mount and load data with stored filters
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search)
+    const hasParams = urlParams.has('search') || urlParams.has('page') || urlParams.has('per_page')
+
+    if (!hasParams) {
+      const needsFetch =
+        search !== '' ||
+        currentPage !== 1 ||
+        currentPerPage !== 10
+
+      if (needsFetch) {
+        router.get(route('students.index'), {
+          search: search || undefined,
+          page: currentPage,
+          per_page: currentPerPage,
+        }, {
+          preserveState: true,
+          preserveScroll: true,
+          replace: true,
+          only: ['students'],
+          onSuccess: () => {
+            window.history.replaceState({}, '', route('students.index'))
+          },
+        })
+      }
+    } else {
+      window.history.replaceState({}, '', route('students.index'))
+    }
+  }, [])
+
+  // Debounce search
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const storedSearch = getStoredFilter(STORAGE_KEYS.SEARCH, '')
+      if (search !== storedSearch) {
+        setCurrentPage(1)
+        setStoredFilter(STORAGE_KEYS.SEARCH, search)
+        setStoredFilter(STORAGE_KEYS.PAGE, 1)
+
+        router.get(route('students.index'), {
+          search: search || undefined,
+          page: 1,
+          per_page: currentPerPage,
+        }, {
+          preserveState: true,
+          preserveScroll: true,
+          replace: true,
+          only: ['students'],
+          onSuccess: () => {
+            window.history.replaceState({}, '', route('students.index'))
+          },
+        })
+      }
+    }, 500)
+
+    return () => clearTimeout(timer)
+  }, [search])
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page + 1)
+    setStoredFilter(STORAGE_KEYS.PAGE, page + 1)
+
+    router.get(route('students.index'), {
+      search: search || undefined,
+      page: page + 1,
+      per_page: currentPerPage,
+    }, {
+      preserveState: true,
+      preserveScroll: true,
+      replace: true,
+      only: ['students'],
+      onSuccess: () => {
+        window.history.replaceState({}, '', route('students.index'))
+      },
+    })
+  }
+
+  const handlePageSizeChange = (pageSize: number) => {
+    setCurrentPerPage(pageSize)
+    setCurrentPage(1)
+    setStoredFilter(STORAGE_KEYS.PER_PAGE, pageSize)
+    setStoredFilter(STORAGE_KEYS.PAGE, 1)
+
+    router.get(route('students.index'), {
+      search: search || undefined,
+      page: 1,
+      per_page: pageSize,
+    }, {
+      preserveState: true,
+      preserveScroll: true,
+      replace: true,
+      only: ['students'],
+      onSuccess: () => {
+        window.history.replaceState({}, '', route('students.index'))
+      },
+    })
+  }
 
   const columns: ColumnDef<Student>[] = [
     {
@@ -136,7 +272,7 @@ export function StudentsTable({
     },
     {
       id: "actions",
-      cell: () => (
+      cell: ({ row }) => (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
@@ -148,11 +284,12 @@ export function StudentsTable({
               <span className="sr-only">Open menu</span>
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-32">
-            <DropdownMenuItem>View Details</DropdownMenuItem>
-            <DropdownMenuItem>View Submissions</DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem variant="destructive">Remove</DropdownMenuItem>
+          <DropdownMenuContent align="end" className="w-40">
+            <DropdownMenuItem asChild>
+              <Link href={route('students.show', row.original.id)}>
+                View Details
+              </Link>
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       ),
@@ -160,28 +297,18 @@ export function StudentsTable({
   ]
 
   const table = useReactTable({
-    data: initialData,
+    data: students.data,
     columns,
+    pageCount: students.last_page,
     state: {
-      sorting,
-      columnVisibility,
-      rowSelection,
-      columnFilters,
-      pagination,
+      pagination: {
+        pageIndex: students.current_page - 1,
+        pageSize: students.per_page,
+      },
     },
     getRowId: (row) => row.id.toString(),
-    enableRowSelection: true,
-    onRowSelectionChange: setRowSelection,
-    onSortingChange: setSorting,
-    onColumnFiltersChange: setColumnFilters,
-    onColumnVisibilityChange: setColumnVisibility,
-    onPaginationChange: setPagination,
+    manualPagination: true,
     getCoreRowModel: getCoreRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getFacetedRowModel: getFacetedRowModel(),
-    getFacetedUniqueValues: getFacetedUniqueValues(),
   })
 
   return (
@@ -189,49 +316,24 @@ export function StudentsTable({
       <div className="flex flex-col gap-4 px-4 lg:px-6">
         <div className="flex items-center justify-between">
           <div className="flex flex-1 items-center gap-2">
-            <Input
-              placeholder="Search students..."
-              value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
-              onChange={(event) =>
-                table.getColumn("name")?.setFilterValue(event.target.value)
-              }
-              className="max-w-sm"
-            />
-          </div>
-          <div className="flex items-center gap-2">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm">
-                  <IconLayoutColumns />
-                  <span className="hidden lg:inline">Customize Columns</span>
-                  <span className="lg:hidden">Columns</span>
-                  <IconChevronDown />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
-                {table
-                  .getAllColumns()
-                  .filter(
-                    (column) =>
-                      typeof column.accessorFn !== "undefined" &&
-                      column.getCanHide()
-                  )
-                  .map((column) => {
-                    return (
-                      <DropdownMenuCheckboxItem
-                        key={column.id}
-                        className="capitalize"
-                        checked={column.getIsVisible()}
-                        onCheckedChange={(value) =>
-                          column.toggleVisibility(!!value)
-                        }
-                      >
-                        {typeof column.columnDef.header === 'string' ? column.columnDef.header : column.id}
-                      </DropdownMenuCheckboxItem>
-                    )
-                  })}
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <div className="relative w-64">
+              <IconSearch className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search students..."
+                value={search}
+                onChange={(event) => setSearch(event.target.value)}
+                className="pl-9 pr-9 max-w-sm"
+              />
+              {search && (
+                <button
+                  onClick={() => setSearch('')}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer"
+                >
+                  <IconX className="h-4 w-4" />
+                  <span className="sr-only">Clear search</span>
+                </button>
+              )}
+            </div>
           </div>
         </div>
         <div className="overflow-hidden rounded-lg border">
@@ -259,7 +361,6 @@ export function StudentsTable({
                 table.getRowModel().rows.map((row) => (
                   <TableRow
                     key={row.id}
-                    data-state={row.getIsSelected() && "selected"}
                   >
                     {row.getVisibleCells().map((cell, index) => (
                       <TableCell key={cell.id} className={index === 0 ? "pl-6" : ""}>
@@ -283,6 +384,7 @@ export function StudentsTable({
         </div>
         <div className="flex items-center justify-between px-4">
           <div className="text-muted-foreground hidden flex-1 text-sm lg:flex">
+            {students.total} student{students.total !== 1 ? 's' : ''} total
           </div>
           <div className="flex w-full items-center gap-8 lg:w-fit">
             <div className="hidden items-center gap-2 lg:flex">
@@ -290,14 +392,14 @@ export function StudentsTable({
                 Rows per page
               </Label>
               <Select
-                value={`${table.getState().pagination.pageSize}`}
+                value={`${students.per_page}`}
                 onValueChange={(value) => {
-                  table.setPageSize(Number(value))
+                  handlePageSizeChange(Number(value))
                 }}
               >
                 <SelectTrigger size="sm" className="w-20" id="rows-per-page">
                   <SelectValue
-                    placeholder={table.getState().pagination.pageSize}
+                    placeholder={students.per_page}
                   />
                 </SelectTrigger>
                 <SelectContent side="top">
@@ -310,15 +412,15 @@ export function StudentsTable({
               </Select>
             </div>
             <div className="flex w-fit items-center justify-center text-sm font-medium">
-              Page {table.getState().pagination.pageIndex + 1} of{" "}
-              {table.getPageCount()}
+              Page {students.current_page} of{" "}
+              {students.last_page}
             </div>
             <div className="ml-auto flex items-center gap-2 lg:ml-0">
               <Button
                 variant="outline"
                 className="hidden h-8 w-8 p-0 lg:flex"
-                onClick={() => table.setPageIndex(0)}
-                disabled={!table.getCanPreviousPage()}
+                onClick={() => handlePageChange(0)}
+                disabled={students.current_page === 1}
               >
                 <span className="sr-only">Go to first page</span>
                 <IconChevronsLeft />
@@ -327,8 +429,8 @@ export function StudentsTable({
                 variant="outline"
                 className="size-8"
                 size="icon"
-                onClick={() => table.previousPage()}
-                disabled={!table.getCanPreviousPage()}
+                onClick={() => handlePageChange(students.current_page - 2)}
+                disabled={students.current_page === 1}
               >
                 <span className="sr-only">Go to previous page</span>
                 <IconChevronLeft />
@@ -337,8 +439,8 @@ export function StudentsTable({
                 variant="outline"
                 className="size-8"
                 size="icon"
-                onClick={() => table.nextPage()}
-                disabled={!table.getCanNextPage()}
+                onClick={() => handlePageChange(students.current_page)}
+                disabled={students.current_page === students.last_page}
               >
                 <span className="sr-only">Go to next page</span>
                 <IconChevronRight />
@@ -347,8 +449,8 @@ export function StudentsTable({
                 variant="outline"
                 className="hidden size-8 lg:flex"
                 size="icon"
-                onClick={() => table.setPageIndex(table.getPageCount() - 1)}
-                disabled={!table.getCanNextPage()}
+                onClick={() => handlePageChange(students.last_page - 1)}
+                disabled={students.current_page === students.last_page}
               >
                 <span className="sr-only">Go to last page</span>
                 <IconChevronsRight />

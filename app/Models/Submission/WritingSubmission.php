@@ -14,6 +14,7 @@ use Database\Factories\WritingSubmissionFactory;
 use Illuminate\Database\Eloquent\Attributes\UseFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
  * Attributes:
@@ -27,6 +28,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property-read string $status
  * @property-read CarbonInterface $created_at
  * @property-read CarbonInterface $updated_at
+ * @property-read CarbonInterface|null $deleted_at
  *
  * Relationships:
  * @property-read Writing $writing
@@ -37,7 +39,7 @@ use Illuminate\Database\Eloquent\Model;
 final class WritingSubmission extends Model
 {
     use HasFactory;
-    use HasRelations, HasMethods;
+    use HasRelations, HasMethods, SoftDeletes;
 
     protected $fillable = [
         'writing_id',
