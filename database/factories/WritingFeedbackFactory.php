@@ -7,8 +7,7 @@ namespace Database\Factories;
 use App\Models\Feedback\WritingFeedback;
 use App\Models\Submission\WritingSubmission;
 use App\Models\User\User;
-use Database\Factories\Traits\HasEditorJSContent;
-use Database\Factories\Traits\HasTipTapContent;
+use Database\Factories\Traits\HasBlockNoteContent;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -16,7 +15,8 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 final class WritingFeedbackFactory extends Factory
 {
-    use HasTipTapContent, HasEditorJSContent;
+    use HasBlockNoteContent;
+
     /**
      * Define the model's default state.
      *
@@ -27,26 +27,10 @@ final class WritingFeedbackFactory extends Factory
         return [
             'submission_id' => WritingSubmission::factory(),
             'teacher_id' => User::factory(),
-            'content' => $this->generateTipTapContent(),
+            'content' => $this->generateBlockNoteFeedback(),
             'score' => fake()->randomFloat(2, 0, 100),
             'feedback' => fake()->paragraphs(3, true),
         ];
-    }
-
-    /**
-     * Generate content in TipTap (ProseMirror) format.
-     */
-    protected function generateTipTapContent(): array
-    {
-        return $this->generateTipTapFeedback();
-    }
-
-    /**
-     * Generate content in EditorJS format.
-     */
-    protected function generateEditorJSContent(): array
-    {
-        return $this->generateEditorJSFeedback();
     }
 
     /**

@@ -63,25 +63,30 @@ Route::domain('app.' . config('app.domain'))->group(function () {
     });
 });
 
+Route::domain('student.' . config('app.domain'))->group(function () {
+    Route::get('/', LandingController::class);
+
+    Route::middleware('guest')->group(function () {
+        Route::prefix('auth')->name('auth.')->group(function () {
+            Route::get('google/redirect', [StudentAuthController::class, 'redirect'])->name('google.redirect');
+            Route::get('google/callback', [StudentAuthController::class, 'callback'])->name('google.callback');
+        });
+    });
+
+    Route::prefix('tasks')->name('tasks.')->group(function () {
+        Route::get('/{handle}/writing/{slug}', [StudentWritingController::class, 'create'])->name('writing');
+    });
+
+    // Submission routes - require authentication
+    Route::middleware(['auth', 'is_role:' . RoleEnum::STUDENT->value])->group(function () {
+        Route::post('/submissions/start', [StudentWritingController::class, 'start'])->name('submissions.start');
+        Route::post('/submissions/save', [StudentWritingController::class, 'store'])->name('submissions.save');
+        Route::post('/submissions/finish', [StudentWritingController::class, 'finish'])->name('submissions.finish');
+    });
+});
+
 Route::get('/', LandingController::class);
-
 Route::prefix('images')->name('images.')->group(function () {
-    Route::post('upload', [ImageController::class, 'store'])->name('store');
+    Route::post('upload', [ImageController::class, 'store'])->name('store')->middleware('auth');
     Route::get('{filename}', [ImageController::class, 'show'])->name('show');
-});
-
-// Student auth routes (must be before the writing task route)
-Route::prefix('student/auth')->name('student.')->group(function () {
-    Route::get('google/redirect', [StudentAuthController::class, 'redirect'])->name('google.redirect');
-    Route::get('google/callback', [StudentAuthController::class, 'callback'])->name('google.callback');
-});
-
-// Writing task route - authentication checked in the frontend
-Route::get('/{handle}/writing/{slug}', [StudentWritingController::class, 'create'])->name('writing.task');
-
-// Submission routes - require authentication
-Route::middleware(['auth', 'is_role:' . RoleEnum::STUDENT->value])->group(function () {
-    Route::post('/submissions/start', [StudentWritingController::class, 'start'])->name('submissions.start');
-    Route::post('/submissions/save', [StudentWritingController::class, 'store'])->name('submissions.save');
-    Route::post('/submissions/finish', [StudentWritingController::class, 'finish'])->name('submissions.finish');
 });

@@ -97,7 +97,7 @@ The **Writing Task Creation** page in Mareff allows instructors to compose and p
 ## 💡 Notes for AI Agents
 - Build with ShadCN components.
 - Do not include unused editor features.
-- BlockNote is required (not TipTap).
+- BlockNote is required.
 - Keep the UI clean, minimalist, Medium-like.
 - Use Tailwind classes like `prose`, `text-2xl`, `mt-8`, etc. for spacing.
 - Dialog for time should be accessible and dismissible.

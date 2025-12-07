@@ -7,8 +7,7 @@ namespace Database\Factories;
 use App\Models\Submission\WritingSubmission;
 use App\Models\User\User;
 use App\Models\Writing\Writing;
-use Database\Factories\Traits\HasEditorJSContent;
-use Database\Factories\Traits\HasTipTapContent;
+use Database\Factories\Traits\HasBlockNoteContent;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -16,7 +15,8 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 final class WritingSubmissionFactory extends Factory
 {
-    use HasTipTapContent, HasEditorJSContent;
+    use HasBlockNoteContent;
+
     /**
      * Define the model's default state.
      *
@@ -29,27 +29,11 @@ final class WritingSubmissionFactory extends Factory
         return [
             'writing_id' => Writing::factory(),
             'student_id' => User::factory(),
-            'content' => $this->generateTipTapContent(),
+            'content' => $this->generateBlockNoteEssay(),
             'spent_time' => fake()->randomElement(['00:15:00', '00:30:00', '00:45:00', '01:00:00', '01:15:00']),
             'submitted_at' => $submittedAt,
             'evaluated_at' => fake()->optional(0.6)->dateTimeBetween($submittedAt, 'now'),
         ];
-    }
-
-    /**
-     * Generate content in TipTap (ProseMirror) format.
-     */
-    protected function generateTipTapContent(): array
-    {
-        return $this->generateTipTapEssay();
-    }
-
-    /**
-     * Generate content in EditorJS format.
-     */
-    protected function generateEditorJSContent(): array
-    {
-        return $this->generateEditorJSEssay();
     }
 
     /**

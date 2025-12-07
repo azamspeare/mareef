@@ -6,8 +6,7 @@ namespace Database\Factories;
 
 use App\Models\User\User;
 use App\Models\Writing\Writing;
-use Database\Factories\Traits\HasEditorJSContent;
-use Database\Factories\Traits\HasTipTapContent;
+use Database\Factories\Traits\HasBlockNoteContent;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
@@ -16,7 +15,8 @@ use Illuminate\Support\Str;
  */
 final class WritingFactory extends Factory
 {
-    use HasTipTapContent, HasEditorJSContent;
+    use HasBlockNoteContent;
+
     /**
      * Define the model's default state.
      *
@@ -32,27 +32,11 @@ final class WritingFactory extends Factory
             'teacher_id' => User::factory(),
             'title' => $title,
             'slug' => Str::slug($title),
-            'content' => $this->generateTipTapContent(),
+            'content' => $this->generateBlockNoteInstructions(),
             'allocated_time' => fake()->randomElement(['00:30:00', '00:45:00', '01:00:00', '01:30:00']),
             'public_at' => fake()->optional(0.7)->dateTimeBetween('-1 month', '+1 month'),
             'hash' => $hash,
         ];
-    }
-
-    /**
-     * Generate content in TipTap (ProseMirror) format.
-     */
-    protected function generateTipTapContent(): array
-    {
-        return $this->generateTipTapInstructions();
-    }
-
-    /**
-     * Generate content in EditorJS format.
-     */
-    protected function generateEditorJSContent(): array
-    {
-        return $this->generateEditorJSInstructions();
     }
 
     /**
