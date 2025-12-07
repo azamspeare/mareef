@@ -39,9 +39,9 @@ final class SubmissionFindForListQuery extends AbstractFilterQueryable implement
             $search = '%' . $filter->search . '%';
             $query->where(function ($q) use ($search) {
                 $q->whereHas('student', function ($q) use ($search) {
-                    $q->where('name', 'like', $search);
+                    $q->whereAny(['name', 'username'], 'like', $search);
                 })->orWhereHas('writing', function ($q) use ($search) {
-                    $q->where('title', 'like', $search);
+                    $q->whereAny(['title', 'slug'], 'like', $search);
                 });
             });
         }

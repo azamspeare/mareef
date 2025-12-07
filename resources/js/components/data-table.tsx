@@ -10,6 +10,8 @@ import {
   IconLayoutColumns,
   IconLoader,
   IconPlus,
+  IconSearch,
+  IconX,
 } from "@tabler/icons-react"
 import { z } from "zod"
 import { Link, router } from "@inertiajs/react"
@@ -39,6 +41,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import {
   Select,
@@ -108,6 +111,7 @@ const STORAGE_KEYS = {
   STATUS: 'dashboard.filter.status',
   PAGE: 'dashboard.filter.page',
   PER_PAGE: 'dashboard.filter.per_page',
+  SEARCH: 'dashboard.filter.search',
 };
 
 // Helper functions for localStorage
@@ -171,17 +175,31 @@ export function DataTable({
     return getStoredFilter(STORAGE_KEYS.PER_PAGE, 10);
   });
 
+  const [currentSearch, setCurrentSearch] = React.useState(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlSearch = urlParams.get('search');
+    if (urlSearch) {
+      setStoredFilter(STORAGE_KEYS.SEARCH, urlSearch);
+      return urlSearch;
+    }
+    return getStoredFilter(STORAGE_KEYS.SEARCH, '');
+  });
+
+  const [searchInputValue, setSearchInputValue] = React.useState(currentSearch);
+  const searchTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
+
   // On mount: load data with stored filters if no URL params
   React.useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
-    const hasParams = urlParams.has('status') || urlParams.has('page') || urlParams.has('per_page');
+    const hasParams = urlParams.has('status') || urlParams.has('page') || urlParams.has('per_page') || urlParams.has('search');
 
     if (!hasParams) {
       // No URL params means fresh page load - fetch with localStorage values
       const needsFetch =
         currentStatus !== 'not_reviewed' ||
         currentPage !== 1 ||
-        currentPerPage !== 10;
+        currentPerPage !== 10 ||
+        currentSearch !== '';
 
       if (needsFetch) {
         setIsLoadingFilters(true);
@@ -189,6 +207,7 @@ export function DataTable({
           status: currentStatus,
           page: currentPage,
           per_page: currentPerPage,
+          search: currentSearch || undefined,
         }, {
           preserveState: true,
           preserveScroll: true,
@@ -219,6 +238,7 @@ export function DataTable({
       status: value,
       page: 1,
       per_page: currentPerPage,
+      search: currentSearch || undefined,
     }, {
       preserveState: true,
       preserveScroll: true,
@@ -238,6 +258,7 @@ export function DataTable({
       page: page + 1,
       status: currentStatus,
       per_page: currentPerPage,
+      search: currentSearch || undefined,
     }, {
       preserveState: true,
       preserveScroll: true,
@@ -259,6 +280,7 @@ export function DataTable({
       per_page: pageSize,
       page: 1,
       status: currentStatus,
+      search: currentSearch || undefined,
     }, {
       preserveState: true,
       preserveScroll: true,
@@ -269,6 +291,74 @@ export function DataTable({
       },
     });
   };
+
+  // Handle search with debounce
+  const handleSearchChange = (value: string) => {
+    setSearchInputValue(value);
+
+    // Clear existing timeout
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
+    }
+
+    // Debounce the search request
+    searchTimeoutRef.current = setTimeout(() => {
+      setCurrentSearch(value);
+      setCurrentPage(1);
+      setStoredFilter(STORAGE_KEYS.SEARCH, value);
+      setStoredFilter(STORAGE_KEYS.PAGE, 1);
+
+      router.get(route('dashboard'), {
+        search: value || undefined,
+        page: 1,
+        status: currentStatus,
+        per_page: currentPerPage,
+      }, {
+        preserveState: true,
+        preserveScroll: true,
+        replace: true,
+        only: ['submissions', 'counts'],
+        onSuccess: () => {
+          window.history.replaceState({}, '', route('dashboard'));
+        },
+      });
+    }, 300);
+  };
+
+  const handleClearSearch = () => {
+    setSearchInputValue('');
+    setCurrentSearch('');
+    setCurrentPage(1);
+    setStoredFilter(STORAGE_KEYS.SEARCH, '');
+    setStoredFilter(STORAGE_KEYS.PAGE, 1);
+
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
+    }
+
+    router.get(route('dashboard'), {
+      page: 1,
+      status: currentStatus,
+      per_page: currentPerPage,
+    }, {
+      preserveState: true,
+      preserveScroll: true,
+      replace: true,
+      only: ['submissions', 'counts'],
+      onSuccess: () => {
+        window.history.replaceState({}, '', route('dashboard'));
+      },
+    });
+  };
+
+  // Cleanup timeout on unmount
+  React.useEffect(() => {
+    return () => {
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
+      }
+    };
+  }, []);
 
   const columns: ColumnDef<Submission>[] = [
     {
@@ -382,32 +472,54 @@ export function DataTable({
       className="w-full flex-col justify-start gap-6"
     >
       <div className="flex items-center justify-between px-4 lg:px-6">
-        <Label htmlFor="view-selector" className="sr-only">
-          View
-        </Label>
-        <Select value={currentStatus} onValueChange={handleTabChange}>
-          <SelectTrigger
-            className="flex w-fit @4xl/main:hidden"
-            size="sm"
-            id="view-selector"
-          >
-            <SelectValue placeholder="Select a view" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All</SelectItem>
-            <SelectItem value="not_reviewed">Not Reviewed</SelectItem>
-            <SelectItem value="evaluated">Evaluated</SelectItem>
-          </SelectContent>
-        </Select>
-        <TabsList className="**:data-[slot=badge]:bg-muted-foreground/30 hidden **:data-[slot=badge]:size-5 **:data-[slot=badge]:rounded-full **:data-[slot=badge]:px-3 @4xl/main:flex">
-          <TabsTrigger value="all">All</TabsTrigger>
-          <TabsTrigger value="not_reviewed">
-            Not Reviewed <Badge variant="secondary">{counts.not_reviewed}</Badge>
-          </TabsTrigger>
-          <TabsTrigger value="evaluated">
-            Evaluated <Badge variant="secondary">{counts.evaluated}</Badge>
-          </TabsTrigger>
-        </TabsList>
+        <div className="flex items-center gap-4">
+          {/* Search Input */}
+          <div className="relative">
+            <IconSearch className="absolute left-2.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+            <Input
+              type="text"
+              placeholder="Search by title or student..."
+              value={searchInputValue}
+              onChange={(e) => handleSearchChange(e.target.value)}
+              className="pl-8 pr-8 w-48 lg:w-64 h-9"
+            />
+            {searchInputValue && (
+              <button
+                onClick={handleClearSearch}
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+              >
+                <IconX className="size-4" />
+              </button>
+            )}
+          </div>
+
+          <Label htmlFor="view-selector" className="sr-only">
+            View
+          </Label>
+          <Select value={currentStatus} onValueChange={handleTabChange}>
+            <SelectTrigger
+              className="flex w-fit @4xl/main:hidden"
+              size="sm"
+              id="view-selector"
+            >
+              <SelectValue placeholder="Select a view" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All</SelectItem>
+              <SelectItem value="not_reviewed">Not Reviewed</SelectItem>
+              <SelectItem value="evaluated">Evaluated</SelectItem>
+            </SelectContent>
+          </Select>
+          <TabsList className="**:data-[slot=badge]:bg-muted-foreground/30 hidden **:data-[slot=badge]:size-5 **:data-[slot=badge]:rounded-full **:data-[slot=badge]:px-3 @4xl/main:flex">
+            <TabsTrigger value="all">All</TabsTrigger>
+            <TabsTrigger value="not_reviewed">
+              Not Reviewed <Badge variant="secondary">{counts.not_reviewed}</Badge>
+            </TabsTrigger>
+            <TabsTrigger value="evaluated">
+              Evaluated <Badge variant="secondary">{counts.evaluated}</Badge>
+            </TabsTrigger>
+          </TabsList>
+        </div>
         <div className="flex items-center gap-2">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

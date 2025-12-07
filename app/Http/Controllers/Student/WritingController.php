@@ -2,12 +2,14 @@
 
 declare(strict_types=1);
 
-namespace App\Http\Controllers\Landing;
+namespace App\Http\Controllers\Student;
 
 use App\Actions\Submission\CreateSubmissionAction;
+use App\Actions\Submission\UpdateSubmissionAction;
 use App\Contracts\Enums\SubmissionProcessEnum;
 use App\DTOs\Submission\SubmissionDTO;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Submission\FinishSubmissionRequest;
 use App\Http\Requests\Submission\StartSubmissionRequest;
 use App\Http\Requests\Submission\StoreSubmissionRequest;
 use App\Queries\Submission\SubmissionFindByWritingAndStudentIDQuery;
@@ -61,91 +63,59 @@ final class WritingController extends Controller
         $submission = $this->submissionQuery->query(['writing_id' => $attributes['writing_id'], 'student_id' => $student->id]);
 
         if ($submission) {
-            return back()->with('error', 'You have already started this task.');
+            return redirect()->back()->with('error', 'You have already started this task.');
         }
 
         $dto = SubmissionDTO::make($attributes, $student->id);
 
-        $result = $action->run($dto);
+        $action->run($dto);
 
-        return back()->with('success', 'Task started! Good luck!');
+        return redirect()->back()->with('success', 'Task started! Good luck!');
     }
 
-    /**
-     * Auto-save or manual save - updates submission content
-     */
-    public function store(StoreSubmissionRequest $request): RedirectResponse
+    public function update(StoreSubmissionRequest $request, UpdateSubmissionAction $action): RedirectResponse
     {
         $student = $request->user();
         $attributes = $request->validated();
 
-        $submission = $this->submissionQuery->query([
-            'writing_id' => $attributes['writing_id'],
-            'student_id' => $student->id
-        ]);
+        $submission = $this->submissionQuery->query(['writing_id' => $attributes['writing_id'], 'student_id' => $student->id]);
 
-        if (!$submission) {
-            return back()->with('error', 'Please start the task first before submitting.');
+        if (! $submission) {
+            return redirect()->back()->with('error', 'Please start the task first before submitting.');
         }
 
-        if ($submission->status !== SubmissionProcessEnum::IN_PROGRESS->value) {
-            return back()->with('error', 'This task has already been completed.');
+        if (! SubmissionProcessEnum::isInProgress($submission->status)) {
+            return redirect()->back()->with('error', 'This task has already been completed.');
         }
 
-        // Decode JSON string to array for proper storage
-        $content = $attributes['content'];
-        if (is_string($content)) {
-            $content = json_decode($content, true);
-        }
+        $dto = SubmissionDTO::make($attributes, $student->id);
 
-        // Update submission content
-        $submission->update([
-            'content' => $content,
-        ]);
+        $action->run($submission, $dto);
 
-        return back()->with('success', 'Your work has been saved successfully.');
+        return redirect()->back();
     }
 
-    /**
-     * Finish the writing task - marks submission as COMPLETED
-     */
-    public function finish(Request $request): RedirectResponse
+    public function finish(FinishSubmissionRequest $request, UpdateSubmissionAction $action): RedirectResponse
     {
-        $request->validate([
-            'writing_id' => ['required', 'integer', 'exists:writings,id'],
-            'content' => ['required', 'string'],
-            'spent_time' => ['required', 'string'], // Format: HH:MM:SS
-        ]);
+        $attributes = $request->validated();
 
         $student = $request->user();
-        $writingId = $request->input('writing_id');
+        $submission = $this->submissionQuery->query(['writing_id' => $attributes['writing_id'], 'student_id' => $student->id]);
 
-        $submission = $this->submissionQuery->query([
-            'writing_id' => $writingId,
-            'student_id' => $student->id
-        ]);
-
-        if (!$submission) {
+        if (! $submission) {
             return back()->with('error', 'No active submission found.');
         }
 
-        if ($submission->status !== SubmissionProcessEnum::IN_PROGRESS->value) {
+        if (! SubmissionProcessEnum::isInProgress($submission->status)) {
             return back()->with('error', 'This task has already been completed.');
         }
 
-        // Update submission with final content and mark as completed
-        $content = $request->input('content');
-        // Decode JSON string to array for proper storage
-        if (is_string($content)) {
-            $content = json_decode($content, true);
-        }
+        $attributes['status'] = SubmissionProcessEnum::COMPLETED->value;
+        $attributes['submitted_at'] = now();
 
-        $submission->update([
-            'content' => $content,
-            'spent_time' => $request->input('spent_time'),
-            'submitted_at' => now(),
-            'status' => SubmissionProcessEnum::COMPLETED->value,
-        ]);
+        $dto = SubmissionDTO::make($attributes, $student->id);
+
+        $action->run($submission, $dto);
 
         return back()->with('success', 'Task completed successfully! Your teacher will review it soon.');
     }

@@ -6,12 +6,12 @@ use App\Http\Controllers\Auth\StudentAuthController;
 use App\Http\Controllers\Auth\TeacherAuthController;
 use App\Http\Controllers\Dashboard\DashboardController;
 use App\Http\Controllers\Dashboard\StudentController;
+use App\Http\Controllers\Dashboard\Writing\SubmissionController;
 use App\Http\Controllers\Dashboard\Writing\WritingBulkController;
 use App\Http\Controllers\Dashboard\Writing\WritingController;
-use App\Http\Controllers\Dashboard\Writing\SubmissionController;
 use App\Http\Controllers\ImageController;
 use App\Http\Controllers\Landing\LandingController;
-use App\Http\Controllers\Landing\WritingController as StudentWritingController;
+use App\Http\Controllers\Student\WritingController as StudentWritingController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -79,7 +79,7 @@ Route::domain('student.' . config('app.domain'))->group(function () {
         Route::middleware(['auth', 'is_role:' . RoleEnum::STUDENT->value])->group(function () {
             Route::prefix('submissions')->name('submissions.')->group(function () {
                 Route::post('start', [StudentWritingController::class, 'start'])->name('start');
-                Route::post('save', [StudentWritingController::class, 'store'])->name('save');
+                Route::post('save', [StudentWritingController::class, 'update'])->name('save');
                 Route::post('finish', [StudentWritingController::class, 'finish'])->name('finish');
             });
         });

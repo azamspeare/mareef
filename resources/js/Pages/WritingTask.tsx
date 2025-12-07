@@ -1,14 +1,16 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useMemo, memo } from "react";
 import { Head, usePage, router } from "@inertiajs/react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 import { BlockNoteView } from '@blocknote/mantine';
 import { useCreateBlockNote } from '@blocknote/react';
+import { BlockNoteSchema, defaultBlockSpecs } from "@blocknote/core";
 import "@blocknote/mantine/style.css";
 import { Clock, UserCheck, GraduationCap, PenLine, ArrowUpRightIcon } from "lucide-react";
 import { useTheme } from "next-themes";
 import { toast } from "sonner";
+import { Toaster } from "@/components/ui/sonner";
 import {
     Drawer,
     DrawerContent,
@@ -17,6 +19,14 @@ import {
     DrawerTitle,
 } from "@/components/ui/drawer";
 import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from "@/components/ui/dialog";
+import {
     Empty,
     EmptyContent,
     EmptyDescription,
@@ -24,6 +34,10 @@ import {
     EmptyMedia,
     EmptyTitle,
 } from "@/components/ui/empty";
+import { useTimer } from "@/hooks/use-timer";
+import { useAutoSave } from "@/hooks/use-auto-save";
+
+// Types
 interface Writing {
     id: number;
     title: string;
@@ -49,104 +63,279 @@ interface WritingTaskProps {
     submission: Submission | null;
 }
 
+// Utility: Get draft from localStorage
+function getLocalDraft(storageKey: string | null): any[] | null {
+    if (typeof window === "undefined" || !storageKey) return null;
+
+    const localDraft = localStorage.getItem(storageKey);
+    if (!localDraft) return null;
+
+    try {
+        const parsed = JSON.parse(localDraft);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+            return parsed;
+        }
+    } catch (e) {
+        console.error("Failed to parse local draft", e);
+    }
+    return null;
+}
+
+// Utility: Parse submission content
+function parseSubmissionContent(content: any): any[] | null {
+    if (!content) return null;
+
+    try {
+        const parsed = typeof content === 'string' ? JSON.parse(content) : content;
+        if (Array.isArray(parsed) && parsed.length > 0) {
+            return parsed;
+        }
+    } catch (e) {
+        console.error("Failed to parse submission content", e);
+    }
+    return null;
+}
+
+// Header Component
+interface HeaderProps {
+    isSaving: boolean;
+    isInProgress: boolean;
+    isCompleted: boolean;
+    formattedTime: string;
+    timeColorClass: string;
+    timeLeft: number;
+    completedSpentTime?: string;
+    onFinishClick: () => void;
+}
+
+const Header = memo(function Header({
+    isSaving,
+    isInProgress,
+    isCompleted,
+    formattedTime,
+    timeColorClass,
+    timeLeft,
+    completedSpentTime,
+    onFinishClick,
+}: HeaderProps) {
+    return (
+        <header className="flex items-center justify-between px-6 py-3 border-b border-border bg-card">
+            <div className="flex items-center gap-3">
+                <div className="bg-primary text-primary-foreground flex size-6 items-center justify-center rounded-md">
+                    <span className="font-bold text-sm">M</span>
+                </div>
+                <h1 className="text-xl font-bold tracking-tight">Writing Task</h1>
+            </div>
+            <div className="flex items-center gap-4">
+                {isSaving && (
+                    <span className="text-sm text-muted-foreground">Saving...</span>
+                )}
+                <div className={`flex items-center gap-2 px-3 py-1.5 rounded-md font-medium text-sm ${isInProgress ? timeColorClass : 'bg-muted'}`}>
+                    <Clock className="w-4 h-4" />
+                    <span>{formattedTime}</span>
+                </div>
+                <ThemeToggle />
+                {isInProgress && (
+                    <Button
+                        variant="default"
+                        onClick={onFinishClick}
+                        disabled={timeLeft <= 0}
+                        className="relative overflow-hidden group"
+                    >
+                        <span className="relative z-10">Finish</span>
+                        <div className="absolute top-0 -left-[100%] w-[50%] h-full skew-x-[-25deg] bg-gradient-to-r from-transparent via-white/30 dark:via-black/20 to-transparent animate-shine" />
+                    </Button>
+                )}
+                {isCompleted && (
+                    <Button variant="outline" disabled>
+                        Completed {completedSpentTime && `· ${completedSpentTime}`}
+                    </Button>
+                )}
+            </div>
+        </header>
+    );
+});
+
+// Task Panel Component (Left side - read-only task content)
+interface TaskPanelProps {
+    title: string;
+    content: any;
+}
+
+const TaskPanel = memo(function TaskPanel({ title, content }: TaskPanelProps) {
+    const { theme } = useTheme();
+
+    const taskEditor = useCreateBlockNote({
+        initialContent: content
+            ? (Array.isArray(content) ? content : JSON.parse(content as string))
+            : undefined,
+    });
+
+    return (
+        <div className="h-full overflow-y-auto p-8">
+            <div className="max-w-3xl mx-auto">
+                <h1 className="text-3xl font-semibold tracking-tight mb-6">
+                    {title}
+                </h1>
+                <div className="prose prose-stone dark:prose-invert max-w-none [&_.bn-container]:bg-transparent [&_.bn-editor]:p-0 [&_.bn-editor]:bg-transparent writing-details">
+                    <BlockNoteView
+                        editor={taskEditor}
+                        theme={theme === "dark" ? "dark" : "light"}
+                        editable={false}
+                    />
+                </div>
+            </div>
+        </div>
+    );
+});
+
+// Login Drawer Component
+interface LoginDrawerProps {
+    isOpen: boolean;
+}
+
+const LoginDrawer = memo(function LoginDrawer({ isOpen }: LoginDrawerProps) {
+    const handleLogin = useCallback(() => {
+        window.location.href = route('auth.google.redirect');
+    }, []);
+
+    return (
+        <Drawer open={isOpen} dismissible={false}>
+            <DrawerContent className="max-w-full">
+                <DrawerHeader className="text-center pb-6">
+                    <div className="flex justify-center mb-4">
+                        <div className="p-4 rounded-full bg-primary/10">
+                            <GraduationCap className="w-10 h-10 text-primary" />
+                        </div>
+                    </div>
+                    <DrawerTitle className="text-2xl mb-2">
+                        Ready to Start Your Writing Test?
+                    </DrawerTitle>
+                    <DrawerDescription className="text-base max-w-md mx-auto">
+                        Please log in to begin your writing task.
+                        This allows us to save your progress, track your performance,
+                        and enable your teacher to provide personalized feedback.
+                    </DrawerDescription>
+                </DrawerHeader>
+
+                <div className="px-4 pb-8">
+                    <div className="max-w-sm mx-auto">
+                        <Button
+                            className="w-full"
+                            size="default"
+                            onClick={handleLogin}
+                        >
+                            <UserCheck className="w-4 h-4 mr-2" />
+                            Log In with Google
+                        </Button>
+                    </div>
+
+                    <div className="mt-6 flex items-center justify-center gap-6 text-sm text-muted-foreground max-w-md mx-auto">
+                        <div className="flex items-center gap-2">
+                            <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                            <span>Track Progress</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+                            <span>Get Feedback</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <div className="w-2 h-2 rounded-full bg-purple-500"></div>
+                            <span>Save Work</span>
+                        </div>
+                    </div>
+                </div>
+            </DrawerContent>
+        </Drawer>
+    );
+});
+
+// Empty State Component
+interface EmptyStateProps {
+    onStart: () => void;
+}
+
+const EmptyState = memo(function EmptyState({ onStart }: EmptyStateProps) {
+    return (
+        <Empty className="h-full border-0">
+            <EmptyHeader>
+                <EmptyMedia variant="icon">
+                    <PenLine />
+                </EmptyMedia>
+                <EmptyTitle>No Submission Yet</EmptyTitle>
+                <EmptyDescription>
+                    You haven't taken this writing test yet. Click the button below to start your submission.
+                </EmptyDescription>
+            </EmptyHeader>
+            <EmptyContent>
+                <Button onClick={onStart}>
+                    Start Writing
+                </Button>
+                <Button
+                    variant="link"
+                    asChild
+                    className="text-muted-foreground"
+                    size="sm"
+                >
+                    <a href="#" target="_blank" rel="noopener noreferrer">
+                        Learn More <ArrowUpRightIcon />
+                    </a>
+                </Button>
+            </EmptyContent>
+        </Empty>
+    );
+});
+
+// Main Component
 export default function WritingTask({ writing, submission }: WritingTaskProps) {
     const { props } = usePage<{
         auth?: { user?: any };
         flash?: { success?: string; error?: string; message?: string }
     }>();
+
     const isAuthenticated = !!props.auth?.user;
-
-    // Calculate time remaining in seconds based on submission or use full allocated time
-    const calculateInitialTime = () => {
-        const parts = writing.allocated_time.split(':').map(Number);
-        const hours = parts[0] || 0;
-        const minutes = parts[1] || 0;
-        const seconds = parts[2] || 0;
-        const totalSeconds = (hours * 3600) + (minutes * 60) + seconds;
-
-        if (submission && submission.status === 'in_progress') {
-            // Calculate time elapsed since submission was created
-            const createdAt = new Date(submission.created_at).getTime();
-            const now = Date.now();
-            const elapsedSeconds = Math.floor((now - createdAt) / 1000);
-            const remainingSeconds = totalSeconds - elapsedSeconds;
-
-            return Math.max(0, remainingSeconds);
-        }
-
-        return totalSeconds;
-    };
-
-    // Format seconds to MM:SS or HH:MM:SS
-    const formatTime = (totalSeconds: number) => {
-        const hours = Math.floor(totalSeconds / 3600);
-        const minutes = Math.floor((totalSeconds % 3600) / 60);
-        const seconds = totalSeconds % 60;
-
-        if (hours > 0) {
-            return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-        }
-        return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-    };
-
-    // Get time color based on remaining time
-    const getTimeColor = () => {
-        if (timeLeft <= 300) { // 5 minutes or less
-            return 'bg-destructive/20 text-destructive';
-        }
-        if (timeLeft <= 600) { // 10 minutes or less
-            return 'bg-yellow-500/20 text-yellow-600 dark:text-yellow-500';
-        }
-        return 'bg-muted';
-    };
-
     const hasStarted = !!submission;
     const isCompleted = submission?.status === 'completed';
     const isInProgress = submission?.status === 'in_progress';
 
-    const [timeLeft, setTimeLeft] = useState(calculateInitialTime());
     const [wordCount, setWordCount] = useState(0);
     const [isLoginDrawerOpen, setIsLoginDrawerOpen] = useState(!isAuthenticated);
-    const [isSaving, setIsSaving] = useState(false);
+    const [isFinishDialogOpen, setIsFinishDialogOpen] = useState(false);
 
     const { theme } = useTheme();
 
-    // Update drawer state when authentication changes
-    useEffect(() => {
-        setIsLoginDrawerOpen(!isAuthenticated);
-    }, [isAuthenticated]);
+    // Memoize OG image URL to avoid recalculating on every render
+    const ogImageUrl = useMemo(() => {
+        if (typeof window === "undefined") return "";
+        return `${window.location.origin}/images/writing-task-og.png`;
+    }, []);
 
-    // Handle flash messages
-    useEffect(() => {
-        const flash = props.flash;
+    // Storage key uses submission.id to be student-specific
+    const storageKey = submission?.id ? `writing_draft_${submission.id}` : null;
 
-        if (flash?.success) {
-            toast.success(flash.success);
-        }
-        if (flash?.error) {
-            toast.error(flash.error);
-        }
-        if (flash?.message) {
-            toast.info(flash.message);
-        }
-    }, [props.flash]);
+    // Create writing editor
+    const initialEditorContent = useMemo(() => {
+        // 1. Try local storage (only if we have a submission/student-specific key)
+        const localDraft = getLocalDraft(storageKey);
+        if (localDraft) return localDraft;
 
-    // Create read-only editor for task content
-    const taskEditor = useCreateBlockNote({
-        initialContent: writing.content ? (Array.isArray(writing.content) ? writing.content : JSON.parse(writing.content as string)) : undefined,
+        // 2. Fallback to server submission
+        const serverContent = parseSubmissionContent(submission?.content);
+        if (serverContent) return serverContent;
+
+        return [{ type: "paragraph" as const, content: "" }];
+    }, [submission?.content, storageKey]);
+
+    const schema = BlockNoteSchema.create({
+        blockSpecs: {
+            paragraph: defaultBlockSpecs.paragraph,
+        },
+        styleSpecs: {},
     });
 
-    // Create plain text editor for student writing (no formatting)
-    // Load existing submission content if available
     const writingEditor = useCreateBlockNote({
-        initialContent: submission?.content && Array.isArray(submission.content) && submission.content.length > 0
-            ? submission.content
-            : [
-                {
-                    type: "paragraph",
-                    content: "",
-                },
-            ],
+        schema,
+        initialContent: initialEditorContent,
         domAttributes: {
             editor: {
                 class: "bn-editor-plain",
@@ -154,66 +343,32 @@ export default function WritingTask({ writing, submission }: WritingTaskProps) {
         },
     });
 
-    // Update editor content when submission changes
-    useEffect(() => {
-        if (!submission?.content) return;
+    // Use custom timer hook
+    const { timeLeft, formattedTime, timeColorClass, spentTime } = useTimer({
+        allocatedTime: writing.allocated_time,
+        startedAt: submission?.created_at,
+        isActive: isInProgress,
+        onTimeUp: useCallback(() => {
+            toast.error("Time's up! Submitting your work automatically.");
+        }, []),
+    });
 
-        try {
-            let content = submission.content;
+    // Get auto-save payload
+    const getAutoSavePayload = useCallback(() => ({
+        writing_id: writing.id,
+        content: JSON.stringify(writingEditor.document),
+    }), [writing.id, writingEditor]);
 
-            // If content is a string, parse it
-            if (typeof content === 'string') {
-                content = JSON.parse(content);
-            }
+    // Use custom auto-save hook
+    const { isSaving } = useAutoSave({
+        isActive: isInProgress,
+        interval: 60000,
+        routeName: 'tasks.submissions.save',
+        getPayload: getAutoSavePayload,
+    });
 
-            // Ensure it's an array
-            if (!Array.isArray(content)) return;
-
-            // Replace editor blocks with submission content
-            writingEditor.replaceBlocks(writingEditor.document, content);
-
-            // Recalculate word count
-            handleEditorChange();
-        } catch (error) {
-            console.error('Error loading submission content:', error);
-        }
-    }, [submission?.id, submission?.status, writingEditor]);
-
-    // Force paste as plain text inside the writing editor
-    useEffect(() => {
-        const editorElement = document.querySelector(".bn-editor-plain") as HTMLElement | null;
-        if (!editorElement) return;
-
-        const handlePaste = (event: ClipboardEvent) => {
-            event.preventDefault();
-            const text = event.clipboardData?.getData("text/plain");
-            if (text) {
-                document.execCommand("insertText", false, text);
-            }
-        };
-
-        editorElement.addEventListener("paste", handlePaste as any);
-        return () => editorElement.removeEventListener("paste", handlePaste as any);
-    }, [writingEditor]);
-
-    // Timer countdown - only when in progress
-    useEffect(() => {
-        if (timeLeft <= 0 || !isInProgress) return;
-
-        const timer = setInterval(() => {
-            setTimeLeft((prev) => {
-                if (prev <= 1) {
-                    clearInterval(timer);
-                    return 0;
-                }
-                return prev - 1;
-            });
-        }, 1000); // Decrease every second
-
-        return () => clearInterval(timer);
-    }, [timeLeft, isInProgress]);
-
-    const handleEditorChange = () => {
+    // Word count calculation (defined early as it's used by multiple effects)
+    const updateWordCount = useCallback(() => {
         let text = "";
         writingEditor.document.forEach((block: any) => {
             if (block.content) {
@@ -229,100 +384,131 @@ export default function WritingTask({ writing, submission }: WritingTaskProps) {
             }
         });
 
-        // Simple word count
         const words = text.trim().split(/\s+/).filter(word => word.length > 0);
         setWordCount(words.length);
-    };
+    }, [writingEditor]);
+
+    // Update drawer state when authentication changes
+    useEffect(() => {
+        setIsLoginDrawerOpen(!isAuthenticated);
+    }, [isAuthenticated]);
+
+    // Handle flash messages
+    useEffect(() => {
+        const flash = props.flash;
+        if (!flash) return;
+
+        if (flash.success) {
+            toast.success(flash.success);
+        }
+        if (flash.error) {
+            toast.error(flash.error);
+        }
+        if (flash.message) {
+            toast.info(flash.message);
+        }
+    }, [props.flash]);
+
+    // Update editor content when submission changes (but respect localStorage draft)
+    useEffect(() => {
+        if (!submission?.content) return;
+
+        // If localStorage has a draft, use it instead of server content
+        const localDraft = getLocalDraft(storageKey);
+        if (localDraft) {
+            writingEditor.replaceBlocks(writingEditor.document, localDraft);
+            updateWordCount();
+            return;
+        }
+
+        // Fallback to server content
+        const serverContent = parseSubmissionContent(submission.content);
+        if (serverContent) {
+            writingEditor.replaceBlocks(writingEditor.document, serverContent);
+            updateWordCount();
+        }
+    }, [submission?.id, submission?.status, storageKey, writingEditor, updateWordCount]);
 
     // Start the task
-    const handleStart = () => {
+    const handleStart = useCallback(() => {
         router.post(route('tasks.submissions.start'), {
             writing_id: writing.id,
         });
-    };
+    }, [writing.id]);
+
+    // Open finish confirmation dialog
+    const handleFinishClick = useCallback(() => {
+        setIsFinishDialogOpen(true);
+    }, []);
 
     // Finish the task
-    const handleFinish = () => {
-        if (timeLeft <= 0 || !isInProgress) return;
+    const handleFinish = useCallback(() => {
+        if (timeLeft <= 0 && !isInProgress) return;
 
-        const parts = writing.allocated_time.split(':').map(Number);
-        const allocHours = parts[0] || 0;
-        const allocMinutes = parts[1] || 0;
-        const allocSeconds = parts[2] || 0;
-        const totalSeconds = (allocHours * 3600) + (allocMinutes * 60) + allocSeconds;
-
-        const spentSeconds = totalSeconds - timeLeft;
-        const spentHours = Math.floor(spentSeconds / 3600);
-        const spentMins = Math.floor((spentSeconds % 3600) / 60);
-        const spentSecs = spentSeconds % 60;
-        const spentTime = `${String(spentHours).padStart(2, '0')}:${String(spentMins).padStart(2, '0')}:${String(spentSecs).padStart(2, '0')}`;
-
+        setIsFinishDialogOpen(false);
         router.post(route('tasks.submissions.finish'), {
             writing_id: writing.id,
             content: JSON.stringify(writingEditor.document),
             spent_time: spentTime,
+        }, {
+            onSuccess: () => {
+                if (typeof window !== "undefined" && storageKey) {
+                    localStorage.removeItem(storageKey);
+                }
+            }
         });
-    };
+    }, [writing.id, writingEditor, spentTime, timeLeft, isInProgress, storageKey]);
 
-    // Auto-save functionality
+    // Editor change handler
+    const handleEditorChange = useCallback(() => {
+        updateWordCount();
+        if (typeof window !== "undefined" && storageKey) {
+            localStorage.setItem(storageKey, JSON.stringify(writingEditor.document));
+        }
+    }, [updateWordCount, writingEditor, storageKey]);
+
+    // Force paste as plain text inside the writing editor
     useEffect(() => {
-        if (!isInProgress) return;
+        const editorElement = document.querySelector(".bn-editor-plain") as HTMLElement | null;
+        if (!editorElement) return;
 
-        const autoSaveInterval = setInterval(() => {
-            setIsSaving(true);
-            router.post(route('tasks.submissions.save'), {
-                writing_id: writing.id,
-                content: JSON.stringify(writingEditor.document),
-            }, {
-                preserveScroll: true,
-                onFinish: () => setIsSaving(false),
-            });
-        }, 30000); // Auto-save every 30 seconds
+        const handlePaste = (event: ClipboardEvent) => {
+            event.preventDefault();
+        };
 
-        return () => clearInterval(autoSaveInterval);
-    }, [isInProgress, writingEditor]);
+        editorElement.addEventListener("paste", handlePaste);
+        return () => editorElement.removeEventListener("paste", handlePaste);
+    }, []);
 
     // Auto-submit when time runs out
     useEffect(() => {
         if (timeLeft <= 0 && isInProgress) {
-            toast.error("Time's up! Submitting your work automatically.");
             handleFinish();
         }
-    }, [timeLeft, isInProgress]);
+    }, [timeLeft, isInProgress, handleFinish]);
 
     return (
         <div className="h-screen flex flex-col bg-background text-foreground overflow-hidden">
-            <Head title="Writing Task" />
+            <Head>
+                <title>Writing Task</title>
+                <meta property="og:title" content={writing.title || "Writing Task"} />
+                <meta property="og:description" content="Complete your writing task on Mareff." />
+                <meta property="og:image" content={ogImageUrl} />
+                <meta property="og:type" content="website" />
+                <meta name="twitter:card" content="summary_large_image" />
+                <meta name="twitter:image" content={ogImageUrl} />
+            </Head>
 
-            {/* Navbar */}
-            <header className="flex items-center justify-between px-6 py-3 border-b border-border bg-card">
-                <div className="flex items-center gap-3">
-                    <div className="bg-primary text-primary-foreground flex size-6 items-center justify-center rounded-md">
-                        <span className="font-bold text-sm">M</span>
-                    </div>
-                    <h1 className="text-xl font-bold tracking-tight">Writing Task</h1>
-                </div>
-                <div className="flex items-center gap-4">
-                    {isSaving && (
-                        <span className="text-sm text-muted-foreground">Saving...</span>
-                    )}
-                    <div className={`flex items-center gap-2 px-3 py-1.5 rounded-md font-medium text-sm ${isInProgress ? getTimeColor() : 'bg-muted'}`}>
-                        <Clock className="w-4 h-4" />
-                        <span>{formatTime(timeLeft)}</span>
-                    </div>
-                    <ThemeToggle />
-                    {isInProgress && (
-                        <Button variant="default" onClick={handleFinish} disabled={timeLeft <= 0}>
-                            Finish
-                        </Button>
-                    )}
-                    {isCompleted && (
-                        <Button variant="outline" disabled>
-                            Completed
-                        </Button>
-                    )}
-                </div>
-            </header>
+            <Header
+                isSaving={isSaving}
+                isInProgress={isInProgress}
+                isCompleted={isCompleted}
+                formattedTime={formattedTime}
+                timeColorClass={timeColorClass}
+                timeLeft={timeLeft}
+                completedSpentTime={submission?.spent_time}
+                onFinishClick={handleFinishClick}
+            />
 
             {/* Main Content - Split Pane */}
             <div className="flex-1 overflow-hidden">
@@ -334,21 +520,7 @@ export default function WritingTask({ writing, submission }: WritingTaskProps) {
                         maxSize={50}
                         className="bg-muted/30"
                     >
-                        <div className="h-full overflow-y-auto p-8">
-                            <div className="max-w-3xl mx-auto">
-                                <h1 className="text-3xl font-semibold tracking-tight mb-6">
-                                    {writing.title}
-                                </h1>
-
-                                <div className="prose prose-stone dark:prose-invert max-w-none [&_.bn-container]:bg-transparent [&_.bn-editor]:p-0 [&_.bn-editor]:bg-transparent writing-details">
-                                    <BlockNoteView
-                                        editor={taskEditor}
-                                        theme={theme === "dark" ? "dark" : "light"}
-                                        editable={false}
-                                    />
-                                </div>
-                            </div>
-                        </div>
+                        <TaskPanel title={writing.title} content={writing.content} />
                     </ResizablePanel>
 
                     <ResizableHandle withHandle />
@@ -358,32 +530,7 @@ export default function WritingTask({ writing, submission }: WritingTaskProps) {
                         <div className="h-full flex flex-col px-8 pt-8">
                             <div className="flex-1 overflow-y-auto">
                                 {!hasStarted && isAuthenticated && (
-                                    <Empty className="h-full border-0">
-                                        <EmptyHeader>
-                                            <EmptyMedia variant="icon">
-                                                <PenLine />
-                                            </EmptyMedia>
-                                            <EmptyTitle>No Submission Yet</EmptyTitle>
-                                            <EmptyDescription>
-                                                You haven't taken this writing test yet. Click the button below to start your submission.
-                                            </EmptyDescription>
-                                        </EmptyHeader>
-                                        <EmptyContent>
-                                            <Button onClick={handleStart}>
-                                                Start Writing
-                                            </Button>
-                                            <Button
-                                                variant="link"
-                                                asChild
-                                                className="text-muted-foreground"
-                                                size="sm"
-                                            >
-                                                <a href="#" target="_blank" rel="noopener noreferrer">
-                                                    Learn More <ArrowUpRightIcon />
-                                                </a>
-                                            </Button>
-                                        </EmptyContent>
-                                    </Empty>
+                                    <EmptyState onStart={handleStart} />
                                 )}
                                 {!hasStarted && !isAuthenticated && (
                                     <div className="flex items-center justify-center h-full text-muted-foreground">
@@ -415,54 +562,41 @@ export default function WritingTask({ writing, submission }: WritingTaskProps) {
                 </ResizablePanelGroup>
             </div>
 
-            {/* Login/Register Drawer */}
-            <Drawer open={isLoginDrawerOpen} dismissible={false}>
-                <DrawerContent className="max-w-full">
-                    <DrawerHeader className="text-center pb-6">
-                        <div className="flex justify-center mb-4">
-                            <div className="p-4 rounded-full bg-primary/10">
-                                <GraduationCap className="w-10 h-10 text-primary" />
-                            </div>
-                        </div>
-                        <DrawerTitle className="text-2xl mb-2">
-                            Ready to Start Your Writing Test?
-                        </DrawerTitle>
-                        <DrawerDescription className="text-base max-w-md mx-auto">
-                            Please log in to begin your writing task.
-                            This allows us to save your progress, track your performance,
-                            and enable your teacher to provide personalized feedback.
-                        </DrawerDescription>
-                    </DrawerHeader>
+            <LoginDrawer isOpen={isLoginDrawerOpen} />
 
-                    <div className="px-4 pb-8">
-                        <div className="max-w-sm mx-auto">
-                            <Button
-                                className="w-full"
-                                size="default"
-                                onClick={() => window.location.href = route('auth.google.redirect')}
-                            >
-                                <UserCheck className="w-4 h-4 mr-2" />
-                                Log In with Google
-                            </Button>
+            {/* Finish Confirmation Dialog */}
+            <Dialog open={isFinishDialogOpen} onOpenChange={setIsFinishDialogOpen}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Submit your writing?</DialogTitle>
+                        <DialogDescription>
+                            Are you sure you want to finish and submit your writing task?
+                            This action cannot be undone, and you won't be able to make
+                            any further changes after submission.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="flex items-center gap-4 py-2 text-sm text-muted-foreground">
+                        <div className="flex items-center gap-2">
+                            <Clock className="w-4 h-4" />
+                            <span>Time remaining: {formattedTime}</span>
                         </div>
-
-                        <div className="mt-6 flex items-center justify-center gap-6 text-sm text-muted-foreground max-w-md mx-auto">
-                            <div className="flex items-center gap-2">
-                                <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                                <span>Track Progress</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <div className="w-2 h-2 rounded-full bg-blue-500"></div>
-                                <span>Get Feedback</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <div className="w-2 h-2 rounded-full bg-purple-500"></div>
-                                <span>Save Work</span>
-                            </div>
-                        </div>
+                        <div>Words: {wordCount}</div>
                     </div>
-                </DrawerContent>
-            </Drawer>
+                    <DialogFooter>
+                        <Button
+                            variant="outline"
+                            onClick={() => setIsFinishDialogOpen(false)}
+                        >
+                            Continue Writing
+                        </Button>
+                        <Button onClick={handleFinish}>
+                            Submit
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            <Toaster position="bottom-center" />
         </div>
     );
 }
