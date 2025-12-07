@@ -77,7 +77,7 @@ export default function Show({ writing }: ShowProps) {
         const hostname = window.location.hostname;
         const mainDomain = hostname.split('.').slice(-2).join('.');
         const protocol = window.location.protocol;
-        const url = `${protocol}//${mainDomain}/${auth.user.username}/writing/${writing.slug}`;
+        const url = `${protocol}//student.${mainDomain}/tasks/${auth.user.username}/writing/${writing.slug}`;
 
         try {
             await navigator.clipboard.writeText(url);

@@ -4,14 +4,15 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Landing;
 
+use App\Actions\Submission\CreateSubmissionAction;
 use App\Contracts\Enums\SubmissionProcessEnum;
+use App\DTOs\Submission\SubmissionDTO;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Submission\StartSubmissionRequest;
 use App\Http\Requests\Submission\StoreSubmissionRequest;
-use App\Models\Submission\WritingSubmission;
 use App\Queries\Submission\SubmissionFindByWritingAndStudentIDQuery;
 use App\Queries\User\TeacherFindByUsernameQuery;
 use App\Queries\Writing\WritingFindBySlugQuery;
-use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -38,7 +39,6 @@ final class WritingController extends Controller
             abort(404);
         }
 
-        // Check if the authenticated user has an existing submission
         $submission = null;
         if ($request->user()) {
             $submission = $this->submissionQuery->query([
@@ -53,37 +53,20 @@ final class WritingController extends Controller
         ]);
     }
 
-    /**
-     * Start the writing task - creates a new submission with IN_PROGRESS status
-     */
-    public function start(Request $request): RedirectResponse
+    public function start(StartSubmissionRequest $request, CreateSubmissionAction $action): RedirectResponse
     {
-        $request->validate([
-            'writing_id' => ['required', 'integer', 'exists:writings,id'],
-        ]);
+        $attributes = $request->validated();
 
         $student = $request->user();
-        $writingId = $request->input('writing_id');
+        $submission = $this->submissionQuery->query(['writing_id' => $attributes['writing_id'], 'student_id' => $student->id]);
 
-        // Check if submission already exists
-        $existingSubmission = $this->submissionQuery->query([
-            'writing_id' => $writingId,
-            'student_id' => $student->id
-        ]);
-
-        if ($existingSubmission) {
+        if ($submission) {
             return back()->with('error', 'You have already started this task.');
         }
 
-        // Create new submission with IN_PROGRESS status
-        WritingSubmission::create([
-            'writing_id' => $writingId,
-            'student_id' => $student->id,
-            'content' => [],
-            'spent_time' => '00:00:00',
-            'submitted_at' => now(),
-            'status' => SubmissionProcessEnum::IN_PROGRESS->value,
-        ]);
+        $dto = SubmissionDTO::make($attributes, $student->id);
+
+        $result = $action->run($dto);
 
         return back()->with('success', 'Task started! Good luck!');
     }

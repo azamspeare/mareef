@@ -75,13 +75,14 @@ Route::domain('student.' . config('app.domain'))->group(function () {
 
     Route::prefix('tasks')->name('tasks.')->group(function () {
         Route::get('/{handle}/writing/{slug}', [StudentWritingController::class, 'create'])->name('writing');
-    });
 
-    // Submission routes - require authentication
-    Route::middleware(['auth', 'is_role:' . RoleEnum::STUDENT->value])->group(function () {
-        Route::post('/submissions/start', [StudentWritingController::class, 'start'])->name('submissions.start');
-        Route::post('/submissions/save', [StudentWritingController::class, 'store'])->name('submissions.save');
-        Route::post('/submissions/finish', [StudentWritingController::class, 'finish'])->name('submissions.finish');
+        Route::middleware(['auth', 'is_role:' . RoleEnum::STUDENT->value])->group(function () {
+            Route::prefix('submissions')->name('submissions.')->group(function () {
+                Route::post('start', [StudentWritingController::class, 'start'])->name('start');
+                Route::post('save', [StudentWritingController::class, 'store'])->name('save');
+                Route::post('finish', [StudentWritingController::class, 'finish'])->name('finish');
+            });
+        });
     });
 });
 

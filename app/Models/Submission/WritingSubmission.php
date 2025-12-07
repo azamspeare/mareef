@@ -22,8 +22,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property-read int $writing_id
  * @property-read int $student_id
  * @property-read array $content
- * @property-read string $spent_time
- * @property-read CarbonInterface $submitted_at
+ * @property-read string|null $spent_time
+ * @property-read CarbonInterface|null $submitted_at
  * @property-read CarbonInterface|null $evaluated_at
  * @property-read string $status
  * @property-read CarbonInterface $created_at

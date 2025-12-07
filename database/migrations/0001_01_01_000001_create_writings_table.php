@@ -32,8 +32,8 @@ return new class extends Migration
             $table->foreignId('writing_id')->references('id')->on('writings')->cascadeOnDelete();
             $table->foreignId('student_id')->references('id')->on('users')->cascadeOnDelete();
             $table->json('content');
-            $table->time('spent_time');
-            $table->timestamp('submitted_at');
+            $table->time('spent_time')->nullable();
+            $table->timestamp('submitted_at')->nullable();
             $table->timestamp('evaluated_at')->nullable();
             $table->string('status')->default(SubmissionProcessEnum::IN_PROGRESS->value);
             $table->timestamps();

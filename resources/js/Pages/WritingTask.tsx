@@ -6,7 +6,7 @@ import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/componen
 import { BlockNoteView } from '@blocknote/mantine';
 import { useCreateBlockNote } from '@blocknote/react';
 import "@blocknote/mantine/style.css";
-import { Clock, UserCheck, GraduationCap } from "lucide-react";
+import { Clock, UserCheck, GraduationCap, PenLine, ArrowUpRightIcon } from "lucide-react";
 import { useTheme } from "next-themes";
 import { toast } from "sonner";
 import {
@@ -16,6 +16,14 @@ import {
     DrawerHeader,
     DrawerTitle,
 } from "@/components/ui/drawer";
+import {
+    Empty,
+    EmptyContent,
+    EmptyDescription,
+    EmptyHeader,
+    EmptyMedia,
+    EmptyTitle,
+} from "@/components/ui/empty";
 interface Writing {
     id: number;
     title: string;
@@ -48,22 +56,48 @@ export default function WritingTask({ writing, submission }: WritingTaskProps) {
     }>();
     const isAuthenticated = !!props.auth?.user;
 
-    // Calculate time remaining based on submission or use full allocated time
+    // Calculate time remaining in seconds based on submission or use full allocated time
     const calculateInitialTime = () => {
-        const [hours, minutes] = writing.allocated_time.split(':').map(Number);
-        const totalMinutes = (hours * 60) + minutes;
+        const parts = writing.allocated_time.split(':').map(Number);
+        const hours = parts[0] || 0;
+        const minutes = parts[1] || 0;
+        const seconds = parts[2] || 0;
+        const totalSeconds = (hours * 3600) + (minutes * 60) + seconds;
 
         if (submission && submission.status === 'in_progress') {
             // Calculate time elapsed since submission was created
             const createdAt = new Date(submission.created_at).getTime();
             const now = Date.now();
-            const elapsedMinutes = Math.floor((now - createdAt) / 1000 / 60);
-            const remainingMinutes = totalMinutes - elapsedMinutes;
+            const elapsedSeconds = Math.floor((now - createdAt) / 1000);
+            const remainingSeconds = totalSeconds - elapsedSeconds;
 
-            return Math.max(0, remainingMinutes);
+            return Math.max(0, remainingSeconds);
         }
 
-        return totalMinutes;
+        return totalSeconds;
+    };
+
+    // Format seconds to MM:SS or HH:MM:SS
+    const formatTime = (totalSeconds: number) => {
+        const hours = Math.floor(totalSeconds / 3600);
+        const minutes = Math.floor((totalSeconds % 3600) / 60);
+        const seconds = totalSeconds % 60;
+
+        if (hours > 0) {
+            return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        }
+        return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+    };
+
+    // Get time color based on remaining time
+    const getTimeColor = () => {
+        if (timeLeft <= 300) { // 5 minutes or less
+            return 'bg-destructive/20 text-destructive';
+        }
+        if (timeLeft <= 600) { // 10 minutes or less
+            return 'bg-yellow-500/20 text-yellow-600 dark:text-yellow-500';
+        }
+        return 'bg-muted';
     };
 
     const hasStarted = !!submission;
@@ -162,9 +196,9 @@ export default function WritingTask({ writing, submission }: WritingTaskProps) {
         return () => editorElement.removeEventListener("paste", handlePaste as any);
     }, [writingEditor]);
 
-    // Timer countdown
+    // Timer countdown - only when in progress
     useEffect(() => {
-        if (timeLeft <= 0) return;
+        if (timeLeft <= 0 || !isInProgress) return;
 
         const timer = setInterval(() => {
             setTimeLeft((prev) => {
@@ -174,10 +208,10 @@ export default function WritingTask({ writing, submission }: WritingTaskProps) {
                 }
                 return prev - 1;
             });
-        }, 60000); // Decrease every minute
+        }, 1000); // Decrease every second
 
         return () => clearInterval(timer);
-    }, [timeLeft]);
+    }, [timeLeft, isInProgress]);
 
     const handleEditorChange = () => {
         let text = "";
@@ -202,7 +236,7 @@ export default function WritingTask({ writing, submission }: WritingTaskProps) {
 
     // Start the task
     const handleStart = () => {
-        router.post(route('submissions.start'), {
+        router.post(route('tasks.submissions.start'), {
             writing_id: writing.id,
         });
     };
@@ -211,14 +245,19 @@ export default function WritingTask({ writing, submission }: WritingTaskProps) {
     const handleFinish = () => {
         if (timeLeft <= 0 || !isInProgress) return;
 
-        const [allocHours, allocMinutes] = writing.allocated_time.split(':').map(Number);
-        const totalMinutes = (allocHours * 60) + allocMinutes;
-        const spentMinutes = totalMinutes - timeLeft;
-        const spentHours = Math.floor(spentMinutes / 60);
-        const spentMins = spentMinutes % 60;
-        const spentTime = `${String(spentHours).padStart(2, '0')}:${String(spentMins).padStart(2, '0')}:00`;
+        const parts = writing.allocated_time.split(':').map(Number);
+        const allocHours = parts[0] || 0;
+        const allocMinutes = parts[1] || 0;
+        const allocSeconds = parts[2] || 0;
+        const totalSeconds = (allocHours * 3600) + (allocMinutes * 60) + allocSeconds;
 
-        router.post(route('submissions.finish'), {
+        const spentSeconds = totalSeconds - timeLeft;
+        const spentHours = Math.floor(spentSeconds / 3600);
+        const spentMins = Math.floor((spentSeconds % 3600) / 60);
+        const spentSecs = spentSeconds % 60;
+        const spentTime = `${String(spentHours).padStart(2, '0')}:${String(spentMins).padStart(2, '0')}:${String(spentSecs).padStart(2, '0')}`;
+
+        router.post(route('tasks.submissions.finish'), {
             writing_id: writing.id,
             content: JSON.stringify(writingEditor.document),
             spent_time: spentTime,
@@ -231,7 +270,7 @@ export default function WritingTask({ writing, submission }: WritingTaskProps) {
 
         const autoSaveInterval = setInterval(() => {
             setIsSaving(true);
-            router.post(route('submissions.save'), {
+            router.post(route('tasks.submissions.save'), {
                 writing_id: writing.id,
                 content: JSON.stringify(writingEditor.document),
             }, {
@@ -257,26 +296,21 @@ export default function WritingTask({ writing, submission }: WritingTaskProps) {
 
             {/* Navbar */}
             <header className="flex items-center justify-between px-6 py-3 border-b border-border bg-card">
-                <div className="flex items-center">
+                <div className="flex items-center gap-3">
+                    <div className="bg-primary text-primary-foreground flex size-6 items-center justify-center rounded-md">
+                        <span className="font-bold text-sm">M</span>
+                    </div>
                     <h1 className="text-xl font-bold tracking-tight">Writing Task</h1>
                 </div>
                 <div className="flex items-center gap-4">
                     {isSaving && (
                         <span className="text-sm text-muted-foreground">Saving...</span>
                     )}
-                    {hasStarted && (
-                        <div className={`flex items-center gap-2 px-3 py-1.5 rounded-md font-medium text-sm ${timeLeft <= 5 ? 'bg-destructive/20 text-destructive' : 'bg-muted'
-                            }`}>
-                            <Clock className="w-4 h-4" />
-                            <span>{timeLeft} minute{timeLeft !== 1 ? 's' : ''} left</span>
-                        </div>
-                    )}
+                    <div className={`flex items-center gap-2 px-3 py-1.5 rounded-md font-medium text-sm ${isInProgress ? getTimeColor() : 'bg-muted'}`}>
+                        <Clock className="w-4 h-4" />
+                        <span>{formatTime(timeLeft)}</span>
+                    </div>
                     <ThemeToggle />
-                    {!hasStarted && isAuthenticated && (
-                        <Button variant="default" onClick={handleStart}>
-                            Start
-                        </Button>
-                    )}
                     {isInProgress && (
                         <Button variant="default" onClick={handleFinish} disabled={timeLeft <= 0}>
                             Finish
@@ -323,9 +357,37 @@ export default function WritingTask({ writing, submission }: WritingTaskProps) {
                     <ResizablePanel defaultSize={50} minSize={30}>
                         <div className="h-full flex flex-col px-8 pt-8">
                             <div className="flex-1 overflow-y-auto">
-                                {!hasStarted && (
+                                {!hasStarted && isAuthenticated && (
+                                    <Empty className="h-full border-0">
+                                        <EmptyHeader>
+                                            <EmptyMedia variant="icon">
+                                                <PenLine />
+                                            </EmptyMedia>
+                                            <EmptyTitle>No Submission Yet</EmptyTitle>
+                                            <EmptyDescription>
+                                                You haven't taken this writing test yet. Click the button below to start your submission.
+                                            </EmptyDescription>
+                                        </EmptyHeader>
+                                        <EmptyContent>
+                                            <Button onClick={handleStart}>
+                                                Start Writing
+                                            </Button>
+                                            <Button
+                                                variant="link"
+                                                asChild
+                                                className="text-muted-foreground"
+                                                size="sm"
+                                            >
+                                                <a href="#" target="_blank" rel="noopener noreferrer">
+                                                    Learn More <ArrowUpRightIcon />
+                                                </a>
+                                            </Button>
+                                        </EmptyContent>
+                                    </Empty>
+                                )}
+                                {!hasStarted && !isAuthenticated && (
                                     <div className="flex items-center justify-center h-full text-muted-foreground">
-                                        <p>Click "Start" to begin writing</p>
+                                        <p>Please log in to start writing</p>
                                     </div>
                                 )}
                                 {hasStarted && (
@@ -343,9 +405,11 @@ export default function WritingTask({ writing, submission }: WritingTaskProps) {
                                     </div>
                                 )}
                             </div>
-                            <div className="my-4 text-right text-sm text-muted-foreground">
-                                Words: {wordCount}
-                            </div>
+                            {hasStarted && (
+                                <div className="my-4 text-right text-sm text-muted-foreground">
+                                    Words: {wordCount}
+                                </div>
+                            )}
                         </div>
                     </ResizablePanel>
                 </ResizablePanelGroup>
@@ -375,7 +439,7 @@ export default function WritingTask({ writing, submission }: WritingTaskProps) {
                             <Button
                                 className="w-full"
                                 size="default"
-                                onClick={() => window.location.href = route('student.google.redirect')}
+                                onClick={() => window.location.href = route('auth.google.redirect')}
                             >
                                 <UserCheck className="w-4 h-4 mr-2" />
                                 Log In with Google

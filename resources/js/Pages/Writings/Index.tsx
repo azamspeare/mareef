@@ -41,7 +41,7 @@ import {
     IconChevronsRight,
     IconX,
 } from '@tabler/icons-react';
-import { ArchiveRestore, FileText, ArrowUpRightIcon } from 'lucide-react';
+import { ArchiveRestore, FileText, ArrowUpRightIcon, Share } from 'lucide-react';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -96,6 +96,7 @@ const formatTime = (timeString: string) => {
 interface Writing {
     id: number;
     title: string;
+    slug: string;
     content: string;
     allocated_time: string;
     deleted_at: string | null;
@@ -116,8 +117,26 @@ interface WritingsProps {
 }
 
 export default function Writings({ writings }: WritingsProps) {
-    const { flash } = usePage().props as any;
+    const { flash, auth } = usePage().props as any;
     const [rowSelection, setRowSelection] = useState({});
+
+    const handleShare = async (slug: string) => {
+        const hostname = window.location.hostname;
+        const mainDomain = hostname.split('.').slice(-2).join('.');
+        const protocol = window.location.protocol;
+        const url = `${protocol}//student.${mainDomain}/tasks/${auth.user.username}/writing/${slug}`;
+
+        try {
+            await navigator.clipboard.writeText(url);
+            toast.success('Link copied!', {
+                description: 'You can share this writing with your students.',
+            });
+        } catch (err) {
+            toast.error('Failed to copy link', {
+                description: 'Please try again.',
+            });
+        }
+    };
 
     // Initialize filters from localStorage or URL params
     const [currentTrashed, setCurrentTrashed] = useState(() => {
@@ -531,6 +550,12 @@ export default function Writings({ writings }: WritingsProps) {
                                     Edit
                                 </Link>
                             </DropdownMenuItem>
+                            {!row.original.deleted_at && (
+                                <DropdownMenuItem onClick={() => handleShare(row.original.slug)}>
+                                    <Share className="h-4 w-4 mr-2" />
+                                    Share
+                                </DropdownMenuItem>
+                            )}
                             {row.original.deleted_at ? (
                                 <>
                                     <DropdownMenuItem
@@ -550,13 +575,16 @@ export default function Writings({ writings }: WritingsProps) {
                                     </DropdownMenuItem>
                                 </>
                             ) : (
-                                <DropdownMenuItem
-                                    onClick={() => handleArchive(row.original.id)}
-                                    className="hover:bg-yellow-500/30 focus:bg-yellow-500/30"
-                                >
-                                    <IconArchive className="h-4 w-4 mr-2" />
-                                    Archive
-                                </DropdownMenuItem>
+                                <>
+                                    <DropdownMenuSeparator />
+                                    <DropdownMenuItem
+                                        onClick={() => handleArchive(row.original.id)}
+                                        className="hover:bg-yellow-500/30 focus:bg-yellow-500/30"
+                                    >
+                                        <IconArchive className="h-4 w-4 mr-2" />
+                                        Archive
+                                    </DropdownMenuItem>
+                                </>
                             )}
                         </DropdownMenuContent>
                     </DropdownMenu>
