@@ -16,13 +16,15 @@ return new class extends Migration
             $table->id();
             $table->foreignId('teacher_id')->references('id')->on('users')->cascadeOnDelete();
             $table->string('title');
-            $table->string('slug')->unique();
+            $table->string('slug');
             $table->json('content');
             $table->time('allocated_time')->nullable();
             $table->timestamp('public_at')->nullable();
             $table->string('hash');
             $table->timestamps();
             $table->softDeletes();
+
+            $table->unique(['teacher_id', 'slug']);
         });
 
         Schema::create('writing_submissions', function (Blueprint $table) {

@@ -4,13 +4,14 @@ declare(strict_types=1);
 
 namespace App\Helpers\Content;
 
+use App\Services\Image\CreateImageService;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 
 final class BlockNoteContentHelper
 {
     /**
-     * Process BlockNote content to download and store images locally
+     * Process BlockNote content to move images from temp to permanent storage.
+     * Images are already uploaded to our temp storage via the image upload endpoint.
      */
     public static function processImages(array $content): array
     {
@@ -22,13 +23,15 @@ final class BlockNoteContentHelper
             // Process image blocks
             if (isset($block['type']) && $block['type'] === 'image' && isset($block['props']['url'])) {
                 $url = $block['props']['url'];
+                $filename = self::extractFilename($url);
 
-                // Only process external URLs (tmpfiles.org or other CDNs)
-                if (str_starts_with($url, 'http://') || str_starts_with($url, 'https://')) {
-                    $storedPath = self::downloadAndStoreImage($url);
+                if ($filename) {
+                    $moved = self::moveToPermanentStorage($filename);
 
-                    if ($storedPath) {
-                        $content[$index]['props']['url'] = $storedPath;
+                    if ($moved) {
+                        // URL stays the same since ImageController serves from both paths,
+                        // but we could update it if needed
+                        $content[$index]['props']['url'] = $url;
                     }
                 }
             }
@@ -43,31 +46,36 @@ final class BlockNoteContentHelper
     }
 
     /**
-     * Download image from URL and store in local storage
+     * Extract the filename from our image URL.
      */
-    private static function downloadAndStoreImage(string $url): ?string
+    private static function extractFilename(string $url): ?string
     {
-        try {
-            // Download image content
-            $imageContent = file_get_contents($url);
-
-            if ($imageContent === false) {
-                return null;
-            }
-
-            // Generate unique filename
-            $extension = pathinfo(parse_url($url, PHP_URL_PATH), PATHINFO_EXTENSION) ?: 'jpg';
-            $filename = Str::uuid() . '.' . $extension;
-            $path = 'writings/images/' . $filename;
-
-            // Store in private storage
-            Storage::put($path, $imageContent);
-
-            return $path;
-        } catch (\Exception $e) {
-            // Log error and return null to keep original URL
-            \Log::error('Failed to download image: ' . $e->getMessage(), ['url' => $url]);
-            return null;
+        // Match URLs like /images/{filename} or full URLs ending with /images/{filename}
+        if (preg_match('/\/images\/([a-f0-9\-]+\.[a-z]+)$/i', $url, $matches)) {
+            return $matches[1];
         }
+
+        return null;
+    }
+
+    /**
+     * Move the image from temp to permanent storage.
+     */
+    private static function moveToPermanentStorage(string $filename): bool
+    {
+        $tempPath = CreateImageService::TEMP_PATH . '/' . $filename;
+        $permanentPath = CreateImageService::PERMANENT_PATH . '/' . $filename;
+
+        // Already in permanent storage
+        if (Storage::exists($permanentPath)) {
+            return true;
+        }
+
+        // Not in temp storage (external URL or already moved)
+        if (!Storage::exists($tempPath)) {
+            return false;
+        }
+
+        return Storage::move($tempPath, $permanentPath);
     }
 }

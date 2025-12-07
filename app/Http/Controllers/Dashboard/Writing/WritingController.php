@@ -12,15 +12,15 @@ use App\Filters\Writing\WritingFilter;
 use App\Handlers\ServiceHandler;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Writing\StoreWritingRequest;
+use App\Http\Requests\Writing\UpdateWritingRequest;
 use App\Queries\Writing\WritingFindByIDQuery;
 use App\Queries\Writing\WritingFindForListQuery;
 use App\Services\Writing\CreateWritingService;
+use App\Services\Writing\UpdateWritingService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
-use Symfony\Component\HttpFoundation\StreamedResponse;
 
 final class WritingController extends Controller
 {
@@ -71,7 +71,7 @@ final class WritingController extends Controller
         $teacher = $request->user();
 
         return Inertia::render('Writings/Show', [
-            'writing' => $query->query(['id' => $id, 'teacher_id' => $teacher->id])
+            'writing' => $query->withTrashed()->query(['id' => $id, 'teacher_id' => $teacher->id])
         ]);
     }
 
@@ -83,16 +83,27 @@ final class WritingController extends Controller
         $teacher = $request->user();
 
         return Inertia::render('Writings/Edit', [
-            'writing' => $query->query(['id' => $id, 'teacher_id' => $teacher->id]),
+            'writing' => $query->withTrashed()->query(['id' => $id, 'teacher_id' => $teacher->id]),
         ]);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, int $id)
+    public function update(UpdateWritingRequest $request, int $id, WritingFindByIDQuery $query, ServiceHandler $handler): RedirectResponse
     {
-        //
+        $teacher = $request->user();
+        $writing = $query->withTrashed()->query(['id' => $id, 'teacher_id' => $teacher->id]);
+
+        $dto = WritingDTO::make($request->validated(), $teacher->id);
+
+        $request = $handler->handle(new UpdateWritingService($writing, $dto));
+        if (! $request) {
+            return redirect()->back()->withErrors(['message' => 'Failed to update writing.']);
+        }
+
+        return redirect()->route('writings.show', ['id' => $id])
+            ->with('success', 'Writing updated successfully.');
     }
 
     /**
@@ -108,10 +119,7 @@ final class WritingController extends Controller
             return redirect()->back()->with('error', 'Failed to archive writing.');
         }
 
-        $filter = WritingFilter::fromRequest($request, $teacher->id);
-
-        return redirect()->route('writings.index', $filter->toRedirectParams())
-            ->with('success', 'Writing archived successfully.');
+        return redirect()->back()->with('success', 'Writing archived successfully.');
     }
 
     /**
@@ -127,10 +135,7 @@ final class WritingController extends Controller
             return redirect()->back()->with('error', 'Failed to restore writing.');
         }
 
-        $filter = WritingFilter::fromRequest($request, $teacher->id);
-
-        return redirect()->route('writings.index', $filter->toRedirectParams())
-            ->with('success', 'Writing restored successfully.');
+        return redirect()->back()->with('success', 'Writing restored successfully.');
     }
 
     /**
@@ -150,24 +155,5 @@ final class WritingController extends Controller
 
         return redirect()->route('writings.index', $filter->toRedirectParams())
             ->with('success', 'Writing deleted successfully.');
-    }
-
-    /**
-     * Serve writing image from storage
-     */
-    public function serveImage(string $filename): StreamedResponse
-    {
-        $path = 'writings/images/' . $filename;
-
-        if (!Storage::exists($path)) {
-            abort(404);
-        }
-
-        $mimeType = Storage::mimeType($path);
-
-        return Storage::response($path, null, [
-            'Content-Type' => $mimeType,
-            'Cache-Control' => 'public, max-age=31536000', // Cache for 1 year
-        ]);
     }
 }

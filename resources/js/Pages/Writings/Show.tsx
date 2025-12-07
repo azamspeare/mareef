@@ -2,12 +2,12 @@ import { Head, Link, router, usePage } from '@inertiajs/react';
 import DashboardLayout from '@/Layouts/DashboardLayout';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Trash2, Calendar, RotateCcw, Archive, Share2 } from 'lucide-react';
+import { ArrowLeft, Trash2, Calendar, RotateCcw, Archive, Share } from 'lucide-react';
 import { BlockNoteView } from '@blocknote/mantine';
 import { useCreateBlockNote } from '@blocknote/react';
 import "@blocknote/mantine/style.css";
 import { ConfirmDialog } from '@/components/ConfirmDialog';
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
 import { Separator } from '@/components/ui/separator';
@@ -43,34 +43,35 @@ interface ShowProps {
     writing: Writing;
 }
 
-const sampleSubmissions = [
-    {
-        id: 1,
-        student: {
-            name: 'John Doe',
-            avatar: 'https://github.com/shadcn.png',
-        },
-    },
-    {
-        id: 2,
-        student: {
-            name: 'Jane Doe',
-            avatar: 'https://github.com/shadcn.png',
-        },
-    },
-    {
-        id: 3,
-        student: {
-            name: 'Jim Beam',
-            avatar: 'https://github.com/shadcn.png',
-        },
-    },
-];
-
 export default function Show({ writing }: ShowProps) {
-    const { auth } = usePage().props as any;
+    const { auth, flash } = usePage().props as any;
+    const { theme } = useTheme();
     const isArchived = writing.deleted_at !== null;
-    const theme = useTheme();
+
+    // Handle flash messages
+    useEffect(() => {
+        if (flash?.success) {
+            toast.success(flash.success);
+        }
+        if (flash?.error) {
+            toast.error(flash.error);
+        }
+    }, [flash]);
+
+    // Get last 3 submissions
+    const recentSubmissions = useMemo(() =>
+        writing.submissions?.slice(-3) ?? [],
+        [writing.submissions]
+    );
+
+    // Memoize parsed content for BlockNote editor
+    const initialContent = useMemo(() => {
+        if (!writing.content) return undefined;
+        return Array.isArray(writing.content)
+            ? writing.content
+            : JSON.parse(writing.content as string);
+    }, [writing.content]);
+
     const handleShare = async () => {
         // Get the main domain without subdomain (mareff.test instead of app.mareff.test)
         const hostname = window.location.hostname;
@@ -147,7 +148,7 @@ export default function Show({ writing }: ShowProps) {
     };
 
     const editor = useCreateBlockNote({
-        initialContent: writing.content ? (Array.isArray(writing.content) ? writing.content : JSON.parse(writing.content as string)) : undefined,
+        initialContent,
     });
 
 
@@ -167,29 +168,16 @@ export default function Show({ writing }: ShowProps) {
                         </span>
                     </div>
 
-                    <div className="flex items-center gap-2">
-                        <Link href={route('writings.edit', writing.id)}>
-                            <Button variant="outline" className="bg-background">
-                                Edit
-                            </Button>
-                        </Link>
+                    <TooltipProvider>
+                        <div className="flex items-center gap-2">
+                            <Link href={route('writings.edit', writing.id)}>
+                                <Button variant="outline" className="bg-background">
+                                    Edit
+                                </Button>
+                            </Link>
 
-                        <TooltipProvider>
-                            <Tooltip>
-                                <TooltipTrigger asChild>
-                                    <Button variant="outline" size="icon" onClick={handleShare} className="bg-background">
-                                        <Share2 className="h-4 w-4" />
-                                    </Button>
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                    <p>Share with students!</p>
-                                </TooltipContent>
-                            </Tooltip>
-                        </TooltipProvider>
-
-                        {isArchived ? (
-                            <>
-                                <TooltipProvider>
+                            {isArchived ? (
+                                <>
                                     <Tooltip>
                                         <TooltipTrigger asChild>
                                             <Button variant="outline" size="icon" onClick={handleRestore} className="bg-background">
@@ -197,11 +185,9 @@ export default function Show({ writing }: ShowProps) {
                                             </Button>
                                         </TooltipTrigger>
                                         <TooltipContent>
-                                            <p>Restore Writing?!</p>
+                                            <p>Restore</p>
                                         </TooltipContent>
                                     </Tooltip>
-                                </TooltipProvider>
-                                <TooltipProvider>
                                     <Tooltip>
                                         <TooltipTrigger asChild>
                                             <Button variant="outline" size="icon" onClick={handleDelete} className="bg-background hover:bg-destructive/10 hover:text-destructive">
@@ -209,26 +195,36 @@ export default function Show({ writing }: ShowProps) {
                                             </Button>
                                         </TooltipTrigger>
                                         <TooltipContent>
-                                            <p>Delete Writing?!</p>
+                                            <p>Delete</p>
                                         </TooltipContent>
                                     </Tooltip>
-                                </TooltipProvider>
-                            </>
-                        ) : (
-                            <TooltipProvider>
-                                <Tooltip>
-                                    <TooltipTrigger asChild>
-                                        <Button variant="outline" size="icon" onClick={handleArchive} className="bg-background">
-                                            <Archive className="h-4 w-4" />
-                                        </Button>
-                                    </TooltipTrigger>
-                                    <TooltipContent>
-                                        <p>Archive Writing?!</p>
-                                    </TooltipContent>
-                                </Tooltip>
-                            </TooltipProvider>
-                        )}
-                    </div>
+                                </>
+                            ) : (
+                                <>
+                                    <Tooltip>
+                                        <TooltipTrigger asChild>
+                                            <Button variant="outline" size="icon" onClick={handleShare} className="bg-background">
+                                                <Share className="h-4 w-4" />
+                                            </Button>
+                                        </TooltipTrigger>
+                                        <TooltipContent>
+                                            <p>Share</p>
+                                        </TooltipContent>
+                                    </Tooltip>
+                                    <Tooltip>
+                                        <TooltipTrigger asChild>
+                                            <Button variant="outline" size="icon" onClick={handleArchive} className="bg-background">
+                                                <Archive className="h-4 w-4" />
+                                            </Button>
+                                        </TooltipTrigger>
+                                        <TooltipContent>
+                                            <p>Archive</p>
+                                        </TooltipContent>
+                                    </Tooltip>
+                                </>
+                            )}
+                        </div>
+                    </TooltipProvider>
                 </div>
 
                 {/* Main Content Card */}
@@ -242,7 +238,7 @@ export default function Show({ writing }: ShowProps) {
                                     variant="outline"
                                     className="rounded-md"
                                 >
-                                    {isArchived ? 'Archived' : 'In Progress'}
+                                    {isArchived ? 'Archived' : 'Active'}
                                 </Badge>
                             </div>
 
@@ -259,14 +255,15 @@ export default function Show({ writing }: ShowProps) {
                             </Badge>
                         </div>
 
-                        {sampleSubmissions && sampleSubmissions.length > 0 && (
-                            <div className="flex flex-col gap-2">
-                                <span className="text-muted-foreground text-sm">Submissions</span>
+                        <div className="flex flex-col gap-2">
+                            <span className="text-muted-foreground text-sm">Submissions</span>
+                            {recentSubmissions.length > 0 ? (
                                 <div className="flex flex-wrap gap-3">
-                                    {sampleSubmissions.map((submission) => (
-                                        <div
+                                    {recentSubmissions.map((submission) => (
+                                        <Link
                                             key={submission.id}
-                                            className="flex items-center gap-2 rounded-lg border bg-card py-1 px-1.5"
+                                            href={route('submissions.show', submission.id)}
+                                            className="flex items-center gap-2 rounded-lg border bg-card py-1 px-1.5 hover:bg-accent transition-colors"
                                         >
                                             <Avatar className="size-7 rounded-md">
                                                 <AvatarImage
@@ -278,11 +275,15 @@ export default function Show({ writing }: ShowProps) {
                                                 </AvatarFallback>
                                             </Avatar>
                                             <span className="text-sm">{submission.student.name}</span>
-                                        </div>
+                                        </Link>
                                     ))}
                                 </div>
-                            </div>
-                        )}
+                            ) : (
+                                <Badge variant="outline" className="rounded-md w-fit">
+                                    No Submissions Yet
+                                </Badge>
+                            )}
+                        </div>
                     </div>
 
                     <div className='w-20 mx-auto py-6'>
@@ -299,7 +300,7 @@ export default function Show({ writing }: ShowProps) {
                             <div className="[&_.bn-editor]:pl-0 [&_.bn-block-group]:ml-0 pointer-events-none writing-details">
                                 <BlockNoteView
                                     editor={editor}
-                                    theme={theme.theme === "dark" ? "dark" : "light"}
+                                    theme={theme === "dark" ? "dark" : "light"}
                                     editable={false}
                                 />
                             </div>

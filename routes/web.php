@@ -9,6 +9,7 @@ use App\Http\Controllers\Dashboard\StudentController;
 use App\Http\Controllers\Dashboard\Writing\WritingBulkController;
 use App\Http\Controllers\Dashboard\Writing\WritingController;
 use App\Http\Controllers\Dashboard\Writing\SubmissionController;
+use App\Http\Controllers\ImageController;
 use App\Http\Controllers\Landing\LandingController;
 use App\Http\Controllers\Landing\WritingController as StudentWritingController;
 use Illuminate\Support\Facades\Auth;
@@ -41,8 +42,6 @@ Route::domain('app.' . config('app.domain'))->group(function () {
             Route::get('/create', [WritingController::class, 'create'])->name('create');
             Route::post('/', [WritingController::class, 'store'])->name('store');
 
-            Route::get('/images/{filename}', [WritingController::class, 'serveImage'])->name('images.serve');
-
             Route::patch('/archive', [WritingBulkController::class, 'archive'])->name('archive.bulk');
             Route::patch('/restore', [WritingBulkController::class, 'restore'])->name('restore.bulk');
 
@@ -65,6 +64,11 @@ Route::domain('app.' . config('app.domain'))->group(function () {
 });
 
 Route::get('/', LandingController::class);
+
+Route::prefix('images')->name('images.')->group(function () {
+    Route::post('upload', [ImageController::class, 'store'])->name('store');
+    Route::get('{filename}', [ImageController::class, 'show'])->name('show');
+});
 
 // Student auth routes (must be before the writing task route)
 Route::prefix('student/auth')->name('student.')->group(function () {

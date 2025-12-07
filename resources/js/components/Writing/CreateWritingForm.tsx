@@ -1,6 +1,6 @@
 import { Link } from "@inertiajs/react";
 import { useForm } from "@inertiajs/react";
-import { useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { filterSuggestionItems, PartialBlock } from "@blocknote/core";
 import { Button } from "@/components/ui/button";
@@ -23,39 +23,103 @@ import { ArrowLeft } from "lucide-react";
 import { PublishModal } from "./PublishModal";
 import { useTheme } from "next-themes";
 
+const DRAFT_STORAGE_KEY = "writing_draft";
+const DRAFT_EXPIRY_MS = 30 * 60 * 1000; // 30 minutes
+
+interface WritingDraft {
+    title: string;
+    content: PartialBlock[];
+    savedAt: number;
+}
+
+function getSavedDraft(): WritingDraft | null {
+    try {
+        const saved = localStorage.getItem(DRAFT_STORAGE_KEY);
+        if (!saved) return null;
+
+        const draft: WritingDraft = JSON.parse(saved);
+        const now = Date.now();
+
+        // Check if draft has expired (30 minutes)
+        if (now - draft.savedAt > DRAFT_EXPIRY_MS) {
+            localStorage.removeItem(DRAFT_STORAGE_KEY);
+            return null;
+        }
+
+        return draft;
+    } catch {
+        return null;
+    }
+}
+
+function clearDraft(): void {
+    localStorage.removeItem(DRAFT_STORAGE_KEY);
+}
+
 export default function CreateWritingForm() {
+    const savedDraft = getSavedDraft();
+
     const { data, setData, post, processing, transform } = useForm({
-        title: "",
-        content: [] as PartialBlock[],
+        title: savedDraft?.title ?? "",
+        content: (savedDraft?.content ?? []) as PartialBlock[],
         allocated_time: null as string | null,
     });
 
     const theme = useTheme();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const titleRef = useRef<HTMLTextAreaElement | null>(null);
+    const isInitialMount = useRef(true);
 
-    // Uploads a file to tmpfiles.org and returns the URL to the uploaded file.
-    async function uploadFile(file: File) {
+    // Upload file to our server's temporary storage
+    async function uploadFile(file: File): Promise<string> {
         const body = new FormData();
         body.append("file", file);
-        const ret = await fetch("https://tmpfiles.org/api/v1/upload", {
+
+        const response = await fetch(route("images.store"), {
             method: "POST",
             body: body,
+            headers: {
+                "X-CSRF-TOKEN": document.querySelector<HTMLMetaElement>('meta[name="csrf-token"]')?.content || "",
+            },
         });
-        return (await ret.json()).data.url.replace(
-            "tmpfiles.org/",
-            "tmpfiles.org/dl/",
-        );
+
+        if (!response.ok) {
+            throw new Error("Failed to upload image");
+        }
+
+        const data = await response.json();
+        return data.url;
     }
 
     const editor = useCreateBlockNote({
-        initialContent: [
-            {
-                type: "paragraph",
-            },
-        ],
+        initialContent: savedDraft?.content?.length
+            ? savedDraft.content
+            : [{ type: "paragraph" }],
         uploadFile,
     });
+
+    // Save draft to localStorage
+    const saveDraft = useCallback((title: string, content: PartialBlock[]) => {
+        const draft: WritingDraft = {
+            title,
+            content,
+            savedAt: Date.now(),
+        };
+        localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(draft));
+    }, []);
+
+    // Auto-save draft when title changes
+    useEffect(() => {
+        if (isInitialMount.current) {
+            isInitialMount.current = false;
+            // Auto-resize title if there's saved content
+            if (savedDraft?.title) {
+                setTimeout(autoResizeTitle, 0);
+            }
+            return;
+        }
+        saveDraft(data.title, editor.document);
+    }, [data.title, saveDraft]);
 
     // Filter slash menu items - remove Check List, Video, File, Emoji, Audio
     const getFilteredSlashMenuItems = () => {
@@ -64,35 +128,24 @@ export default function CreateWritingForm() {
         return defaultItems.filter(item => !excludeItems.includes(item.title));
     };
 
+    // Handle editor content change - save draft
+    const handleEditorChange = useCallback(() => {
+        saveDraft(data.title, editor.document);
+    }, [data.title, editor, saveDraft]);
+
 
     const handlePublish = (timeLimit: string | null) => {
-        setData("allocated_time", timeLimit);
-        // We need to set the content right before submitting because setData is async/batched
-        // and we want the latest state. However, with Inertia useForm, we usually bind values.
-        // For BlockNote, we can get the blocks directly from the editor instance.
-
-        // Actually, let's update the data state first, then submit in a useEffect or
-        // just pass the data directly to post if possible? No, post uses the internal data.
-        // So we should update data.content on change or right here.
-        // Let's update it here to be safe, although onEditorChange is better for keeping it in sync.
-
-        // But wait, setData is not immediate.
-        // A better approach with Inertia's useForm for complex objects is to update it on change.
-        // Let's rely on the onChange handler of the editor to keep data.content updated.
-
-        // We'll trigger the post in a way that ensures allocated_time is set.
-        // Since setData is not a promise, we might have a race condition if we try to post immediately.
-        // Instead, let's use the transform callback of post, or just manually construct the payload if needed.
-        // But Inertia's post doesn't take a payload argument for data, it uses the internal state.
-
-        // Workaround: Use the transform option in post to merge the time limit.
         transform((data) => ({
             ...data,
-            content: editor.document, // Get latest blocks directly from editor
+            content: editor.document,
             allocated_time: timeLimit,
         }));
 
-        post(route("writings.store"));
+        post(route("writings.store"), {
+            onSuccess: () => {
+                clearDraft();
+            },
+        });
     };
 
     const autoResizeTitle = () => {
@@ -146,6 +199,7 @@ export default function CreateWritingForm() {
                             theme={theme.theme === "dark" ? "dark" : "light"}
                             slashMenu={false}
                             sideMenu={false}
+                            onChange={handleEditorChange}
                         >
                             {/* Custom Side Menu - Remove Colors option */}
                             <SideMenuController

@@ -28,18 +28,25 @@ interface BlockNoteProps {
 export default function BlockNote({ content, onChange }: BlockNoteProps) {
     const { resolvedTheme } = useTheme();
 
-    // Uploads a file to tmpfiles.org and returns the URL to the uploaded file.
-    async function uploadFile(file: File) {
+    // Upload file to our server's temporary storage
+    async function uploadFile(file: File): Promise<string> {
         const body = new FormData();
         body.append("file", file);
-        const ret = await fetch("https://tmpfiles.org/api/v1/upload", {
+
+        const response = await fetch(route("images.store"), {
             method: "POST",
             body: body,
+            headers: {
+                "X-CSRF-TOKEN": document.querySelector<HTMLMetaElement>('meta[name="csrf-token"]')?.content || "",
+            },
         });
-        return (await ret.json()).data.url.replace(
-            "tmpfiles.org/",
-            "tmpfiles.org/dl/",
-        );
+
+        if (!response.ok) {
+            throw new Error("Failed to upload image");
+        }
+
+        const data = await response.json();
+        return data.url;
     }
 
     const editor = useCreateBlockNote({

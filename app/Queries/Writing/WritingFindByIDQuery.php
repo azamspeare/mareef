@@ -22,7 +22,7 @@ final class WritingFindByIDQuery extends AbstractArrayQueryable implements Array
         $query = Writing::query();
 
         if ($this->withTrashed) {
-            $query->onlyTrashed();
+            $query->withTrashed();
         }
 
         return $query
@@ -31,7 +31,7 @@ final class WritingFindByIDQuery extends AbstractArrayQueryable implements Array
             })
             ->where('teacher_id', '=', $teacher_id)
             ->where('id', '=', $id)
-            ->with('submissions')
+            ->with('submissions.student')
             ->first();
     }
 }

@@ -93,9 +93,8 @@ final class Writing extends Model
                 if ($direction === 'toUrl') {
                     // Convert storage path to URL
                     if (!str_starts_with($url, 'http://') && !str_starts_with($url, 'https://')) {
-                        // Extract filename from path (e.g., writings/images/uuid.jpg -> uuid.jpg)
                         $filename = basename($url);
-                        $content[$index]['props']['url'] = route('writings.images.serve', ['filename' => $filename]);
+                        $content[$index]['props']['url'] = route('images.show', ['filename' => $filename]);
                     }
                 }
             }

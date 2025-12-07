@@ -21,6 +21,10 @@ return Application::configure(basePath: dirname(__DIR__))
             'is_role' => \App\Http\Middleware\EnsureRoleIsValidMiddleware::class,
             'redirect_if_authenticated' => \App\Http\Middleware\RedirectIfAuthenticated::class,
         ]);
+
+        $middleware->validateCsrfTokens(except: [
+            'images/upload',
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

@@ -1,6 +1,6 @@
 import { Link } from "@inertiajs/react";
 import { useForm } from "@inertiajs/react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { filterSuggestionItems, PartialBlock } from "@blocknote/core";
 import { Button } from "@/components/ui/button";
@@ -47,19 +47,35 @@ export default function EditWritingForm({ writing }: EditWritingFormProps) {
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const titleRef = useRef<HTMLTextAreaElement | null>(null);
-    const theme = useTheme();
-    // Uploads a file to tmpfiles.org and returns the URL to the uploaded file.
-    async function uploadFile(file: File) {
+    const { theme } = useTheme();
+
+    // Auto-resize title on initial load
+    useEffect(() => {
+        if (titleRef.current && writing.title) {
+            titleRef.current.style.height = 'auto';
+            titleRef.current.style.height = `${titleRef.current.scrollHeight}px`;
+        }
+    }, []);
+
+    // Upload file to our server's temporary storage
+    async function uploadFile(file: File): Promise<string> {
         const body = new FormData();
         body.append("file", file);
-        const ret = await fetch("https://tmpfiles.org/api/v1/upload", {
+
+        const response = await fetch(route("images.store"), {
             method: "POST",
             body: body,
+            headers: {
+                "X-CSRF-TOKEN": document.querySelector<HTMLMetaElement>('meta[name="csrf-token"]')?.content || "",
+            },
         });
-        return (await ret.json()).data.url.replace(
-            "tmpfiles.org/",
-            "tmpfiles.org/dl/",
-        );
+
+        if (!response.ok) {
+            throw new Error("Failed to upload image");
+        }
+
+        const data = await response.json();
+        return data.url;
     }
 
     const editor = useCreateBlockNote({
@@ -80,11 +96,9 @@ export default function EditWritingForm({ writing }: EditWritingFormProps) {
 
 
     const handleUpdate = (timeLimit: string | null) => {
-        setData("allocated_time", timeLimit);
-
         transform((data) => ({
             ...data,
-            content: editor.document, // Get latest blocks directly from editor
+            content: editor.document,
             allocated_time: timeLimit,
         }));
 
@@ -138,7 +152,7 @@ export default function EditWritingForm({ writing }: EditWritingFormProps) {
                     <div className="mt-6 [&_.bn-editor]:pl-0 [&_.bn-block-group]:ml-0 lg:-ml-12">
                         <BlockNoteView
                             editor={editor}
-                            theme={theme.theme === "dark" ? "dark" : "light"}
+                            theme={theme === "dark" ? "dark" : "light"}
                             slashMenu={false}
                             sideMenu={false}
                             formattingToolbar={false}
