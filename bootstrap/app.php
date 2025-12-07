@@ -13,11 +13,17 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        $middleware->web(append: [
-            \App\Http\Middleware\HandleInertiaRequests::class,
-        ]);
+        $middleware->web(
+            append: [
+                \App\Http\Middleware\HandleInertiaRequests::class,
+            ],
+            prepend: [
+                \App\Http\Middleware\ScopeSessionForDomain::class,
+            ]
+        );
 
         $middleware->alias([
+            'auth' => \App\Http\Middleware\Authenticate::class,
             'is_role' => \App\Http\Middleware\EnsureRoleIsValidMiddleware::class,
             'redirect_if_authenticated' => \App\Http\Middleware\RedirectIfAuthenticated::class,
         ]);

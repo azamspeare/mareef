@@ -32,7 +32,7 @@ final class EnsureRoleIsValidMiddleware
         if (!Auth::check()) {
             \Log::warning('RoleMiddleware: User not authenticated');
 
-            return redirect()->route('login')->with('error', 'You must be logged in to access this page.');
+            return redirect()->to($this->loginRedirectUrl($request))->with('error', 'You must be logged in to access this page.');
         }
 
         $user = Auth::user();
@@ -73,11 +73,22 @@ final class EnsureRoleIsValidMiddleware
             $request->session()->invalidate();
             $request->session()->regenerateToken();
 
-            return redirect()->route('login')->with('error', 'You do not have permission to access this page.');
+            return redirect()->to($this->loginRedirectUrl($request))->with('error', 'You do not have permission to access this page.');
         }
 
         \Log::info('RoleMiddleware: Role check passed, allowing access');
 
         return $next($request);
+    }
+
+    private function loginRedirectUrl(Request $request): string
+    {
+        $appDomain = ltrim((string) config('app.domain'), '.');
+
+        if ($request->getHost() === 'student.' . $appDomain) {
+            return route('auth.google.redirect');
+        }
+
+        return route('login');
     }
 }
