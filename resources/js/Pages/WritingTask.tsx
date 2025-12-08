@@ -7,7 +7,7 @@ import { BlockNoteView } from '@blocknote/mantine';
 import { useCreateBlockNote } from '@blocknote/react';
 import { BlockNoteSchema, defaultBlockSpecs } from "@blocknote/core";
 import "@blocknote/mantine/style.css";
-import { Clock, UserCheck, GraduationCap, PenLine, ArrowUpRightIcon } from "lucide-react";
+import { Clock, UserCheck, GraduationCap, PenLine, ArrowUpRightIcon, MessageSquare, Star } from "lucide-react";
 import { useTheme } from "next-themes";
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
@@ -36,6 +36,12 @@ import {
 } from "@/components/ui/empty";
 import { useTimer } from "@/hooks/use-timer";
 import { useAutoSave } from "@/hooks/use-auto-save";
+import {
+    AnnotationEditor,
+    extractPlainText,
+    type Annotation,
+    type AnnotationData,
+} from '@/components/annotation';
 
 // Types
 interface Writing {
@@ -46,6 +52,16 @@ interface Writing {
     slug: string;
 }
 
+interface Feedback {
+    id: number;
+    submission_id: number;
+    content: AnnotationData | null;
+    score: number | null;
+    feedback: string | null;
+    created_at: string;
+    updated_at: string;
+}
+
 interface Submission {
     id: number;
     writing_id: number;
@@ -53,9 +69,11 @@ interface Submission {
     content: any;
     spent_time: string;
     submitted_at: string;
+    evaluated_at: string | null;
     status: 'in_progress' | 'completed' | 'failed';
     created_at: string;
     updated_at: string;
+    feedback: Feedback | null;
 }
 
 interface WritingTaskProps {
@@ -297,10 +315,12 @@ export default function WritingTask({ writing, submission }: WritingTaskProps) {
     const hasStarted = !!submission;
     const isCompleted = submission?.status === 'completed';
     const isInProgress = submission?.status === 'in_progress';
+    const isEvaluated = !!submission?.feedback;
 
     const [wordCount, setWordCount] = useState(0);
     const [isLoginDrawerOpen, setIsLoginDrawerOpen] = useState(!isAuthenticated);
     const [isFinishDialogOpen, setIsFinishDialogOpen] = useState(false);
+    const [commentsDrawerOpen, setCommentsDrawerOpen] = useState(false);
 
     const { theme } = useTheme();
 
@@ -342,6 +362,34 @@ export default function WritingTask({ writing, submission }: WritingTaskProps) {
             },
         },
     });
+
+    // Parse submission content for plain text (used for annotation display)
+    const submissionBlocks = useMemo(() => {
+        if (!submission?.content) return [];
+        return Array.isArray(submission.content)
+            ? submission.content
+            : JSON.parse(submission.content as string);
+    }, [submission?.content]);
+
+    const submissionPlainText = useMemo(
+        () => extractPlainText(submissionBlocks),
+        [submissionBlocks]
+    );
+
+    // Parse existing annotations from feedback
+    const feedbackAnnotations = useMemo((): Annotation[] => {
+        if (!submission?.feedback?.content) return [];
+        const content = submission.feedback.content;
+        if (typeof content === 'string') {
+            try {
+                const parsed = JSON.parse(content);
+                return parsed.annotations || [];
+            } catch {
+                return [];
+            }
+        }
+        return content.annotations || [];
+    }, [submission?.feedback?.content]);
 
     // Use custom timer hook
     const { timeLeft, formattedTime, timeColorClass, spentTime } = useTimer({
@@ -525,9 +573,54 @@ export default function WritingTask({ writing, submission }: WritingTaskProps) {
 
                     <ResizableHandle withHandle />
 
-                    {/* Right Panel - Editor */}
+                    {/* Right Panel - Editor or Feedback View */}
                     <ResizablePanel defaultSize={50} minSize={30}>
                         <div className="h-full flex flex-col px-8 pt-8">
+                            {/* Feedback Summary Banner */}
+                            {isEvaluated && (
+                                <div className="mb-6 rounded-lg border bg-card p-4">
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-3">
+                                            <div className="p-2 rounded-full bg-muted">
+                                                <Star className="h-4 w-4 text-muted-foreground" />
+                                            </div>
+                                            <div>
+                                                <p className="font-medium">
+                                                    Your submission has been evaluated
+                                                </p>
+                                                <p className="text-sm text-muted-foreground">
+                                                    {submission?.feedback?.score !== null && (
+                                                        <span>Score: {submission.feedback.score} · </span>
+                                                    )}
+                                                    {feedbackAnnotations.length} comment(s) from your teacher
+                                                </p>
+                                            </div>
+                                        </div>
+                                        {feedbackAnnotations.length > 0 && (
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                onClick={() => setCommentsDrawerOpen(true)}
+                                                className="gap-2"
+                                            >
+                                                <MessageSquare className="h-4 w-4" />
+                                                View Comments
+                                            </Button>
+                                        )}
+                                    </div>
+                                    {submission?.feedback?.feedback && (
+                                        <div className="mt-3 pt-3 border-t">
+                                            <p className="text-sm font-medium mb-1">
+                                                Overall Feedback:
+                                            </p>
+                                            <p className="text-sm text-muted-foreground whitespace-pre-wrap">
+                                                {submission.feedback.feedback}
+                                            </p>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+
                             <div className="flex-1 overflow-y-auto">
                                 {!hasStarted && isAuthenticated && (
                                     <EmptyState onStart={handleStart} />
@@ -537,7 +630,7 @@ export default function WritingTask({ writing, submission }: WritingTaskProps) {
                                         <p>Please log in to start writing</p>
                                     </div>
                                 )}
-                                {hasStarted && (
+                                {hasStarted && !isEvaluated && (
                                     <div className="[&_.bn-editor]:pl-0 [&_.bn-block-group]:ml-0 writing-details">
                                         <BlockNoteView
                                             key={`editor-${submission?.status}-${submission?.id}`}
@@ -550,6 +643,18 @@ export default function WritingTask({ writing, submission }: WritingTaskProps) {
                                             onChange={handleEditorChange}
                                         />
                                     </div>
+                                )}
+                                {hasStarted && isEvaluated && (
+                                    <AnnotationEditor
+                                        text={submissionPlainText}
+                                        annotations={feedbackAnnotations}
+                                        isEditable={false}
+                                        onAddAnnotation={() => {}}
+                                        onUpdateAnnotation={() => {}}
+                                        onRemoveAnnotation={() => {}}
+                                        drawerOpen={commentsDrawerOpen}
+                                        onDrawerOpenChange={setCommentsDrawerOpen}
+                                    />
                                 )}
                             </div>
                             {hasStarted && (

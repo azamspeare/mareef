@@ -5,11 +5,14 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Dashboard\Writing;
 
 use App\Actions\Submission\ArchiveSubmissionAction;
+use App\DTOs\Feedback\FeedbackDTO;
 use App\Filters\Submission\SubmissionFilter;
+use App\Handlers\ServiceHandler;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Submission\EvaluateSubmissionRequest;
 use App\Queries\Submission\SubmissionFindForListQuery;
 use App\Queries\Submission\SubmissionFindByIDQuery;
+use App\Services\Feedback\EvaluateSubmissionService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -45,12 +48,19 @@ final class SubmissionController extends Controller
     /**
      * Evaluate a resource in storage.
      */
-    public function evaluate(EvaluateSubmissionRequest $request, int $id, SubmissionFindByIDQuery $query)
+    public function evaluate(EvaluateSubmissionRequest $request, int $id, SubmissionFindByIDQuery $query, ServiceHandler $handler): RedirectResponse
     {
-        $attributes = $request->validated();
-
         $teacher = $request->user();
         $submission = $query->query(['id' => $id, 'teacher_id' => $teacher->id]);
+
+        $dto = FeedbackDTO::make($request->validated(), $teacher->id);
+
+        $result = $handler->handle(new EvaluateSubmissionService($dto, $submission));
+        if (! $result) {
+            return redirect()->back()->withErrors(['message' => 'Failed to evaluate submission.']);
+        }
+
+        return redirect()->back()->with('success', 'Submission evaluated successfully.');
     }
 
     /**

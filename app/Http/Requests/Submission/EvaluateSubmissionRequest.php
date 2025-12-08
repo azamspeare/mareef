@@ -26,9 +26,9 @@ final class EvaluateSubmissionRequest extends FormRequest
     {
         return [
             'submission_id' => ['required', 'integer', 'exists:writing_submissions,id'],
-            'content' => ['required', 'string'],
-            'score' => ['nullable', 'numeric'],
-            'feedback' => ['nullable', 'string'],
+            'content' => ['required', 'string', 'json'],
+            'score' => ['nullable', 'numeric', 'min:0', 'max:100'],
+            'feedback' => ['nullable', 'string', 'max:10000'],
         ];
     }
 }
