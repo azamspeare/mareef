@@ -65,7 +65,7 @@ Route::domain('app.' . config('app.domain'))->group(function () {
 });
 
 Route::domain('student.' . config('app.domain'))->group(function () {
-    Route::get('/', LandingController::class);
+    Route::get('/', [LandingController::class, 'welcome']);
 
     Route::middleware('guest')->group(function () {
         Route::prefix('auth')->name('auth.')->group(function () {
@@ -87,7 +87,8 @@ Route::domain('student.' . config('app.domain'))->group(function () {
     });
 });
 
-Route::get('/', LandingController::class);
+Route::get('/', [LandingController::class, 'welcome'])->name('landing');
+Route::get('pricing', [LandingController::class, 'pricing'])->name('pricing');
 Route::prefix('images')->name('images.')->group(function () {
     Route::post('upload', [ImageController::class, 'store'])->name('store')->middleware('auth');
     Route::get('{filename}', [ImageController::class, 'show'])->name('show');

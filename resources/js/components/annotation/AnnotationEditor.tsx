@@ -164,6 +164,25 @@ export function AnnotationEditor({
             const rect = (e.target as HTMLElement).getBoundingClientRect();
             const containerRect = containerRef.current?.getBoundingClientRect();
 
+            // If clicking a different annotation while popover is open,
+            // close first to ensure proper repositioning
+            if (editPopoverOpen && editingAnnotation?.id !== annotation.id) {
+                setEditPopoverOpen(false);
+                // Use requestAnimationFrame to ensure the close happens before reopening
+                requestAnimationFrame(() => {
+                    if (containerRect) {
+                        setEditPopoverPosition({
+                            x: rect.left - containerRect.left,
+                            y: rect.top - containerRect.top,
+                        });
+                    }
+                    setEditingAnnotation(annotation);
+                    setActiveAnnotationId(annotation.id);
+                    setEditPopoverOpen(true);
+                });
+                return;
+            }
+
             if (containerRect) {
                 setEditPopoverPosition({
                     x: rect.left - containerRect.left,
@@ -175,7 +194,7 @@ export function AnnotationEditor({
             setActiveAnnotationId(annotation.id);
             setEditPopoverOpen(true);
         },
-        []
+        [editPopoverOpen, editingAnnotation?.id]
     );
 
     const scrollToAnnotation = useCallback((annotationId: string) => {
@@ -265,6 +284,7 @@ export function AnnotationEditor({
 
                 {/* Edit annotation popover */}
                 <AnnotationEditPopover
+                    key={editingAnnotation?.id ?? 'no-annotation'}
                     annotation={editingAnnotation}
                     open={editPopoverOpen}
                     onOpenChange={setEditPopoverOpen}

@@ -14,8 +14,16 @@ final class LandingController extends Controller
     /**
      * Handle the incoming request.
      */
-    public function __invoke(Request $request): Response
+    public function welcome(Request $request): Response
     {
         return Inertia::render('Welcome');
+    }
+
+    /**
+     * Handle the incoming request.
+     */
+    public function pricing(Request $request): Response
+    {
+        return Inertia::render('Pricing');
     }
 }

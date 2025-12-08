@@ -2,123 +2,237 @@
 
 ## ✨ What is Mareff?
 
-Mareff is a digital teaching platform built to simplify, streamline, and modernize the way private teachers create, assign, and evaluate student tasks. We’re starting with one of the messiest workflows: **writing assignments** — but our long-term goal is to become the go-to platform for managing all types of teaching tasks in a clean, trackable, and student-friendly way.
+Mareff is a digital task engine built specifically for language teachers. It helps them create, assign, and evaluate structured student work — all in one place.
 
-Think of Mareff as the command center for modern educators — a place to design structured tasks, collect student submissions, provide feedback, and track progress over time.
+Instead of juggling printed worksheets, Google Docs, and chat threads, teachers use Mareff to build clear tasks, collect submissions, and give feedback — faster and more organized than ever before.
+
+Mareff supports multiple task types — like writing, reading, listening, and speaking — and turns each into a streamlined, trackable workflow.
+
+It’s not just for online teachers. Mareff simplifies task delivery and grading for both traditional classrooms and remote setups.
 
 ---
 
 ## 🎯 The Problem
 
-Teaching online has exploded, but the tools haven’t caught up.
+Teaching tasks are broken.
 
-Private tutors and language teachers are still relying on:
+Language teachers juggle Google Docs, printed worksheets, chat apps, email threads — all just to assign a simple activity.
 
-* Google Docs + Drive folders
-* Telegram/WhatsApp for sending & receiving tasks
-* Screenshots, voice notes, random file chaos
+- Submissions are scattered.
+- Feedback gets lost.
+- Grading is slow and repetitive.
+- There's no way to track student progress over time.
 
-This causes:
+Whether it’s writing, speaking, reading, or listening — every task becomes a manual, chaotic process.
 
-* Disorganized submissions
-* Slow, manual feedback loops
-* No history or progress tracking
-* Lost files, repeated questions, miscommunication
-
-Especially for writing tasks, teachers waste hours managing what tech should automate.
+The tools weren’t built for language teaching.
+Mareff is.
 
 ---
 
-## ✅ Our Initial Solution (MVP)
+## ✅ Our Solution
 
-We’re starting with a focused, opinionated workflow:
+Mareff replaces the messy, manual task workflow with a structured, all-in-one system built specifically for language educators.
 
-### Mareff for Writing Assignments
+At its core, Mareff is a modular task engine. Teachers can create different types of assignments — writing, reading, listening, speaking — each with its own custom flow, input methods, and evaluation tools.
 
-1. **Teachers create a writing task**
+Every task follows the same clean pattern:
 
-   * Block-based instructions
-   * Optional time limits
-   * Auto-generated student submission link
+1. Create a structured task with clear instructions
+2. Share a single submission link with students
+3. Collect and manage all submissions in one dashboard
+4. Evaluate using built-in tools like inline comments, scoring, audio feedback, and instant grading
+5. Track student progress over time — across all task types
 
-2. **Students submit directly**
+No switching between apps. No manual tracking.
+Just one place to manage it all — faster, clearer, and built for how language is taught.
 
-   * Clean writing UI
-   * No signup required (Google OAuth)
-   * One-click submission
+## 🧩 Task Types
 
-3. **Teachers evaluate**
-
-   * Inline comments, highlights
-   * Scoring and structured feedback
-   * Submissions saved forever (no more file hunting)
-
-Built-in notifications keep both sides in sync.
+Mareff is built around modular task types — each designed to simplify a core part of language teaching.
 
 ---
 
-## 🚦 Why Start With Writing?
+### ✍️ Writing Tasks
 
-Writing is high-friction:
+**Live now**
 
-* It requires open-ended input
-* Feedback is detailed and nuanced
-* Existing tools (Google Docs, Word) are overkill or unstructured
+#### The problem
+Teachers collect essays in Google Docs, mess around with comments, send feedback by email or message, and hope students even read it.
 
-If we can streamline writing assignments, we build credibility and trust. That becomes our wedge into broader assessment workflows.
+#### Mareff’s solution
+A dedicated writing workflow with:
+- Clean, focused writing interface for students
+- Inline comments and highlights for feedback
+- Scoring and evaluation tools
+- Full submission history for each student
 
----
-
-## 🔭 Where We’re Going
-
-Mareff is not just a writing tool.
-
-We’re building a platform for:
-
-* **Digital quizzes & exams**
-* **Spoken/audio tasks**
-* **Structured projects**
-* **Multi-step assignments**
-* **Progress tracking over time**
-* **Grading automation (AI-powered)**
-
-We want to become the digital backbone for solo teachers, small academies, and online instructors.
-
-Long-term, we imagine:
-
-> "If Notion & Google Classroom had a baby, but for independent teachers — that’s Mareff."
+No more file sharing. No more scattered feedback.
 
 ---
 
-## 💡 Key Product Principles
+### 📖 Reading Tasks
 
-* **One problem at a time.** Simplicity wins.
-* **Respect teacher time.** Remove repetitive work.
-* **Build for async.** Students and teachers work on their own schedule.
-* **Beautiful by default.** No tech skills required.
-* **Trackable forever.** Every submission saved, every edit traceable.
+**Coming soon**
 
----
+#### The problem
+Printed reading worksheets take time to prepare and even more time to check. Teachers manually mark answers or retype scores into Excel.
 
-## 🌍 Who It’s For
+#### Mareff’s solution
+A structured reading task builder with:
 
-* Private language tutors
-* Remote writing coaches
-* Teachers on Zoom, Telegram, WhatsApp
-* Small tutoring teams or academies
-* Instructors who want organization without LMS complexity
+* Text or PDF support
+* Multiple choice and fill-in-the-blank options
+* Auto-grading engine with instant results
+* Per-student performance tracking
 
 ---
 
-## 💬 Summary
+### 🎧 Listening Tasks
 
-Mareff is your digital workspace for teaching.
-We're starting with writing — because it's chaotic and underserved.
+**Coming soon**
 
-But we’re building toward a future where:
+#### The problem
+Teachers send audio files in chats, then ask questions in separate documents — with no link between them and no control over timing.
 
-* Teachers can run any type of task
-* Students always know what to do
-* And everyone can track learning in one place.
+#### Mareff’s solution
+Embedded audio with synced comprehension questions:
 
-**Mareff simplifies digital teaching. Starting with writing. Expanding everywhere.**
+* Integrated media player
+* Timed question sections
+* Instant or teacher-reviewed feedback
+* Centralized submission tracking
+
+---
+
+### 🗣 Speaking Tasks
+
+**Coming soon**
+
+#### The problem
+Students send voice messages in Telegram or WhatsApp, teachers reply with comments — but there's no structure, no timestamps, and no way to track improvement.
+
+#### Mareff’s solution
+A voice-task flow where:
+
+* Students record directly in the browser
+* Teachers can listen, leave timestamped comments
+* Score and feedback are saved with the recording
+
+## 🧭 Product Principles
+
+#### 1. One task, one flow
+Every task type has a clean, dedicated experience — no bloated forms or Frankenstein UI.
+
+#### 2. Built for language education
+We don’t genericize. Every feature is shaped by how real language teachers work — feedback-heavy, async, multi-format.
+
+#### 3. Speed over complexity
+Teachers should create, assign, and review tasks faster than they ever could on paper or Google Docs.
+
+#### 4. Structure without friction
+The UI should guide teachers, not overwhelm them. Clear defaults, minimal clutter, and feedback-friendly by default.
+
+#### 5. No more lost work
+Every submission is saved. Every comment is stored. Teachers and students can always go back.
+
+#### 6. Modular by design
+Tasks are independent blocks — new types can be added without breaking the system.
+
+#### 7. Async-native
+Students and teachers work on their own time — Mareff supports that, not fights it.
+
+## ⚙️ How Mareff Works
+
+Mareff is built around a task lifecycle — a simple, repeatable flow that works across all task types.
+
+Each task (writing, reading, listening, speaking) follows this 5-step loop:
+
+### 1. Create a Task
+
+Teachers design tasks using a block-style editor:
+- Add instructions, media, or time limits
+- Each task type has its own input format (text editor, audio, multiple choice, etc.)
+- On publish, Mareff generates a public submission link
+
+### 2. Distribute the Link
+
+Teachers send the task link to students — via group chat, LMS, or classroom board.
+
+Students don't need accounts. They log in via Google and land directly in the task interface.
+
+### 3. Students Submit
+
+Students complete the task in Mareff's clean, focused UI:
+- Writing: block editor with autosave
+- Reading: MCQs / input fields
+- Speaking: voice recording
+- Listening: media player + synced questions
+
+Submissions are saved instantly. Students can’t re-edit after submitting.
+
+### 4. Evaluate
+
+Teachers review all submissions from their dashboard:
+- Filter by “Not Reviewed” or “Evaluated”
+- Leave feedback (inline, audio, text) depending on task type
+- Assign scores where applicable
+- Click “Send Feedback” → student is notified via email
+
+### 5. Track
+All submissions and evaluations are stored forever:
+- Teachers can revisit any task or student history
+- Students can view all their past work and feedback
+- Data is clean, organized, and searchable
+
+## 🎯 Who Mareff Is For
+
+Mareff is built specifically for language teachers who need structure without complexity.
+
+We serve educators who:
+- ✅ Teach English, Russian, Korean, Arabic, or any language
+- ✅ Assign tasks like writing, reading, speaking, listening
+- ✅ Teach 1:1, in small groups, or full classrooms
+- ✅ Use tools like Telegram, Zoom, Google Docs, or printed worksheets
+- ✅ Want to save time grading and giving feedback
+- ✅ Work in private, public, or hybrid teaching settings
+Whether you're a solo tutor or teaching 50 students in a classroom — Mareff helps you simplify the chaos of student task management.
+
+## 🚦 Current Status
+Mareff is in its early-access phase with core functionality live and future task types on the way.
+
+| Feature                 | Status                |
+| ----------------------- | --------------------- |
+| ✍️ Writing Tasks        | ✅ Launched            |
+| 📖 Reading Tasks        | 🛠 In development     |
+| 🎧 Listening Tasks      | 🛠 In development     |
+| 🗣 Speaking Tasks       | 🛠 In development     |
+| 🧪 Feedback System      | ✅ Live                |
+| 📬 Email Notifications  | ✅ Integrated (Resend) |
+| 📊 Analytics (Visitors) | ✅ Basic setup         |
+| 🐛 Error Monitoring     | ✅ Sentry enabled      |
+| 🔐 Auth System          | ✅ Google OAuth        |
+
+We’re currently onboarding early language teachers and testing writing workflows in real classrooms.
+
+## 💰 Pricing (Beta Phase)
+
+Mareff is currently free for all teachers during the early access phase.
+
+Mareff will follow a subscription-based pricing model with three tiers, designed for individual teachers, small teams, and growing academies.
+
+| Plan        | Teachers | Assistants | Students | Task Types | Features                                             | Est. Price |
+| ----------- | -------- | ---------- | -------- | ---------- | ---------------------------------------------------- | ---------- |
+| **Free**    | 1        | 0          | 20       | All        | Manual workflow, basic analytics                     | Free       |
+| **Premium** | 1        | 3          | 200      | All        | AI task generation, AI assistant, advanced analytics | ~$29/mo    |
+| **VIP**     | 10       | 20         | 500      | All        | Everything in Premium, for multi-teacher teams       | ~$59/mo    |
+
+⚠️ Pricing is subject to change as we expand features and gather user feedback.
+
+All plans include:
+- Full writing/reading/listening/speaking task support
+- Student submission history
+- Feedback tools
+- Email notifications
+
+During early access, all features are free for pilot users.
