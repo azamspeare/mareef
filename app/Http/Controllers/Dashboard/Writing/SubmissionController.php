@@ -4,10 +4,13 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Dashboard\Writing;
 
+use App\Actions\Submission\ArchiveSubmissionAction;
 use App\Filters\Submission\SubmissionFilter;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Submission\EvaluateSubmissionRequest;
 use App\Queries\Submission\SubmissionFindForListQuery;
 use App\Queries\Submission\SubmissionFindByIDQuery;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -42,8 +45,27 @@ final class SubmissionController extends Controller
     /**
      * Evaluate a resource in storage.
      */
-    public function evaluate(Request $request, int $id)
+    public function evaluate(EvaluateSubmissionRequest $request, int $id, SubmissionFindByIDQuery $query)
     {
-        //
+        $attributes = $request->validated();
+
+        $teacher = $request->user();
+        $submission = $query->query(['id' => $id, 'teacher_id' => $teacher->id]);
+    }
+
+    /**
+     * Archive a resource in storage.
+     */
+    public function archive(Request $request, int $id, SubmissionFindByIDQuery $query, ArchiveSubmissionAction $action): RedirectResponse
+    {
+        $teacher = $request->user();
+        $submission = $query->query(['id' => $id, 'teacher_id' => $teacher->id]);
+
+        $result = $action->run($submission);
+        if (! $result) {
+            return redirect()->back()->with('error', 'Failed to delete submission.');
+        }
+
+        return redirect()->back()->with('success', 'Submission deleted successfully.');
     }
 }

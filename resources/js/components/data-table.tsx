@@ -14,7 +14,7 @@ import {
   IconX,
 } from "@tabler/icons-react"
 import { z } from "zod"
-import { Link, router } from "@inertiajs/react"
+import { Link, router, usePage } from "@inertiajs/react"
 import { format } from "date-fns"
 
 import {
@@ -64,6 +64,15 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import { toast } from "sonner"
 
 export const schema = z.object({
   id: z.number(),
@@ -143,6 +152,21 @@ export function DataTable({
   )
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [_, setIsLoadingFilters] = React.useState(false)
+  const [deleteDialogOpen, setDeleteDialogOpen] = React.useState(false)
+  const [submissionToDelete, setSubmissionToDelete] = React.useState<Submission | null>(null)
+  const [isDeleting, setIsDeleting] = React.useState(false)
+
+  const { flash } = usePage<{ flash?: { success?: string; error?: string } }>().props
+
+  // Handle flash messages
+  React.useEffect(() => {
+    if (flash?.success) {
+      toast.success(flash.success)
+    }
+    if (flash?.error) {
+      toast.error(flash.error)
+    }
+  }, [flash])
 
   // Initialize filters from localStorage or URL params
   const [currentStatus, setCurrentStatus] = React.useState(() => {
@@ -360,6 +384,23 @@ export function DataTable({
     };
   }, []);
 
+  const handleDeleteSubmission = () => {
+    if (!submissionToDelete) return;
+
+    setIsDeleting(true);
+    router.patch(route('submissions.archive', submissionToDelete.id), {}, {
+      preserveScroll: true,
+      onSuccess: () => {
+        setDeleteDialogOpen(false);
+        setSubmissionToDelete(null);
+        setIsDeleting(false);
+      },
+      onError: () => {
+        setIsDeleting(false);
+      },
+    });
+  };
+
   const columns: ColumnDef<Submission>[] = [
     {
       accessorKey: "writing.title",
@@ -415,7 +456,7 @@ export function DataTable({
     },
     {
       id: "actions",
-      cell: () => (
+      cell: ({ row }) => (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
@@ -428,9 +469,19 @@ export function DataTable({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-32">
-            <DropdownMenuItem>Review</DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link href={route('submissions.show', row.original.id)}>Review</Link>
+            </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem variant="destructive">Delete</DropdownMenuItem>
+            <DropdownMenuItem
+              variant="destructive"
+              onClick={() => {
+                setSubmissionToDelete(row.original);
+                setDeleteDialogOpen(true);
+              }}
+            >
+              Delete
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       ),
@@ -689,6 +740,36 @@ export function DataTable({
           </div>
         </div>
       </TabsContent>
+
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Submission</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete the submission by{" "}
+              <span className="font-medium">{submissionToDelete?.student.name}</span> for{" "}
+              <span className="font-medium">{submissionToDelete?.writing.title}</span>?
+              This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setDeleteDialogOpen(false)}
+              disabled={isDeleting}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleDeleteSubmission}
+              disabled={isDeleting}
+            >
+              {isDeleting ? "Deleting..." : "Delete"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Tabs>
   )
 }

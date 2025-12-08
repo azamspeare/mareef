@@ -56,7 +56,8 @@ Route::domain('app.' . config('app.domain'))->group(function () {
         Route::prefix('submissions')->name('submissions.')->group(function () {
             Route::get('/', [SubmissionController::class, 'index'])->name('index');
             Route::get('/{id}', [SubmissionController::class, 'show'])->name('show')->where('id', '[0-9]+');
-            Route::post('/{id}/evaluate', [SubmissionController::class, 'evaluate'])->name('feedback.evaluate')->where('id', '[0-9]+');
+            Route::post('/{id}/evaluate', [SubmissionController::class, 'evaluate'])->name('evaluate')->where('id', '[0-9]+');
+            Route::patch('/{id}/archive', [SubmissionController::class, 'archive'])->name('archive')->where('id', '[0-9]+');
         });
 
         Route::post('logout', [LoginController::class, 'logout'])->name('logout');
