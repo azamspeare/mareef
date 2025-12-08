@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Popover, PopoverContent, PopoverAnchor } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Trash2 } from 'lucide-react';
+import { Trash2, X } from 'lucide-react';
 import { AnnotationColorPicker } from './AnnotationColorPicker';
 import { ANNOTATION_COLORS, type Annotation, type AnnotationColor } from './types';
 
@@ -111,8 +111,15 @@ export function AnnotationEditPopover({
                             </div>
                         </>
                     ) : (
-                        <>
-                            <div>
+                        <div className="relative">
+                            <button
+                                onClick={handleClose}
+                                className="absolute -top-1 -right-1 p-1 rounded-sm opacity-70 hover:opacity-100 transition-opacity"
+                            >
+                                <X className="h-4 w-4" />
+                                <span className="sr-only">Close</span>
+                            </button>
+                            <div className="pr-5">
                                 <span
                                     className={`inline-block text-xs font-medium px-2 py-0.5 rounded mb-2 ${colorConfig.bg} ${colorConfig.text}`}
                                 >
@@ -120,12 +127,7 @@ export function AnnotationEditPopover({
                                 </span>
                                 <p className="text-sm whitespace-pre-wrap">{annotation.comment}</p>
                             </div>
-                            <div className="flex justify-end">
-                                <Button variant="ghost" size="sm" onClick={handleClose}>
-                                    Close
-                                </Button>
-                            </div>
-                        </>
+                        </div>
                     )}
                 </div>
             </PopoverContent>
