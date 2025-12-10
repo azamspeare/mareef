@@ -88,7 +88,14 @@ Route::domain('student.' . config('app.domain'))->group(function () {
 });
 
 Route::get('/', [LandingController::class, 'welcome'])->name('landing');
+Route::get('/old', [LandingController::class, 'old'])->name('old-landing');
 Route::get('pricing', [LandingController::class, 'pricing'])->name('pricing');
+Route::prefix('tasks')->name('tasks.')->group(function () {
+    Route::get('listening', [LandingController::class, 'listening'])->name('listening');
+    Route::get('reading', [LandingController::class, 'reading'])->name('reading');
+    Route::get('writing', [LandingController::class, 'writing'])->name('writing');
+    Route::get('speaking', [LandingController::class, 'speaking'])->name('speaking');
+});
 Route::prefix('images')->name('images.')->group(function () {
     Route::post('upload', [ImageController::class, 'store'])->name('store')->middleware('auth');
     Route::get('{filename}', [ImageController::class, 'show'])->name('show');

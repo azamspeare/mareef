@@ -22,8 +22,48 @@ final class LandingController extends Controller
     /**
      * Handle the incoming request.
      */
+    public function old(Request $request): Response
+    {
+        return Inertia::render('Landing/Old');
+    }
+
+    /**
+     * Handle the incoming request.
+     */
     public function pricing(Request $request): Response
     {
-        return Inertia::render('Pricing');
+        return Inertia::render('Landing/Pricing');
+    }
+
+    /**
+     * Handle the incoming request.
+     */
+    public function listening(Request $request): Response
+    {
+        return Inertia::render('Landing/Listening');
+    }
+
+    /**
+     * Handle the incoming request.
+     */
+    public function reading(Request $request): Response
+    {
+        return Inertia::render('Landing/Reading');
+    }
+
+    /**
+     * Handle the incoming request.
+     */
+    public function writing(Request $request): Response
+    {
+        return Inertia::render('Landing/Writing');
+    }
+
+    /**
+     * Handle the incoming request.
+     */
+    public function speaking(Request $request): Response
+    {
+        return Inertia::render('Landing/Speaking');
     }
 }
