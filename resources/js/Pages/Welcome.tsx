@@ -1,8 +1,13 @@
 import { Head } from '@inertiajs/react';
-import HeroSection from '@/components/hero-section';
-import FeaturesSection from '@/components/features-section';
-import ProductPreviewSection from '@/components/product-preview-section';
-import FeatureHighlightsSection from '@/components/feature-highlights-section';
+import HeroSection from '@/components/sections/hero-section';
+import FeaturesSection from '@/components/sections/features-section';
+import ProductPreviewSection from '@/components/sections/product-preview-section';
+import FeatureHighlightsSection from '@/components/sections/feature-highlights-section';
+import WhyTeachersLoveSection from '@/components/sections/why-teachers-love-section';
+import PricingSection from '@/components/sections/pricing-section';
+import CallToActionSection from '@/components/sections/call-to-action-section';
+import FaqSection from '@/components/sections/faq-section';
+import FooterSection from '@/components/sections/footer-section';
 
 export default function Welcome() {
     return (
@@ -20,6 +25,21 @@ export default function Welcome() {
 
             {/* Feature Highlights Section */}
             <FeatureHighlightsSection />
+
+            {/* Why Teachers Love Mareff Section */}
+            <WhyTeachersLoveSection />
+
+            {/* Pricing Section */}
+            <PricingSection />
+
+            {/* Call to Action Section */}
+            <CallToActionSection />
+
+            {/* FAQ Section */}
+            <FaqSection />
+
+            {/* Footer */}
+            <FooterSection />
         </div>
     );
 }
