@@ -1,7 +1,8 @@
 import { Button } from '@/components/ui/button';
+import { getTeacherUrl } from '@/lib/utils';
 
 export default function CallToActionSection() {
-    const teacherDomain = import.meta.env.VITE_APP_TEACHER_DOMAIN || '#';
+    const teacherUrl = getTeacherUrl();
 
     return (
         <section className="bg-muted/40 py-16 md:py-32">
@@ -18,7 +19,7 @@ export default function CallToActionSection() {
                         <Button
                             asChild
                             size="lg">
-                            <a href={teacherDomain}>
+                            <a href={teacherUrl}>
                                 <span>Get Started for Free</span>
                             </a>
                         </Button>
@@ -28,7 +29,7 @@ export default function CallToActionSection() {
                             size="lg"
                             variant="outline"
                             >
-                            <a href={teacherDomain}>
+                            <a href={teacherUrl}>
                                 <span>View Demo</span>
                             </a>
                         </Button>

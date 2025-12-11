@@ -1,9 +1,10 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Check } from 'lucide-react';
+import { getTeacherUrl } from '@/lib/utils';
 
 export default function PricingSection() {
-    const teacherDomain = import.meta.env.VITE_APP_TEACHER_DOMAIN || '#';
+    const teacherUrl = getTeacherUrl();
 
     return (
         <section className="py-16 md:py-32">
@@ -61,7 +62,7 @@ export default function PricingSection() {
                                 asChild
                                 variant="outline"
                                 className="w-full">
-                                <a href={teacherDomain}>Get Started Free</a>
+                                <a href={teacherUrl}>Get Started Free</a>
                             </Button>
                         </CardFooter>
                     </Card>
@@ -107,7 +108,7 @@ export default function PricingSection() {
                             <Button
                                 asChild
                                 className="w-full">
-                                <a href={teacherDomain}>Get Started</a>
+                                <a href={teacherUrl}>Get Started</a>
                             </Button>
                         </CardFooter>
                     </Card>
@@ -149,7 +150,7 @@ export default function PricingSection() {
                                 asChild
                                 variant="outline"
                                 className="w-full">
-                                <a href={teacherDomain}>Contact Sales</a>
+                                <a href={teacherUrl}>Contact Sales</a>
                             </Button>
                         </CardFooter>
                     </Card>

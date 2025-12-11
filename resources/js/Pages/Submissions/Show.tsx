@@ -269,7 +269,7 @@ export default function Show({ submission, auth }: ShowProps) {
             <div className="max-w-3xl lg:max-w-4xl 2xl:max-w-6xl mx-auto px-6 lg:px-8">
                 {/* Header */}
                 <div className="flex items-center gap-4 py-6">
-                    <Link href={route('submissions.index')}>
+                    <Link href={route('dashboard')}>
                         <Button variant="ghost" size="icon">
                             <ArrowLeft className="h-4 w-4" />
                         </Button>

@@ -45,7 +45,7 @@ export default function ProductPreviewSection() {
     const [activeItem, setActiveItem] = useState<ImageKey>('item-1')
 
     return (
-        <section className="py-16 md:py-32 bg-background">
+        <section id="product-preview" className="py-16 md:py-32 bg-background">
             <div className="mx-auto max-w-5xl space-y-8 px-6 md:space-y-16">
                 <div className="relative z-10 mx-auto max-w-2xl space-y-4 text-center">
                     <h2 className="text-balance text-3xl font-semibold md:text-4xl">See Mareff in action</h2>

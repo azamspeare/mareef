@@ -6,10 +6,12 @@ import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { CheckCircle2, Menu, ArrowRight, FileText, Zap, ShieldCheck, LayoutDashboard, Share2, PenTool, Sparkles } from 'lucide-react';
 import { useState } from 'react';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import { getTeacherUrl } from '@/lib/utils';
+import { MareffLogo } from '@/components/logo';
 
 export default function Welcome() {
     const [isOpen, setIsOpen] = useState(false);
-    const teacherLoginUrl = `${window.location.protocol}//${import.meta.env.VITE_APP_TEACHER_DOMAIN}/login`;
+    const teacherLoginUrl = getTeacherUrl('login');
 
     return (
         <div className="min-h-screen bg-background text-foreground font-sans selection:bg-primary/20 overflow-x-hidden">
@@ -18,10 +20,7 @@ export default function Welcome() {
             {/* Navigation */}
             <nav className="fixed top-0 left-0 right-0 z-50 w-full border-b bg-background/80 backdrop-blur-md supports-[backdrop-filter]:bg-background/60 transition-all duration-300">
                 <div className="container mx-auto px-4 md:px-6 h-16 flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                        <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center text-primary-foreground font-bold text-xl shadow-sm">M</div>
-                        <span className="text-xl font-bold tracking-tight">Mareff</span>
-                    </div>
+                    <MareffLogo />
 
                     {/* Desktop Nav */}
                     <div className="hidden md:flex items-center gap-8">
@@ -554,10 +553,7 @@ export default function Welcome() {
             <footer className="py-12 border-t bg-background">
                 <div className="container mx-auto px-4 md:px-6">
                     <div className="flex flex-col md:flex-row justify-between items-center gap-6">
-                        <div className="flex items-center gap-2">
-                            <div className="h-6 w-6 rounded-md bg-primary flex items-center justify-center text-primary-foreground font-bold text-xs">M</div>
-                            <span className="font-bold text-lg">Mareff</span>
-                        </div>
+                        <MareffLogo iconSize="sm" />
                         <div className="flex gap-8 text-sm text-muted-foreground">
                             <Link href="#" className="hover:text-foreground transition-colors">Privacy</Link>
                             <Link href="#" className="hover:text-foreground transition-colors">Terms</Link>

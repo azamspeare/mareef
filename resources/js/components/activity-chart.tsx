@@ -19,7 +19,7 @@ interface ActivityChartProps {
 
 const explicitTheme: ThemeInput = {
     light: ['#ebedf0', '#9be9a8', '#40c463', '#30a14e', '#216e39'],
-    dark: ['#161b22', '#0e4429', '#006d32', '#26a641', '#39d353'],
+    dark: ['#666666', '#39d353', '#26a641', '#006d32', '#0e4429'],
 };
 
 // 53 weeks in a year, 7 days per week

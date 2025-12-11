@@ -1,5 +1,5 @@
-import { Logo } from '@/components/logo';
 import { Link } from '@inertiajs/react';
+import { MareffLogo } from '@/components/logo';
 
 const links = [
     {
@@ -16,7 +16,7 @@ const links = [
     },
     {
         title: 'Contact',
-        href: 'mailto:support@mareff.uz',
+        href: 'https://t.me/mareff_admin',
     },
 ];
 
@@ -27,8 +27,8 @@ export default function FooterSection() {
                 <Link
                     href="/"
                     aria-label="go home"
-                    className="mx-auto block size-fit">
-                    <Logo />
+                    className="mx-auto block w-fit">
+                    <MareffLogo />
                 </Link>
 
                 <div className="my-8 flex flex-wrap justify-center gap-6 text-sm">
@@ -45,7 +45,7 @@ export default function FooterSection() {
                 <div className="my-8 flex flex-wrap justify-center gap-6 text-sm">
                     {/* Telegram */}
                     <a
-                        href="https://t.me/mareff"
+                        href="https://t.me/mareff_app"
                         target="_blank"
                         rel="noopener noreferrer"
                         aria-label="Telegram"
@@ -64,7 +64,7 @@ export default function FooterSection() {
 
                     {/* Instagram */}
                     <a
-                        href="https://instagram.com/mareff.uz"
+                        href="https://instagram.com/mareff.app"
                         target="_blank"
                         rel="noopener noreferrer"
                         aria-label="Instagram"

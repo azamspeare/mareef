@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button'
 import { TextEffect } from '@/components/ui/text-effect'
 import { AnimatedGroup } from '@/components/ui/animated-group'
 import { HeroHeader } from '@/components/header'
+import { getTeacherUrl } from '@/lib/utils'
 
 const transitionVariants = {
     item: {
@@ -25,7 +26,7 @@ const transitionVariants = {
 }
 
 export default function HeroSection() {
-    const teacherLoginUrl = `${window.location.protocol}//${import.meta.env.VITE_APP_TEACHER_DOMAIN}/login`
+    const teacherLoginUrl = getTeacherUrl('login')
 
     return (
         <>
@@ -49,7 +50,7 @@ export default function HeroSection() {
                             <div className="text-center sm:mx-auto lg:mr-auto lg:mt-0">
                                 <AnimatedGroup variants={transitionVariants}>
                                     <a
-                                        href="#how-it-works"
+                                        href={teacherLoginUrl}
                                         className="hover:bg-background dark:hover:border-t-border bg-muted group mx-auto flex w-fit items-center gap-4 rounded-full border p-1 pl-4 shadow-md shadow-zinc-950/5 transition-colors duration-300 dark:border-t-white/5 dark:shadow-zinc-950">
                                         <span className="text-foreground text-sm">Writing tasks are live now</span>
                                         <span className="dark:border-background block h-4 w-0.5 border-l bg-white dark:bg-zinc-700"></span>
@@ -115,7 +116,7 @@ export default function HeroSection() {
                                         size="lg"
                                         variant="ghost"
                                         className="h-10.5 rounded-xl px-5">
-                                        <a href="#how-it-works">
+                                        <a href="#product-preview">
                                             <span className="text-nowrap">See How It Works</span>
                                         </a>
                                     </Button>

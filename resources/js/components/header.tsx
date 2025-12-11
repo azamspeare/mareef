@@ -1,5 +1,5 @@
 import { Link } from '@inertiajs/react'
-import { Menu, X, ChevronDown, Headphones, BookOpen, PenLine, Mic } from 'lucide-react'
+import { Menu, X, Headphones, BookOpen, PenLine, Mic } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
     NavigationMenu,
@@ -10,8 +10,9 @@ import {
     NavigationMenuTrigger,
 } from '@/components/ui/navigation-menu'
 import React from 'react'
-import { cn } from '@/lib/utils'
+import { cn, getTeacherUrl } from '@/lib/utils'
 import { ThemeToggle } from '@/components/ThemeToggle'
+import { MareffLogo } from '@/components/logo'
 
 const menuItems = [
     { name: 'Pricing', href: '/pricing' },
@@ -28,7 +29,7 @@ const taskTypes = [
 export const HeroHeader = () => {
     const [menuState, setMenuState] = React.useState(false)
     const [isScrolled, setIsScrolled] = React.useState(false)
-    const teacherLoginUrl = `${window.location.protocol}//${import.meta.env.VITE_APP_TEACHER_DOMAIN}/login`
+    const teacherLoginUrl = getTeacherUrl('login')
 
     React.useEffect(() => {
         const handleScroll = () => {
@@ -48,10 +49,8 @@ export const HeroHeader = () => {
                         <div className="flex w-full justify-between lg:w-auto">
                             <Link
                                 href="/"
-                                aria-label="home"
-                                className="flex items-center space-x-2">
-                                <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center text-primary-foreground font-bold text-xl">M</div>
-                                <span className="text-xl font-bold tracking-tight">Mareff</span>
+                                aria-label="home">
+                                <MareffLogo />
                             </Link>
 
                             <div className="flex items-center gap-2 lg:hidden">
