@@ -504,7 +504,7 @@ export default function Writings({ writings }: WritingsProps) {
             header: 'Time Limit',
             cell: ({ row }) => {
                 const time = row.original.allocated_time;
-                return <div>{formatTime(time)}</div>;
+                return <div>{time ? formatTime(time) : 'No limit'}</div>;
             }
         },
         {

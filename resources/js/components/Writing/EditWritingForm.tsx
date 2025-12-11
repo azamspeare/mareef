@@ -2,15 +2,14 @@ import { Link } from "@inertiajs/react";
 import { useForm } from "@inertiajs/react";
 import { useEffect, useRef, useState } from "react";
 
-import { filterSuggestionItems, PartialBlock } from "@blocknote/core";
+import { PartialBlock } from "@blocknote/core";
+import {
+    filterSuggestionItems,
+} from "@blocknote/core/extensions";
 import { Button } from "@/components/ui/button";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
 import {
-    BasicTextStyleButton,
-    BlockTypeSelect,
-    FormattingToolbar,
-    FormattingToolbarController,
     getDefaultReactSlashMenuItems,
     SuggestionMenuController,
     useCreateBlockNote,
@@ -155,13 +154,12 @@ export default function EditWritingForm({ writing }: EditWritingFormProps) {
                             theme={theme === "dark" ? "dark" : "light"}
                             slashMenu={false}
                             sideMenu={false}
-                            formattingToolbar={false}
                         >
                             {/* Custom Side Menu - Remove Colors option */}
                             <SideMenuController
                                 sideMenu={(props) => (
                                     <SideMenu {...props}>
-                                        <AddBlockButton {...props} />
+                                        <AddBlockButton key="addBlockButton" {...props} />
                                         <DragHandleButton {...props} dragHandleMenu={(props) => (
                                             <DragHandleMenu {...props}>
                                                 <RemoveBlockItem {...props}>Delete</RemoveBlockItem>
@@ -179,18 +177,6 @@ export default function EditWritingForm({ writing }: EditWritingFormProps) {
                                 }
                             />
 
-                            {/* Custom Formatting Toolbar - Only show specific items */}
-                            <FormattingToolbarController
-                                formattingToolbar={() => (
-                                    <FormattingToolbar>
-                                        <BlockTypeSelect key="blockTypeSelect" />
-                                        <BasicTextStyleButton basicTextStyle="bold" key="boldStyleButton" />
-                                        <BasicTextStyleButton basicTextStyle="italic" key="italicStyleButton" />
-                                        <BasicTextStyleButton basicTextStyle="underline" key="underlineStyleButton" />
-                                        <BasicTextStyleButton basicTextStyle="strike" key="strikeStyleButton" />
-                                    </FormattingToolbar>
-                                )}
-                            />
                         </BlockNoteView>
                     </div>
                 </main>

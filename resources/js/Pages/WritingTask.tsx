@@ -2,8 +2,9 @@ import { useState, useEffect, useCallback, useMemo, memo } from "react";
 import { Head, usePage, router } from "@inertiajs/react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { en } from "@blocknote/core/locales";
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
-import { BlockNoteView } from '@blocknote/mantine';
+import { BlockNoteView } from "@blocknote/mantine";
 import { useCreateBlockNote } from '@blocknote/react';
 import { BlockNoteSchema, defaultBlockSpecs } from "@blocknote/core";
 import "@blocknote/mantine/style.css";
@@ -323,6 +324,7 @@ export default function WritingTask({ writing, submission }: WritingTaskProps) {
     const [commentsDrawerOpen, setCommentsDrawerOpen] = useState(false);
 
     const { theme } = useTheme();
+    const locale = en;
 
     // Memoize OG image URL to avoid recalculating on every render
     const ogImageUrl = useMemo(() => {
@@ -359,6 +361,15 @@ export default function WritingTask({ writing, submission }: WritingTaskProps) {
         domAttributes: {
             editor: {
                 class: "bn-editor-plain",
+            },
+        },
+        dictionary: {
+            ...locale,
+            placeholders: {
+                ...locale.placeholders,
+                emptyDocument: "Start typing..",
+                default: "Start typing..",
+                heading: "Start typing..",
             },
         },
     });
@@ -590,7 +601,7 @@ export default function WritingTask({ writing, submission }: WritingTaskProps) {
                                                 </p>
                                                 <p className="text-sm text-muted-foreground">
                                                     {submission?.feedback?.score !== null && (
-                                                        <span>Score: {submission.feedback.score} · </span>
+                                                        <span>Score: {submission?.feedback?.score} · </span>
                                                     )}
                                                     {feedbackAnnotations.length} comment(s) from your teacher
                                                 </p>

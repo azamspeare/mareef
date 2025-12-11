@@ -142,6 +142,10 @@
     color: inherit !important;
 }
 
+.create-writing-details .bn-editor {
+    background-color: transparent !important;
+}
+
 /* Animation Utilities */
 @keyframes shine {
     from {

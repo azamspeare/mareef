@@ -1,8 +1,10 @@
 import { Link } from "@inertiajs/react";
 import { useForm } from "@inertiajs/react";
 import { useCallback, useEffect, useRef, useState } from "react";
-
-import { filterSuggestionItems, PartialBlock } from "@blocknote/core";
+import { PartialBlock } from "@blocknote/core";
+import {
+    filterSuggestionItems,
+} from "@blocknote/core/extensions";
 import { Button } from "@/components/ui/button";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
@@ -193,7 +195,7 @@ export default function CreateWritingForm() {
                     />
 
                     {/* Editor */}
-                    <div className="mt-6 [&_.bn-editor]:pl-0 [&_.bn-block-group]:ml-0 lg:-ml-12">
+                    <div className="mt-6 [&_.bn-editor]:pl-0 [&_.bn-block-group]:ml-0 lg:-ml-12 create-writing-details">
                         <BlockNoteView
                             editor={editor}
                             theme={theme.theme === "dark" ? "dark" : "light"}
@@ -205,7 +207,7 @@ export default function CreateWritingForm() {
                             <SideMenuController
                                 sideMenu={(props) => (
                                     <SideMenu {...props}>
-                                        <AddBlockButton {...props} />
+                                        <AddBlockButton key="addBlockButton" {...props} />
                                         <DragHandleButton {...props} dragHandleMenu={(props) => (
                                             <DragHandleMenu {...props}>
                                                 <RemoveBlockItem {...props}>Delete</RemoveBlockItem>
