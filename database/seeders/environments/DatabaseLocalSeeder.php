@@ -7,6 +7,7 @@ namespace Database\Seeders\environments;
 use Database\Seeders\defaults\AdminSeeder;
 use Database\Seeders\defaults\StudentSeeder;
 use Database\Seeders\defaults\TeacherSeeder;
+use Database\Seeders\defaults\WaitlistSeeder;
 use Database\Seeders\defaults\WritingSeeder;
 use Illuminate\Database\Seeder;
 
@@ -21,7 +22,8 @@ final class DatabaseLocalSeeder extends Seeder
             AdminSeeder::class,
             TeacherSeeder::class,
             StudentSeeder::class,
-            WritingSeeder::class
+            WritingSeeder::class,
+            WaitlistSeeder::class
         ]);
     }
 }

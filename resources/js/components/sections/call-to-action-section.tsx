@@ -1,5 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { getTeacherUrl } from '@/lib/utils';
+import { WaitlistDialog } from '@/components/waitlist-dialog';
 
 interface CallToActionSectionProps {
     title?: string
@@ -8,6 +9,7 @@ interface CallToActionSectionProps {
     primaryButtonHref?: string
     secondaryButtonText?: string
     secondaryButtonHref?: string
+    isWaitlist?: boolean
 }
 
 export default function CallToActionSection({
@@ -17,6 +19,7 @@ export default function CallToActionSection({
     primaryButtonHref,
     secondaryButtonText = 'View Demo',
     secondaryButtonHref,
+    isWaitlist = false,
 }: CallToActionSectionProps) {
     const teacherUrl = getTeacherUrl();
     const primaryHref = primaryButtonHref || teacherUrl;
@@ -34,19 +37,25 @@ export default function CallToActionSection({
                     </p>
 
                     <div className="mt-12 flex flex-wrap justify-center gap-4">
-                        <Button
-                            asChild
-                            size="lg">
-                            <a href={primaryHref}>
-                                <span>{primaryButtonText}</span>
-                            </a>
-                        </Button>
+                        {isWaitlist ? (
+                            <WaitlistDialog>
+                                <Button size="lg">
+                                    <span>{primaryButtonText}</span>
+                                </Button>
+                            </WaitlistDialog>
+                        ) : (
+                            <Button asChild size="lg">
+                                <a href={primaryHref}>
+                                    <span>{primaryButtonText}</span>
+                                </a>
+                            </Button>
+                        )}
 
                         <Button
                             asChild
                             size="lg"
                             variant="outline"
-                            >
+                        >
                             <a href={secondaryHref}>
                                 <span>{secondaryButtonText}</span>
                             </a>

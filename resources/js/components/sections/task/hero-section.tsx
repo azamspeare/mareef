@@ -1,6 +1,7 @@
 import { Button } from '@/components/ui/button'
 import { TextEffect } from '@/components/ui/text-effect'
 import { AnimatedGroup } from '@/components/ui/animated-group'
+import { WaitlistDialog } from '@/components/waitlist-dialog'
 import { getTeacherUrl } from '@/lib/utils'
 
 interface TaskHeroSectionProps {
@@ -15,6 +16,7 @@ interface TaskHeroSectionProps {
         light: string
         dark: string
     }
+    isWaitlist?: boolean
 }
 
 const transitionVariants = {
@@ -44,6 +46,7 @@ export default function TaskHeroSection({
     primaryButtonText = 'Get Started Free',
     primaryButtonHref,
     imageSrc,
+    isWaitlist = false,
 }: TaskHeroSectionProps) {
     const teacherLoginUrl = getTeacherUrl('login')
     const primaryHref = primaryButtonHref || teacherLoginUrl
@@ -68,7 +71,11 @@ export default function TaskHeroSection({
                 <div className="sm:mx-auto lg:mr-auto lg:mt-0">
                     {badge && (
                         <AnimatedGroup variants={transitionVariants}>
-                            <span className="bg-muted text-muted-foreground mx-auto mb-6 block w-fit rounded-full border px-4 py-1.5 text-sm font-medium md:mx-0">
+                            <span className="bg-muted text-muted-foreground mx-auto mb-6 flex w-fit items-center gap-2 rounded-full border px-4 py-1.5 text-sm font-medium md:mx-0">
+                                <span className="relative flex h-2 w-2">
+                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                                    <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+                                </span>
                                 {badge}
                             </span>
                         </AnimatedGroup>
@@ -106,14 +113,24 @@ export default function TaskHeroSection({
                         }}
                         className="mt-12 flex items-center gap-2">
                         <div className="bg-foreground/10 rounded-[calc(var(--radius-xl)+0.125rem)] border p-0.5">
-                            <Button
-                                asChild
-                                size="lg"
-                                className="rounded-xl px-5 text-base">
-                                <a href={primaryHref}>
-                                    <span className="text-nowrap">{primaryButtonText}</span>
-                                </a>
-                            </Button>
+                            {isWaitlist ? (
+                                <WaitlistDialog>
+                                    <Button
+                                        size="lg"
+                                        className="rounded-xl px-5 text-base">
+                                        <span className="text-nowrap">{primaryButtonText}</span>
+                                    </Button>
+                                </WaitlistDialog>
+                            ) : (
+                                <Button
+                                    asChild
+                                    size="lg"
+                                    className="rounded-xl px-5 text-base">
+                                    <a href={primaryHref}>
+                                        <span className="text-nowrap">{primaryButtonText}</span>
+                                    </a>
+                                </Button>
+                            )}
                         </div>
                     </AnimatedGroup>
                 </div>

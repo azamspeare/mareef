@@ -12,3 +12,7 @@ export function getTeacherUrl(path: string = ''): string {
   const normalizedPath = path.startsWith('/') ? path : path ? `/${path}` : ''
   return `${protocol}//${domain}${normalizedPath}`
 }
+
+export function getContactUrl(): string {
+  return 'https://t.me/mareff_admin'
+}

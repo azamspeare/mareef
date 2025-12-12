@@ -1,6 +1,7 @@
 'use client';
 
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { getContactUrl } from '@/lib/utils';
 
 export default function FaqSection() {
     const faqItems = [
@@ -71,9 +72,11 @@ export default function FaqSection() {
                     <p className="text-muted-foreground mt-6 px-8 text-center">
                         Still have questions?{' '}
                         <a
-                            href="mailto:support@mareff.uz"
+                            href={getContactUrl()}
+                            target="_blank"
+                            rel="noopener noreferrer"
                             className="text-primary font-medium hover:underline">
-                            Contact our support team
+                            Contact us on Telegram
                         </a>
                     </p>
                 </div>

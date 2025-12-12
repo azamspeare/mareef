@@ -1,5 +1,6 @@
 import { Link } from '@inertiajs/react';
 import { MareffLogo } from '@/components/logo';
+import { getContactUrl } from '@/lib/utils';
 
 const links = [
     {
@@ -16,7 +17,7 @@ const links = [
     },
     {
         title: 'Contact',
-        href: 'https://t.me/mareff_admin',
+        href: getContactUrl(),
     },
 ];
 

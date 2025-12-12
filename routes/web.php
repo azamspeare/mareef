@@ -12,6 +12,7 @@ use App\Http\Controllers\Dashboard\Writing\WritingController;
 use App\Http\Controllers\ImageController;
 use App\Http\Controllers\Landing\LandingController;
 use App\Http\Controllers\Student\WritingController as StudentWritingController;
+use App\Http\Controllers\WaitlistController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -90,6 +91,7 @@ Route::domain('student.' . config('app.domain'))->group(function () {
 Route::get('/', [LandingController::class, 'welcome'])->name('landing');
 Route::get('/old', [LandingController::class, 'old'])->name('old-landing');
 Route::get('pricing', [LandingController::class, 'pricing'])->name('pricing');
+Route::post('waitlist', WaitlistController::class)->name('waitlist');
 Route::prefix('tasks')->name('tasks.')->group(function () {
     Route::get('listening', [LandingController::class, 'listening'])->name('listening');
     Route::get('reading', [LandingController::class, 'reading'])->name('reading');

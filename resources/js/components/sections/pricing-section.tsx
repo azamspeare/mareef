@@ -1,10 +1,11 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Check } from 'lucide-react';
-import { getTeacherUrl } from '@/lib/utils';
+import { getTeacherUrl, getContactUrl } from '@/lib/utils';
 
 export default function PricingSection() {
     const teacherUrl = getTeacherUrl();
+    const contactUrl = getContactUrl();
 
     return (
         <section className="py-16 md:py-32">
@@ -150,7 +151,7 @@ export default function PricingSection() {
                                 asChild
                                 variant="outline"
                                 className="w-full">
-                                <a href={teacherUrl}>Contact Sales</a>
+                                <a href={contactUrl} target="_blank" rel="noopener noreferrer">Contact Sales</a>
                             </Button>
                         </CardFooter>
                     </Card>

@@ -1,3 +1,5 @@
+import { getContactUrl } from '@/lib/utils'
+
 export default function FAQSection() {
     return (
         <section className="scroll-py-16 py-16 md:scroll-py-32 md:py-32" id="faq">
@@ -30,7 +32,17 @@ export default function FAQSection() {
                         </div>
                         <div className="py-6">
                             <h3 className="font-medium">Do you offer discounts for schools?</h3>
-                            <p className="text-muted-foreground mt-4">Yes! We offer special pricing for schools and educational institutions. Contact us at support@mareff.com to discuss your needs and get a custom quote.</p>
+                            <p className="text-muted-foreground mt-4">
+                                Yes! We offer special pricing for schools and educational institutions.{' '}
+                                <a
+                                    href={getContactUrl()}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-primary hover:underline">
+                                    Contact us on Telegram
+                                </a>{' '}
+                                to discuss your needs and get a custom quote.
+                            </p>
                         </div>
                     </div>
                 </div>
