@@ -14,9 +14,9 @@ import { cn, getTeacherUrl } from '@/lib/utils'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { MareffLogo } from '@/components/logo'
 
-const menuItems = [
+const getMenuItems = (faqHref: string) => [
     { name: 'Pricing', href: '/pricing' },
-    { name: 'FAQ', href: '#faq' },
+    { name: 'FAQ', href: faqHref },
 ]
 
 const taskTypes = [
@@ -26,10 +26,15 @@ const taskTypes = [
     { name: 'Speaking', href: '/tasks/speaking', icon: Mic, description: 'Voice recording tasks' },
 ]
 
-export const HeroHeader = () => {
+interface HeroHeaderProps {
+    faqHref?: string
+}
+
+export const HeroHeader = ({ faqHref = '#faq' }: HeroHeaderProps) => {
     const [menuState, setMenuState] = React.useState(false)
     const [isScrolled, setIsScrolled] = React.useState(false)
     const teacherLoginUrl = getTeacherUrl('login')
+    const menuItems = getMenuItems(faqHref)
 
     React.useEffect(() => {
         const handleScroll = () => {

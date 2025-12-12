@@ -21,7 +21,7 @@ Show the writing task creation screen + a preview of the student submission flow
 
 Managing writing assignments is a mess:
 
-- Teachers assign prompts in Google Docs or chats
+- Teachers assign tasks in Google Docs or chats
 - Students reply with documents or messages
 - Feedback is scattered across emails and comments
 - No history, no structure, no analytics
