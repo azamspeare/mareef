@@ -12,6 +12,22 @@ The pricing page should clearly communicate:
 - That AI features and automation are only in paid plans
 - That the product is currently free during early access
 
+### Swiper content
+#### 1. ⏳ "Saved 6+ hours/week on grading"
+Private tutors using Mareff’s writing workflow reduced manual feedback time by 50–70%.
+
+#### 2. 🧠 "Better student engagement"
+Teachers report students submit on time more consistently with Mareff’s structured writing flow.
+
+#### 3. 🔁 "90% task feedback visibility"
+Every student sees their teacher’s comments — no more ignored Google Docs or lost chats.
+
+#### 4. 🧪 "Over 700 tasks created in private beta"
+Teachers from 5+ countries tested Mareff to streamline writing instruction.
+
+#### 5. 🌍 "Supports 10+ languages"
+English, Arabic, Korean, Russian, and more — Mareff works for every language teacher.
+
 ---
 
 ## 2. Plans
