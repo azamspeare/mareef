@@ -5,7 +5,7 @@ import { Head } from "@inertiajs/react";
 export default function Create() {
     return (
         <DashboardLayout title="Create Writing">
-            <Head title="Create Writing - Mareff" />
+            <Head title="Create Writing - Mareef" />
             <CreateWritingForm />
         </DashboardLayout>
     );

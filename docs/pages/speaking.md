@@ -7,7 +7,7 @@
 
 ### Subheadline
 No more lost voice messages or timestampless replies.
-Mareff’s upcoming Speaking Tasks will give teachers a clean way to collect, evaluate, and comment on student speech.
+Mareef’s upcoming Speaking Tasks will give teachers a clean way to collect, evaluate, and comment on student speech.
 
 ### CTA Badge
 🛠 **Speaking Tasks are in development**
@@ -30,7 +30,7 @@ It's messy, unscalable, and hard to use for real teaching growth.
 
 ## 3. Our Solution
 
-Mareff’s Speaking Tasks will offer a structured voice submission workflow:
+Mareef’s Speaking Tasks will offer a structured voice submission workflow:
 
 - Students record audio directly in the browser
 - Optional word limit or topic instructions

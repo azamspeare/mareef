@@ -7,7 +7,7 @@
 
 ### Subheadline
 No more printing 50 worksheets and checking them by hand.
-Mareff’s upcoming Reading Tasks will let you build, assign, and auto-grade comprehension tasks — all in one flow.
+Mareef’s upcoming Reading Tasks will let you build, assign, and auto-grade comprehension tasks — all in one flow.
 
 ### CTA Badge
 🛠 **Reading Tasks are in development**
@@ -30,7 +30,7 @@ In 2025, this still eats up hours a week.
 
 ## 3. Our Solution
 
-Mareff’s upcoming Reading Tasks will change that:
+Mareef’s upcoming Reading Tasks will change that:
 
 - Upload or write your reading material directly in the editor
 - Add comprehension questions (multiple choice, fill-in-the-blank, short answer)

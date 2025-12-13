@@ -11,12 +11,12 @@ const swiperContent = [
     {
         emoji: '⏳',
         title: 'Saved 6+ hours/week on grading',
-        description: 'Private tutors using Mareff\'s writing workflow reduced manual feedback time by 50–70%.',
+        description: 'Private tutors using Mareef\'s writing workflow reduced manual feedback time by 50–70%.',
     },
     {
         emoji: '🧠',
         title: 'Better student engagement',
-        description: 'Teachers report students submit on time more consistently with Mareff\'s structured writing flow.',
+        description: 'Teachers report students submit on time more consistently with Mareef\'s structured writing flow.',
     },
     {
         emoji: '🔁',
@@ -26,12 +26,12 @@ const swiperContent = [
     {
         emoji: '🧪',
         title: 'Over 700 tasks created in private beta',
-        description: 'Teachers from 5+ countries tested Mareff to streamline writing instruction.',
+        description: 'Teachers from 5+ countries tested Mareef to streamline writing instruction.',
     },
     {
         emoji: '🌍',
         title: 'Supports 10+ languages',
-        description: 'English, Arabic, Korean, Russian, and more — Mareff works for every language teacher.',
+        description: 'English, Arabic, Korean, Russian, and more — Mareef works for every language teacher.',
     },
 ]
 

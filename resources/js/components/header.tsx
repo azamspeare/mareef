@@ -12,7 +12,7 @@ import {
 import React from 'react'
 import { cn, getTeacherUrl } from '@/lib/utils'
 import { ThemeToggle } from '@/components/ThemeToggle'
-import { MareffLogo } from '@/components/logo'
+import { MareefLogo } from '@/components/logo'
 
 const getMenuItems = (faqHref: string) => [
     { name: 'Pricing', href: '/pricing' },
@@ -55,7 +55,7 @@ export const HeroHeader = ({ faqHref = '#faq' }: HeroHeaderProps) => {
                             <Link
                                 href="/"
                                 aria-label="home">
-                                <MareffLogo />
+                                <MareefLogo />
                             </Link>
 
                             <div className="flex items-center gap-2 lg:hidden">

@@ -1,13 +1,13 @@
-# Mareff Landing Page Redesign Specification
+# Mareef Landing Page Redesign Specification
 
-This document describes the full creative and structural requirements for generating a modern, attractive, teacher-focused landing page for **Mareff**.
+This document describes the full creative and structural requirements for generating a modern, attractive, teacher-focused landing page for **Mareef**.
 Any AI agent reading this file should follow this specification when producing landing page designs, layouts, mockups, or copywriting.
 
 ---
 
 # 1. Product Summary
 
-**Mareff** is a platform for language teachers to create writing tasks, collect student submissions, and evaluate them easily. It replaces the chaotic workflow of:
+**Mareef** is a platform for language teachers to create writing tasks, collect student submissions, and evaluate them easily. It replaces the chaotic workflow of:
 
 - Google Docs
 - Word files
@@ -16,7 +16,7 @@ Any AI agent reading this file should follow this specification when producing l
 - Messy feedback loops
 - No progress tracking
 
-Mareff simplifies everything into a clean, unified interface.
+Mareef simplifies everything into a clean, unified interface.
 
 Target users:
 - Private language tutors
@@ -78,7 +78,7 @@ AI agents must follow or adapt this structure when generating designs.
 **Tasks don’t have to be chaos.**
 
 ### Subheadline
-Mareff helps language teachers create, share, and evaluate structured tasks — all in one place.
+Mareef helps language teachers create, share, and evaluate structured tasks — all in one place.
 Start with writing, expand to reading, speaking, and more.
 
 ### CTA Buttons
@@ -117,7 +117,7 @@ Whether you teach online or in person — managing tasks shouldn’t be this pai
 
 ## 4.3 The Solution
 
-Mareff turns scattered task chaos into a clean, structured flow — built for language teachers.
+Mareef turns scattered task chaos into a clean, structured flow — built for language teachers.
 
 - ✍️ Create tasks in minutes (writing, reading, speaking, listening)
 - 🔗 Share a single submission link with students
@@ -133,7 +133,7 @@ Just smart, repeatable workflows — designed for how language is actually taugh
 
 ## 4.4 Product Preview
 
-Show how Mareff works in real use.
+Show how Mareef works in real use.
 
 ### Suggested UI Screens (animated or scroll-triggered):
 
@@ -181,10 +181,10 @@ Show how Mareff works in real use.
 
 ---
 
-## 4.6 Why Teachers Love Mareff
+## 4.6 Why Teachers Love Mareef
 
 ### 🕒 It saves hours
-No more downloading files, marking by hand, or replying in chat threads. Mareff cuts grading and feedback time in half.
+No more downloading files, marking by hand, or replying in chat threads. Mareef cuts grading and feedback time in half.
 
 ### 🧘 It reduces stress
 Everything is in one place — tasks, submissions, feedback, history. Teachers don’t lose track of anything.
@@ -215,8 +215,8 @@ Start free. Upgrade when you're ready to scale.
 
 ## 4.9 FAQ
 
-### Is Mareff just for online teaching?
-No — Mareff works great for traditional classrooms too. Many teachers use it to replace paper tasks, save grading time, and keep student work organized.
+### Is Mareef just for online teaching?
+No — Mareef works great for traditional classrooms too. Many teachers use it to replace paper tasks, save grading time, and keep student work organized.
 
 ### Do students need accounts?
 No, students log in using Google and submit tasks directly. No registration required.
@@ -225,7 +225,7 @@ No, students log in using Google and submit tasks directly. No registration requ
 Writing tasks are fully live. Reading, listening, and speaking tasks are under development and coming soon.
 
 ### Can I give scores and feedback?
-Yes. Mareff supports inline comments, scoring, and feedback per student — with stored history for every submission.
+Yes. Mareef supports inline comments, scoring, and feedback per student — with stored history for every submission.
 
 ### Is it free?
 Yes. During early access, all features are free. Paid tiers will launch once premium features (like AI tools) are stable.
@@ -286,7 +286,7 @@ AI outputs should be:
 
 # 8. Summary for AI Agents
 
-To redesign Mareff’s landing page:
+To redesign Mareef’s landing page:
 
 - Use inspiration from modern clean templates
 - Make it understandable and attractive for teachers

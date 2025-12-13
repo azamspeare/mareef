@@ -27,5 +27,5 @@ Your dashboard shows all pending and completed submissions.
 
 Thanks for making feedback faster.
 
-— Mareff System  
+— Mareef System  
 [https://app.mareef.uz](https://app.mareef.uz)

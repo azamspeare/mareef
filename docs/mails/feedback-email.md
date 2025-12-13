@@ -27,5 +27,5 @@ Reviewing feedback is the fastest way to improve. We save every comment so you c
 
 Keep learning — you’re doing great.
 
-— Mareff System  
+— Mareef System  
 [https://mareef.uz](https://mareef.uz)

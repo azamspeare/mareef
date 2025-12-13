@@ -73,7 +73,6 @@ export default function Show({ writing }: ShowProps) {
     }, [writing.content]);
 
     const handleShare = async () => {
-        // Get the main domain without subdomain (mareff.test instead of app.mareff.test)
         const hostname = window.location.hostname;
         const mainDomain = hostname.split('.').slice(-2).join('.');
         const protocol = window.location.protocol;
@@ -154,7 +153,7 @@ export default function Show({ writing }: ShowProps) {
 
     return (
         <DashboardLayout title="Writing Details">
-            <Head title={`${writing.title} - Mareff`} />
+            <Head title={`${writing.title} - Mareef`} />
 
             <div className="flex flex-col h-full max-w-4xl mx-auto w-full p-6">
                 {/* Header Actions */}

@@ -9,7 +9,7 @@ export default function Test() {
 
     return (
         <DashboardLayout title="Test Editors">
-            <Head title="Test Editors - Mareff" />
+            <Head title="Test Editors - Mareef" />
 
             <div className="max-w-4xl mx-auto py-6 space-y-6">
                 <div className="flex items-center justify-between">

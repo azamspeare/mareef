@@ -8,7 +8,7 @@ export default function WhyTeachersLoveSection() {
                     <div className="order-last mt-6 flex flex-col gap-12 md:order-first">
                         <div className="space-y-6">
                             <h2 className="text-balance text-3xl font-semibold md:text-4xl lg:text-5xl">
-                                Why Teachers Love Mareff
+                                Why Teachers Love Mareef
                             </h2>
                             <p className="text-muted-foreground">
                                 Designed specifically for language teachers who want to spend less time on admin and more time on what matters — teaching.

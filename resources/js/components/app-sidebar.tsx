@@ -28,7 +28,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const data = {
     user: {
       name: user?.name || "Teacher",
-      email: user?.email || "teacher@mareff.test",
+      email: user?.email || "teacher@mareef.test",
       avatar: user?.avatar || "",
     },
     navMain: [
@@ -76,7 +76,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 <div className="bg-primary text-primary-foreground flex size-5 items-center justify-center rounded-md">
                     <span className="font-bold text-xs">M</span>
                 </div>
-                <span className="text-base font-semibold">Mareff</span>
+                <span className="text-base font-semibold">Mareef</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>

@@ -551,7 +551,7 @@ export default function WritingTask({ writing, submission }: WritingTaskProps) {
             <Head>
                 <title>Writing Task</title>
                 <meta property="og:title" content={writing.title || "Writing Task"} />
-                <meta property="og:description" content="Complete your writing task on Mareff." />
+                <meta property="og:description" content="Complete your writing task on Mareef." />
                 <meta property="og:image" content={ogImageUrl} />
                 <meta property="og:type" content="website" />
                 <meta name="twitter:card" content="summary_large_image" />

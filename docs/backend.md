@@ -1,13 +1,13 @@
-# Mareff – Backend Specification (MVP)
+# Mareef – Backend Specification (MVP)
 
-This document describes the **backend architecture**, **models**, and **database design** of Mareff’s MVP.
+This document describes the **backend architecture**, **models**, and **database design** of Mareef’s MVP.
 Controllers, routes, and FormRequests are intentionally excluded.
 
 ---
 
 # **1. Backend Architecture Overview**
 
-Mareff’s backend is a **Laravel 12 monolithic application** with:
+Mareef’s backend is a **Laravel 12 monolithic application** with:
 
 - **Database:** MySQL
 - **ORM:** Eloquent

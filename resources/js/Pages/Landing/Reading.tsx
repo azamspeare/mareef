@@ -52,7 +52,7 @@ const readingSolutions: Solution2[] = [
 export default function Reading() {
     return (
         <div className="min-h-screen bg-background text-foreground font-sans selection:bg-primary/20 overflow-x-hidden">
-            <Head title="Reading Tasks - Mareff" />
+            <Head title="Reading Tasks - Mareef" />
 
             {/* Header */}
             <HeroHeader faqHref="/#faq" />
@@ -62,7 +62,7 @@ export default function Reading() {
                 <TaskHeroSection
                     badge="Coming soon"
                     title="Reading tasks, without the paperwork."
-                    description="No more printing 50 worksheets and checking them by hand. Mareff's upcoming Reading Tasks will let you build, assign, and auto-grade comprehension tasks all in one flow."
+                    description="No more printing 50 worksheets and checking them by hand. Mareef's upcoming Reading Tasks will let you build, assign, and auto-grade comprehension tasks all in one flow."
                     primaryButtonText="Join Waitlist"
                     isWaitlist={true}
                     imageSrc={{
@@ -80,7 +80,7 @@ export default function Reading() {
 
                 {/* Solution Section */}
                 <SolutionSection2
-                    headline="Mareff's Reading Tasks will change that"
+                    headline="Mareef's Reading Tasks will change that"
                     subheadline="Designed to feel like a real classroom worksheet but smarter."
                     solutions={readingSolutions}
                     bottomMessage="Designed to feel like a real classroom worksheetbut smarter."

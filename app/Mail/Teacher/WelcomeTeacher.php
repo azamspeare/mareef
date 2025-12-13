@@ -23,7 +23,7 @@ final class WelcomeTeacher extends Mailable implements ShouldQueue
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: "Welcome to Mareff — let's simplify student writing",
+            subject: "Welcome to Mareef — let's simplify student writing",
         );
     }
 

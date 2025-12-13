@@ -19,7 +19,7 @@ interface EditProps {
 export default function Edit({ writing }: EditProps) {
     return (
         <DashboardLayout title="Edit Writing">
-            <Head title={`Edit: ${writing.title} - Mareff`} />
+            <Head title={`Edit: ${writing.title} - Mareef`} />
             <EditWritingForm writing={writing} />
         </DashboardLayout>
     );

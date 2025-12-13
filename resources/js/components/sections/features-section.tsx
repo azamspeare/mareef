@@ -33,7 +33,7 @@ export default function FeaturesSection() {
                                 </div>
                                 <div className="mt-6 space-y-2">
                                     <h3 className="text-lg font-medium">Built-In Student Workspace</h3>
-                                    <p className="text-muted-foreground text-sm">Students write, record, or respond directly in Mareff. No file uploads. No external tools.</p>
+                                    <p className="text-muted-foreground text-sm">Students write, record, or respond directly in Mareef. No file uploads. No external tools.</p>
                                 </div>
                             </CardContent>
                         </Card>

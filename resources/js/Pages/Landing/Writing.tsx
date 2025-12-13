@@ -34,7 +34,7 @@ const writingSolutions: Solution2[] = [
     {
         icon: Edit3,
         title: 'Built-in writing editor',
-        description: 'Students write directly inside Mareff. No file uploads, no messy attachments, no lost documents.',
+        description: 'Students write directly inside Mareef. No file uploads, no messy attachments, no lost documents.',
     },
     {
         icon: MessageSquare,
@@ -51,7 +51,7 @@ const writingSolutions: Solution2[] = [
 export default function Writing() {
     return (
         <div className="min-h-screen bg-background text-foreground font-sans selection:bg-primary/20 overflow-x-hidden">
-            <Head title="Writing Tasks - Mareff" />
+            <Head title="Writing Tasks - Mareef" />
 
             {/* Header */}
             <HeroHeader faqHref="/#faq" />
@@ -62,7 +62,7 @@ export default function Writing() {
                     badge="Live now"
                     title="Writing assignments, finally organized."
                     description="No more Google Docs chaos or Telegram file drops.
-Mareff makes writing tasks clean, trackable, and fast — for teachers and students."
+Mareef makes writing tasks clean, trackable, and fast — for teachers and students."
                     primaryButtonText="Create Writing Task"
                     secondaryButtonText="See Example"
                     secondaryButtonHref="#features"
@@ -81,7 +81,7 @@ Mareff makes writing tasks clean, trackable, and fast — for teachers and stude
 
                 {/* Solution Section */}
                 <SolutionSection2
-                    headline="Mareff gives writing tasks a dedicated workflow"
+                    headline="Mareef gives writing tasks a dedicated workflow"
                     subheadline="Every submission is saved. Every comment is tracked. Writing becomes repeatable, not chaotic."
                     solutions={writingSolutions}
                     bottomMessage="Every submission is saved. Every comment is tracked."

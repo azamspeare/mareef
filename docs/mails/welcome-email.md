@@ -1,7 +1,7 @@
 # Welcome Email – Teacher Onboarding
 
 **Subject Line Options**
-- "Welcome to Mareff — your tasks just got organized"
+- "Welcome to Mareef — your tasks just got organized"
 - "Glad you’re here. Let’s simplify student writing."
 - "You’re in. Let’s get your first task live."
 
@@ -11,7 +11,7 @@
 
 **Hi [Teacher Name],**
 
-Welcome to **Mareff** — the platform built for language teachers who are tired of messy workflows.
+Welcome to **Mareef** — the platform built for language teachers who are tired of messy workflows.
 
 We’re here to help you:
 - ✍️ Create structured writing tasks in minutes
@@ -30,7 +30,7 @@ Need help or want to see an example?
 
 Thanks for joining us — you're building the future of teaching.
 
-— The Mareff Team  
+— The Mareef Team  
 [https://mareef.uz](https://mareef.uz)
 
 ---

@@ -10,17 +10,17 @@ export default function FAQSection() {
                             Frequently <br className="hidden lg:block" /> Asked <br className="hidden lg:block" />
                             Questions
                         </h2>
-                        <p className="text-muted-foreground">Everything you need to know about Mareff pricing.</p>
+                        <p className="text-muted-foreground">Everything you need to know about Mareef pricing.</p>
                     </div>
 
                     <div className="divide-y divide-dashed sm:mx-auto sm:max-w-lg lg:mx-0">
                         <div className="pb-6">
-                            <h3 className="font-medium">Is Mareff really free during early access?</h3>
-                            <p className="text-muted-foreground mt-4">Yes! During our early access period, all features are completely free. This includes unlimited students, AI-powered feedback, and all premium features. We want you to experience the full power of Mareff before we introduce paid plans.</p>
+                            <h3 className="font-medium">Is Mareef really free during early access?</h3>
+                            <p className="text-muted-foreground mt-4">Yes! During our early access period, all features are completely free. This includes unlimited students, AI-powered feedback, and all premium features. We want you to experience the full power of Mareef before we introduce paid plans.</p>
                         </div>
                         <div className="py-6">
                             <h3 className="font-medium">What happens when early access ends?</h3>
-                            <p className="text-muted-foreground mt-4">When we launch paid plans, early access users will receive special grandfather pricing and extended free access as a thank you for helping us improve Mareff.</p>
+                            <p className="text-muted-foreground mt-4">When we launch paid plans, early access users will receive special grandfather pricing and extended free access as a thank you for helping us improve Mareef.</p>
                         </div>
                         <div className="py-6">
                             <h3 className="font-medium">Can I upgrade or downgrade my plan?</h3>

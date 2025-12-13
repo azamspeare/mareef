@@ -52,7 +52,7 @@ const listeningSolutions: Solution2[] = [
 export default function Listening() {
     return (
         <div className="min-h-screen bg-background text-foreground font-sans selection:bg-primary/20 overflow-x-hidden">
-            <Head title="Listening Tasks - Mareff" />
+            <Head title="Listening Tasks - Mareef" />
 
             {/* Header */}
             <HeroHeader faqHref="/#faq" />
@@ -62,7 +62,7 @@ export default function Listening() {
                 <TaskHeroSection
                     badge="Coming soon"
                     title="Finally, a real workflow for listening tasks."
-                    description="No more sending audio in chats and chasing down answers. Mareff will let you create structured listening tasks with synced questions all in one clean flow."
+                    description="No more sending audio in chats and chasing down answers. Mareef will let you create structured listening tasks with synced questions all in one clean flow."
                     primaryButtonText="Join Waitlist"
                     isWaitlist={true}
                     imageSrc={{
@@ -80,7 +80,7 @@ export default function Listening() {
 
                 {/* Solution Section */}
                 <SolutionSection2
-                    headline="Mareff's Listening Tasks will be built for language teachers"
+                    headline="Mareef's Listening Tasks will be built for language teachers"
                     subheadline="Everything in one task no extra apps, no tracking confusion."
                     solutions={listeningSolutions}
                     bottomMessage="Everything in one task no extra apps, no tracking confusion."

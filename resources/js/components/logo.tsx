@@ -1,12 +1,12 @@
 import { cn } from '@/lib/utils'
 
-interface MareffLogoProps {
+interface MareefLogoProps {
     className?: string
     showText?: boolean
     iconSize?: 'sm' | 'md' | 'lg'
 }
 
-export function MareffLogo({ className, showText = true, iconSize = 'md' }: MareffLogoProps) {
+export function MareefLogo({ className, showText = true, iconSize = 'md' }: MareefLogoProps) {
     const iconSizes = {
         sm: 'h-6 w-6 text-base',
         md: 'h-8 w-8 text-xl',
@@ -30,14 +30,14 @@ export function MareffLogo({ className, showText = true, iconSize = 'md' }: Mare
             </div>
             {showText && (
                 <span className={cn('font-bold tracking-tight', textSizes[iconSize])}>
-                    Mareff
+                    Mareef
                 </span>
             )}
         </div>
     )
 }
 
-export function MareffLogoIcon({ className }: { className?: string }) {
+export function MareefLogoIcon({ className }: { className?: string }) {
     return (
         <div
             className={cn(

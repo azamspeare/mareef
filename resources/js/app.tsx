@@ -4,7 +4,7 @@ import { createInertiaApp } from '@inertiajs/react';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { ThemeProvider } from 'next-themes';
 
-const appName = import.meta.env.VITE_APP_NAME || 'Mareff';
+const appName = import.meta.env.VITE_APP_NAME || 'Mareef';
 
 createInertiaApp({
     title: (title) => `${title} - ${appName}`,

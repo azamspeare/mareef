@@ -82,7 +82,7 @@ export default function HeroSection() {
                                     delay={0.5}
                                     as="p"
                                     className="mx-auto mt-8 max-w-2xl text-balance text-lg text-muted-foreground">
-                                    Mareff helps language teachers create, share, and evaluate structured tasks — all in one place. Start with writing, expand to reading, speaking, and more.
+                                    Mareef helps language teachers create, share, and evaluate structured tasks — all in one place. Start with writing, expand to reading, speaking, and more.
                                 </TextEffect>
 
                                 <AnimatedGroup
@@ -141,13 +141,13 @@ export default function HeroSection() {
                                     {/* Light mode image */}
                                     <img
                                         src="/images/dashboard-mockups/light.png"
-                                        alt="Mareff Dashboard"
+                                        alt="Mareef Dashboard"
                                         className="w-full h-auto block dark:hidden"
                                     />
                                     {/* Dark mode image */}
                                     <img
                                         src="/images/dashboard-mockups/dark.png"
-                                        alt="Mareff Dashboard"
+                                        alt="Mareef Dashboard"
                                         className="w-full h-auto hidden dark:block"
                                     />
                                     {/* Fade overlay at bottom */}

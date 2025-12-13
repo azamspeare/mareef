@@ -2,31 +2,31 @@
 
 ## 1. Page Purpose
 
-This page presents Mareff’s subscription model. It helps users compare Free, Premium, and VIP tiers and understand what’s included in each.
+This page presents Mareef’s subscription model. It helps users compare Free, Premium, and VIP tiers and understand what’s included in each.
 
 The pricing page should clearly communicate:
 - What each plan offers
 - Who each plan is best for
-- How Mareff scales with teacher needs
+- How Mareef scales with teacher needs
 - That all task types are included in all plans
 - That AI features and automation are only in paid plans
 - That the product is currently free during early access
 
 ### Swiper content
 #### 1. ⏳ "Saved 6+ hours/week on grading"
-Private tutors using Mareff’s writing workflow reduced manual feedback time by 50–70%.
+Private tutors using Mareef’s writing workflow reduced manual feedback time by 50–70%.
 
 #### 2. 🧠 "Better student engagement"
-Teachers report students submit on time more consistently with Mareff’s structured writing flow.
+Teachers report students submit on time more consistently with Mareef’s structured writing flow.
 
 #### 3. 🔁 "90% task feedback visibility"
 Every student sees their teacher’s comments — no more ignored Google Docs or lost chats.
 
 #### 4. 🧪 "Over 700 tasks created in private beta"
-Teachers from 5+ countries tested Mareff to streamline writing instruction.
+Teachers from 5+ countries tested Mareef to streamline writing instruction.
 
 #### 5. 🌍 "Supports 10+ languages"
-English, Arabic, Korean, Russian, and more — Mareff works for every language teacher.
+English, Arabic, Korean, Russian, and more — Mareef works for every language teacher.
 
 ---
 
@@ -99,7 +99,7 @@ English, Arabic, Korean, Russian, and more — Mareff works for every language t
 
 Include below the pricing table:
 
-- **Can I use Mareff without paying?**
+- **Can I use Mareef without paying?**
   Yes, all features are currently free during early access.
 
 - **When will billing start?**

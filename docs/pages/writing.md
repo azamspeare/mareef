@@ -7,7 +7,7 @@
 
 ### Subheadline
 No more Google Docs chaos or Telegram file drops.
-Mareff makes writing tasks clean, trackable, and fast — for teachers and students.
+Mareef makes writing tasks clean, trackable, and fast — for teachers and students.
 
 ### CTA
 - [Create a Writing Task]
@@ -32,10 +32,10 @@ It’s slow. It’s manual. And no one enjoys it.
 
 ## 3. Our Solution
 
-Mareff gives writing tasks a dedicated workflow.
+Mareef gives writing tasks a dedicated workflow.
 
 - Teachers create writing tasks with structured instructions
-- Students write directly inside the Mareff editor — no file uploads
+- Students write directly inside the Mareef editor — no file uploads
 - Teachers give inline feedback and assign scores
 - Students get notified when feedback is ready
 

@@ -1,14 +1,14 @@
-# Mareff – Product Overview
+# Mareef – Product Overview
 
-## ✨ What is Mareff?
+## ✨ What is Mareef?
 
-Mareff is a digital task engine built specifically for language teachers. It helps them create, assign, and evaluate structured student work — all in one place.
+Mareef is a digital task engine built specifically for language teachers. It helps them create, assign, and evaluate structured student work — all in one place.
 
-Instead of juggling printed worksheets, Google Docs, and chat threads, teachers use Mareff to build clear tasks, collect submissions, and give feedback — faster and more organized than ever before.
+Instead of juggling printed worksheets, Google Docs, and chat threads, teachers use Mareef to build clear tasks, collect submissions, and give feedback — faster and more organized than ever before.
 
-Mareff supports multiple task types — like writing, reading, listening, and speaking — and turns each into a streamlined, trackable workflow.
+Mareef supports multiple task types — like writing, reading, listening, and speaking — and turns each into a streamlined, trackable workflow.
 
-It’s not just for online teachers. Mareff simplifies task delivery and grading for both traditional classrooms and remote setups.
+It’s not just for online teachers. Mareef simplifies task delivery and grading for both traditional classrooms and remote setups.
 
 ---
 
@@ -26,15 +26,15 @@ Language teachers juggle Google Docs, printed worksheets, chat apps, email threa
 Whether it’s writing, speaking, reading, or listening — every task becomes a manual, chaotic process.
 
 The tools weren’t built for language teaching.
-Mareff is.
+Mareef is.
 
 ---
 
 ## ✅ Our Solution
 
-Mareff replaces the messy, manual task workflow with a structured, all-in-one system built specifically for language educators.
+Mareef replaces the messy, manual task workflow with a structured, all-in-one system built specifically for language educators.
 
-At its core, Mareff is a modular task engine. Teachers can create different types of assignments — writing, reading, listening, speaking — each with its own custom flow, input methods, and evaluation tools.
+At its core, Mareef is a modular task engine. Teachers can create different types of assignments — writing, reading, listening, speaking — each with its own custom flow, input methods, and evaluation tools.
 
 Every task follows the same clean pattern:
 
@@ -49,7 +49,7 @@ Just one place to manage it all — faster, clearer, and built for how language 
 
 ## 🧩 Task Types
 
-Mareff is built around modular task types — each designed to simplify a core part of language teaching.
+Mareef is built around modular task types — each designed to simplify a core part of language teaching.
 
 ---
 
@@ -60,7 +60,7 @@ Mareff is built around modular task types — each designed to simplify a core p
 #### The problem
 Teachers collect essays in Google Docs, mess around with comments, send feedback by email or message, and hope students even read it.
 
-#### Mareff’s solution
+#### Mareef’s solution
 A dedicated writing workflow with:
 - Clean, focused writing interface for students
 - Inline comments and highlights for feedback
@@ -78,7 +78,7 @@ No more file sharing. No more scattered feedback.
 #### The problem
 Printed reading worksheets take time to prepare and even more time to check. Teachers manually mark answers or retype scores into Excel.
 
-#### Mareff’s solution
+#### Mareef’s solution
 A structured reading task builder with:
 
 * Text or PDF support
@@ -95,7 +95,7 @@ A structured reading task builder with:
 #### The problem
 Teachers send audio files in chats, then ask questions in separate documents — with no link between them and no control over timing.
 
-#### Mareff’s solution
+#### Mareef’s solution
 Embedded audio with synced comprehension questions:
 
 * Integrated media player
@@ -112,7 +112,7 @@ Embedded audio with synced comprehension questions:
 #### The problem
 Students send voice messages in Telegram or WhatsApp, teachers reply with comments — but there's no structure, no timestamps, and no way to track improvement.
 
-#### Mareff’s solution
+#### Mareef’s solution
 A voice-task flow where:
 
 * Students record directly in the browser
@@ -140,11 +140,11 @@ Every submission is saved. Every comment is stored. Teachers and students can al
 Tasks are independent blocks — new types can be added without breaking the system.
 
 #### 7. Async-native
-Students and teachers work on their own time — Mareff supports that, not fights it.
+Students and teachers work on their own time — Mareef supports that, not fights it.
 
-## ⚙️ How Mareff Works
+## ⚙️ How Mareef Works
 
-Mareff is built around a task lifecycle — a simple, repeatable flow that works across all task types.
+Mareef is built around a task lifecycle — a simple, repeatable flow that works across all task types.
 
 Each task (writing, reading, listening, speaking) follows this 5-step loop:
 
@@ -153,7 +153,7 @@ Each task (writing, reading, listening, speaking) follows this 5-step loop:
 Teachers design tasks using a block-style editor:
 - Add instructions, media, or time limits
 - Each task type has its own input format (text editor, audio, multiple choice, etc.)
-- On publish, Mareff generates a public submission link
+- On publish, Mareef generates a public submission link
 
 ### 2. Distribute the Link
 
@@ -163,7 +163,7 @@ Students don't need accounts. They log in via Google and land directly in the ta
 
 ### 3. Students Submit
 
-Students complete the task in Mareff's clean, focused UI:
+Students complete the task in Mareef's clean, focused UI:
 - Writing: block editor with autosave
 - Reading: MCQs / input fields
 - Speaking: voice recording
@@ -185,9 +185,9 @@ All submissions and evaluations are stored forever:
 - Students can view all their past work and feedback
 - Data is clean, organized, and searchable
 
-## 🎯 Who Mareff Is For
+## 🎯 Who Mareef Is For
 
-Mareff is built specifically for language teachers who need structure without complexity.
+Mareef is built specifically for language teachers who need structure without complexity.
 
 We serve educators who:
 - ✅ Teach English, Russian, Korean, Arabic, or any language
@@ -196,10 +196,10 @@ We serve educators who:
 - ✅ Use tools like Telegram, Zoom, Google Docs, or printed worksheets
 - ✅ Want to save time grading and giving feedback
 - ✅ Work in private, public, or hybrid teaching settings
-Whether you're a solo tutor or teaching 50 students in a classroom — Mareff helps you simplify the chaos of student task management.
+Whether you're a solo tutor or teaching 50 students in a classroom — Mareef helps you simplify the chaos of student task management.
 
 ## 🚦 Current Status
-Mareff is in its early-access phase with core functionality live and future task types on the way.
+Mareef is in its early-access phase with core functionality live and future task types on the way.
 
 | Feature                 | Status                |
 | ----------------------- | --------------------- |
@@ -217,9 +217,9 @@ We’re currently onboarding early language teachers and testing writing workflo
 
 ## 💰 Pricing (Beta Phase)
 
-Mareff is currently free for all teachers during the early access phase.
+Mareef is currently free for all teachers during the early access phase.
 
-Mareff will follow a subscription-based pricing model with three tiers, designed for individual teachers, small teams, and growing academies.
+Mareef will follow a subscription-based pricing model with three tiers, designed for individual teachers, small teams, and growing academies.
 
 | Plan        | Teachers | Assistants | Students | Task Types | Features                                             | Est. Price |
 | ----------- | -------- | ---------- | -------- | ---------- | ---------------------------------------------------- | ---------- |

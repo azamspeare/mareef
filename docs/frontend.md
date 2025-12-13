@@ -1,6 +1,6 @@
-# Mareff – Frontend Specification (MVP)
+# Mareef – Frontend Specification (MVP)
 
-This document describes the **frontend architecture and conventions** for Mareff’s MVP.
+This document describes the **frontend architecture and conventions** for Mareef’s MVP.
 
 The frontend is built with:
 
@@ -22,7 +22,7 @@ The goal is to make the frontend:
 
 ### 1.1 SPA-like via Inertia
 
-Mareff uses **Inertia.js** to bridge Laravel and React:
+Mareef uses **Inertia.js** to bridge Laravel and React:
 
 - Laravel defines routes and returns **Inertia responses**.
 - Each route corresponds to a **React page component**.
@@ -255,7 +255,7 @@ Displays:
 - Status
 - Submissions count
 - **Share link box**:
-  - Readonly input with URL: `https://app.mareff.com/w/{slug}`
+  - Readonly input with URL: `https://app.mareef.uz/w/{slug}`
   - “Copy link” button
 - Button: “View submissions”
 
@@ -469,7 +469,7 @@ MVP may not include heavy automated tests, but patterns to consider later:
 
 ## 12. Summary
 
-The Mareff frontend is:
+The Mareef frontend is:
 
 - **React + Inertia-based**, no separate SPA router.
 - Structured around **pages + layouts + reusable components**.

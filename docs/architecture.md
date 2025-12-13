@@ -1,6 +1,6 @@
-# Mareff – Architecture Overview (MVP)
+# Mareef – Architecture Overview (MVP)
 
-This document describes the **technical architecture** of Mareff’s MVP:
+This document describes the **technical architecture** of Mareef’s MVP:
 
 - Overall system design
 - Backend architecture (Laravel 12)
@@ -16,7 +16,7 @@ The goal is to give engineers and AI agents a clear, implementation-oriented pic
 
 ## 1. High-Level System Design
 
-Mareff MVP is a **monolithic web application** built with:
+Mareef MVP is a **monolithic web application** built with:
 
 - **Backend:** Laravel 12 (PHP)
 - **Frontend:** React (via Inertia.js)
@@ -27,7 +27,7 @@ Mareff MVP is a **monolithic web application** built with:
 
 ### 1.1 High-Level Flow
 
-1. User (teacher/student/admin) accesses the Mareff web app over HTTPS.
+1. User (teacher/student/admin) accesses the Mareef web app over HTTPS.
 2. Frontend is rendered via **Inertia.js** – Laravel returns React pages as SPA-like responses.
 3. Authentication uses **Google OAuth**:
    - User is redirected to Google
@@ -389,10 +389,10 @@ Although the MVP is a **monolith**, the architecture is designed so it can evolv
 
 ## 9. Summary
 
-- Mareff MVP is a **Laravel 12 + React (Inertia)** monolithic application.
+- Mareef MVP is a **Laravel 12 + React (Inertia)** monolithic application.
 - It uses **Google OAuth** as the only authentication method.
 - All state is persisted in **MySQL** with a small, well-defined schema.
 - The focus is on **simplicity, developer productivity, and fast iteration**, not microservices.
 - Security relies on standard Laravel best practices: HTTPS, CSRF, role-based middleware, input validation, and proper access scoping.
 
-This architectural setup is intentionally minimal but robust enough to support real teachers and students using Mareff in production, while leaving clear paths for expansion once the core product is validated.
+This architectural setup is intentionally minimal but robust enough to support real teachers and students using Mareef in production, while leaving clear paths for expansion once the core product is validated.

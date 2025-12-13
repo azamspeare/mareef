@@ -265,7 +265,7 @@ export default function Show({ submission, auth }: ShowProps) {
 
     return (
         <DashboardLayout title="Submission Review">
-            <Head title={`Submission by ${submission.student.name} - Mareff`} />
+            <Head title={`Submission by ${submission.student.name} - Mareef`} />
             <div className="max-w-3xl lg:max-w-4xl 2xl:max-w-6xl mx-auto px-6 lg:px-8">
                 {/* Header */}
                 <div className="flex items-center gap-4 py-6">

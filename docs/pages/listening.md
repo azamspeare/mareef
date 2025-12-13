@@ -7,7 +7,7 @@
 
 ### Subheadline
 No more sending audio in chats and chasing down answers.
-Mareff will let you create structured listening tasks with synced questions — all in one clean flow.
+Mareef will let you create structured listening tasks with synced questions — all in one clean flow.
 
 ### CTA Badge
 🛠 **Listening Tasks are in development**
@@ -31,7 +31,7 @@ It’s disconnected, and teachers waste time re-linking everything.
 
 ## 3. Our Solution
 
-Mareff’s Listening Tasks will be built specifically for language teachers:
+Mareef’s Listening Tasks will be built specifically for language teachers:
 
 - Upload audio files or embed links
 - Write timed or general comprehension questions

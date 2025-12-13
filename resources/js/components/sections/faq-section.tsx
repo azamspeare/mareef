@@ -7,8 +7,8 @@ export default function FaqSection() {
     const faqItems = [
         {
             id: 'item-1',
-            question: 'Is Mareff just for online teaching?',
-            answer: 'No — Mareff works great for traditional classrooms too. Many teachers use it to replace paper tasks, save grading time, and keep student work organized.',
+            question: 'Is Mareef just for online teaching?',
+            answer: 'No — Mareef works great for traditional classrooms too. Many teachers use it to replace paper tasks, save grading time, and keep student work organized.',
         },
         {
             id: 'item-2',
@@ -23,7 +23,7 @@ export default function FaqSection() {
         {
             id: 'item-4',
             question: 'Can I give scores and feedback?',
-            answer: 'Yes. Mareff supports inline comments, scoring, and feedback per student — with stored history for every submission.',
+            answer: 'Yes. Mareef supports inline comments, scoring, and feedback per student — with stored history for every submission.',
         },
         {
             id: 'item-5',
@@ -45,7 +45,7 @@ export default function FaqSection() {
                         Frequently Asked Questions
                     </h2>
                     <p className="text-muted-foreground mt-4 text-balance">
-                        Everything you need to know about Mareff and how it can help you teach better.
+                        Everything you need to know about Mareef and how it can help you teach better.
                     </p>
                 </div>
 

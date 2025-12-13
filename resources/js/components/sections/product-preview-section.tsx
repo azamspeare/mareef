@@ -48,7 +48,7 @@ export default function ProductPreviewSection() {
         <section id="product-preview" className="py-16 md:py-32 bg-background">
             <div className="mx-auto max-w-5xl space-y-8 px-6 md:space-y-16">
                 <div className="relative z-10 mx-auto max-w-2xl space-y-4 text-center">
-                    <h2 className="text-balance text-3xl font-semibold md:text-4xl">See Mareff in action</h2>
+                    <h2 className="text-balance text-3xl font-semibold md:text-4xl">See Mareef in action</h2>
                     <p className="text-muted-foreground">From task creation to student feedback — everything happens in one place.</p>
                 </div>
 

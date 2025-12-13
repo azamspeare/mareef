@@ -1,5 +1,5 @@
 import { Link } from '@inertiajs/react';
-import { MareffLogo } from '@/components/logo';
+import { MareefLogo } from '@/components/logo';
 import { getContactUrl } from '@/lib/utils';
 
 const links = [
@@ -29,7 +29,7 @@ export default function FooterSection() {
                     href="/"
                     aria-label="go home"
                     className="mx-auto block w-fit">
-                    <MareffLogo />
+                    <MareefLogo />
                 </Link>
 
                 <div className="my-8 flex flex-wrap justify-center gap-6 text-sm">
@@ -46,7 +46,7 @@ export default function FooterSection() {
                 <div className="my-8 flex flex-wrap justify-center gap-6 text-sm">
                     {/* Telegram */}
                     <a
-                        href="https://t.me/mareff_app"
+                        href="https://t.me/mareef_app"
                         target="_blank"
                         rel="noopener noreferrer"
                         aria-label="Telegram"
@@ -65,7 +65,7 @@ export default function FooterSection() {
 
                     {/* Instagram */}
                     <a
-                        href="https://instagram.com/mareff.app"
+                        href="https://instagram.com/mareef.app"
                         target="_blank"
                         rel="noopener noreferrer"
                         aria-label="Instagram"
@@ -84,7 +84,7 @@ export default function FooterSection() {
 
                     {/* YouTube */}
                     <a
-                        href="https://youtube.com/@mareff"
+                        href="https://youtube.com/@mareef"
                         target="_blank"
                         rel="noopener noreferrer"
                         aria-label="YouTube"
@@ -103,7 +103,7 @@ export default function FooterSection() {
                 </div>
 
                 <span className="text-muted-foreground block text-center text-sm">
-                    © {new Date().getFullYear()} Mareff. All rights reserved.
+                    © {new Date().getFullYear()} Mareef. All rights reserved.
                 </span>
             </div>
         </footer>

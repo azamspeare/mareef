@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>{{ $title ?? 'Mareff' }}</title>
+    <title>{{ $title ?? 'Mareef' }}</title>
     <style>
         /* Reset */
         body, table, td, p, a, li, blockquote {
@@ -245,7 +245,7 @@
         <table class="email-container" role="presentation" width="100%" cellspacing="0" cellpadding="0">
             <tr>
                 <td class="email-header">
-                    <a href="https://mareef.uz" class="logo">Mareff</a>
+                    <a href="https://mareef.uz" class="logo">Mareef</a>
                 </td>
             </tr>
             <tr>
@@ -255,7 +255,7 @@
             </tr>
             <tr>
                 <td class="email-footer">
-                    <p class="footer-text">{{ $footerText ?? 'Thanks for using Mareff.' }}</p>
+                    <p class="footer-text">{{ $footerText ?? 'Thanks for using Mareef.' }}</p>
                     <p class="footer-text">
                         <a href="https://mareef.uz" class="footer-link">mareef.uz</a>
                     </p>

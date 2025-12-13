@@ -52,7 +52,7 @@ const speakingSolutions: Solution2[] = [
 export default function Speaking() {
     return (
         <div className="min-h-screen bg-background text-foreground font-sans selection:bg-primary/20 overflow-x-hidden">
-            <Head title="Speaking Tasks - Mareff" />
+            <Head title="Speaking Tasks - Mareef" />
 
             {/* Header */}
             <HeroHeader faqHref="/#faq" />
@@ -62,7 +62,7 @@ export default function Speaking() {
                 <TaskHeroSection
                     badge="Coming soon"
                     title="Speaking tasks, reimagined for async teaching."
-                    description="No more lost voice messages or timestampless replies. Mareff's upcoming Speaking Tasks will give teachers a clean way to collect, evaluate, and comment on student speech."
+                    description="No more lost voice messages or timestampless replies. Mareef's upcoming Speaking Tasks will give teachers a clean way to collect, evaluate, and comment on student speech."
                     primaryButtonText="Join Waitlist"
                     isWaitlist={true}
                     imageSrc={{
@@ -80,7 +80,7 @@ export default function Speaking() {
 
                 {/* Solution Section */}
                 <SolutionSection2
-                    headline="Mareff's Speaking Tasks will offer a structured voice submission workflow"
+                    headline="Mareef's Speaking Tasks will offer a structured voice submission workflow"
                     subheadline="It's like a speaking test, without the scheduling headaches."
                     solutions={speakingSolutions}
                     bottomMessage="It's like a speaking test, without the scheduling headaches."

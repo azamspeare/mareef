@@ -12,7 +12,7 @@ import FooterSection from '@/components/sections/footer-section';
 export default function Welcome() {
     return (
         <div className="min-h-screen bg-background text-foreground font-sans selection:bg-primary/20 overflow-x-hidden">
-            <Head title="Mareff - The Task Platform for Language Teachers" />
+            <Head title="Mareef - The Task Platform for Language Teachers" />
 
             {/* Hero Section */}
             <HeroSection />
@@ -26,7 +26,7 @@ export default function Welcome() {
             {/* Feature Highlights Section */}
             <FeatureHighlightsSection />
 
-            {/* Why Teachers Love Mareff Section */}
+            {/* Why Teachers Love Mareef Section */}
             <WhyTeachersLoveSection />
 
             {/* Pricing Section */}

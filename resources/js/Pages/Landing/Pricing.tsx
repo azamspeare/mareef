@@ -8,7 +8,7 @@ import FooterSection from '@/components/sections/footer-section';
 export default function Pricing() {
     return (
         <div className="min-h-screen bg-background text-foreground font-sans selection:bg-primary/20 overflow-x-hidden">
-            <Head title="Pricing - Mareff" />
+            <Head title="Pricing - Mareef" />
 
             {/* Header */}
             <HeroHeader />

@@ -14,5 +14,5 @@ export function getTeacherUrl(path: string = ''): string {
 }
 
 export function getContactUrl(): string {
-  return 'https://t.me/mareff_admin'
+  return 'https://t.me/mareef_support'
 }

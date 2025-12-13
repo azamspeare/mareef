@@ -1,8 +1,8 @@
-@component('emails.components.layout', ['title' => 'Welcome to Mareff', 'footerText' => 'Thanks for joining us — you\'re building the future of teaching.'])
+@component('emails.components.layout', ['title' => 'Welcome to Mareef', 'footerText' => 'Thanks for joining us — you\'re building the future of teaching.'])
     <p class="greeting">Hi {{ $teacherName }},</p>
 
     <div class="content">
-        <p>Welcome to <strong>Mareff</strong> — the platform built for language teachers who are tired of messy workflows.</p>
+        <p>Welcome to <strong>Mareef</strong> — the platform built for language teachers who are tired of messy workflows.</p>
         <p>We're here to help you:</p>
     </div>
 

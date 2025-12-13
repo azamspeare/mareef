@@ -25,7 +25,7 @@ interface HomeProps {
 export default function Home({ metrics, counts, submissions }: HomeProps) {
   return (
     <DashboardLayout title="Dashboard">
-      <Head title="Dashboard - Mareff" />
+      <Head title="Dashboard - Mareef" />
       <div className="@container/main flex flex-1 flex-col gap-2">
         <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
           <SectionCards metrics={metrics} />

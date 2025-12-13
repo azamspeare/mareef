@@ -1,6 +1,6 @@
-# Mareff – Dashboard Page Specification
+# Mareef – Dashboard Page Specification
 
-This document defines the behaviour, layout, and data requirements for the **Dashboard** page in Mareff.
+This document defines the behaviour, layout, and data requirements for the **Dashboard** page in Mareef.
 Any AI agent implementing or modifying the dashboard must follow this specification.
 
 ---
@@ -31,7 +31,7 @@ High‑level layout:
 
 1. **Global layout**: Uses the shared `AuthenticatedLayout`
    - Left sidebar:
-     - Mareff logo/name
+     - Mareef logo/name
      - Navigation (Dashboard, My Writings, Students, Create Task, etc.)
    - Top bar:
      - Page title: `Dashboard`
@@ -485,5 +485,5 @@ Request → SubmissionFilter → MetricsRepository → DB queries
 - Search is **case-insensitive** and searches across relations
 - Filters are **validated and sanitized** before queries
 
-This page is the main control center for teachers using Mareff.
+This page is the main control center for teachers using Mareef.
 It should feel calm, informative, and directly useful the moment they log in.

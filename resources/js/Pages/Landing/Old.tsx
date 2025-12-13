@@ -7,7 +7,7 @@ import { CheckCircle2, Menu, ArrowRight, FileText, Zap, ShieldCheck, LayoutDashb
 import { useState } from 'react';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { getTeacherUrl } from '@/lib/utils';
-import { MareffLogo } from '@/components/logo';
+import { MareefLogo } from '@/components/logo';
 
 export default function Welcome() {
     const [isOpen, setIsOpen] = useState(false);
@@ -15,12 +15,12 @@ export default function Welcome() {
 
     return (
         <div className="min-h-screen bg-background text-foreground font-sans selection:bg-primary/20 overflow-x-hidden">
-            <Head title="Mareff - The Writing Assignment Platform for Teachers" />
+            <Head title="Mareef - The Writing Assignment Platform for Teachers" />
 
             {/* Navigation */}
             <nav className="fixed top-0 left-0 right-0 z-50 w-full border-b bg-background/80 backdrop-blur-md supports-[backdrop-filter]:bg-background/60 transition-all duration-300">
                 <div className="container mx-auto px-4 md:px-6 h-16 flex items-center justify-between">
-                    <MareffLogo />
+                    <MareefLogo />
 
                     {/* Desktop Nav */}
                     <div className="hidden md:flex items-center gap-8">
@@ -88,7 +88,7 @@ export default function Welcome() {
                     </h1>
 
                     <p className="text-xl text-muted-foreground max-w-2xl mb-10 leading-relaxed">
-                        Mareff replaces the chaos of Google Docs and WhatsApp with a clean, unified platform for creating, collecting, and evaluating student writing.
+                        Mareef replaces the chaos of Google Docs and WhatsApp with a clean, unified platform for creating, collecting, and evaluating student writing.
                     </p>
 
                     <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto mb-16">
@@ -116,7 +116,7 @@ export default function Welcome() {
                                     <div className="w-3 h-3 rounded-full bg-yellow-500/80"></div>
                                     <div className="w-3 h-3 rounded-full bg-green-500/80"></div>
                                 </div>
-                                <div className="mx-auto w-1/3 h-6 rounded-md bg-white/10 backdrop-blur-md flex items-center justify-center text-[10px] text-muted-foreground font-mono">mareff.app</div>
+                                <div className="mx-auto w-1/3 h-6 rounded-md bg-white/10 backdrop-blur-md flex items-center justify-center text-[10px] text-muted-foreground font-mono">mareef.uz</div>
                             </div>
 
                             {/* Mockup Content */}
@@ -247,7 +247,7 @@ export default function Welcome() {
             <section id="how-it-works" className="py-32 relative">
                 <div className="container mx-auto px-4 md:px-6">
                     <div className="text-center mb-20">
-                        <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-6">Mareff in 3 Simple Steps</h2>
+                        <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-6">Mareef in 3 Simple Steps</h2>
                         <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
                             We've stripped away the complexity. No learning curve, just a better workflow.
                         </p>
@@ -309,7 +309,7 @@ export default function Welcome() {
                                 Everything you need to manage writing tasks
                             </h2>
                             <p className="text-lg text-muted-foreground mb-10 leading-relaxed">
-                                Mareff is built specifically for language teachers. We've included the tools you actually need and removed the clutter you don't.
+                                Mareef is built specifically for language teachers. We've included the tools you actually need and removed the clutter you don't.
                             </p>
 
                             <div className="space-y-8">
@@ -415,14 +415,14 @@ export default function Welcome() {
                 </div>
             </section>
 
-            {/* Why Teachers Love Mareff */}
+            {/* Why Teachers Love Mareef */}
             <section className="py-32 bg-primary dark:bg-secondary/10 text-primary-foreground dark:text-foreground relative overflow-hidden">
                 <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-10 mix-blend-soft-light"></div>
                 <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent to-black/20 dark:to-transparent pointer-events-none"></div>
 
                 <div className="container mx-auto px-4 md:px-6 relative z-10">
                     <div className="text-center mb-20">
-                        <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-6">Why Teachers Love Mareff</h2>
+                        <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-6">Why Teachers Love Mareef</h2>
                         <p className="text-primary-foreground/80 dark:text-muted-foreground text-lg max-w-2xl mx-auto leading-relaxed">
                             Designed by educators, for educators. We know what matters in your daily workflow.
                         </p>
@@ -481,7 +481,7 @@ export default function Welcome() {
                                 </CardTitle>
                             </CardHeader>
                             <CardContent className="text-primary-foreground/80 dark:text-muted-foreground text-base leading-relaxed">
-                                Whether you teach English, Spanish, Korean, or Arabic, Mareff works perfectly for you.
+                                Whether you teach English, Spanish, Korean, or Arabic, Mareef works perfectly for you.
                             </CardContent>
                         </Card>
                     </div>
@@ -494,9 +494,9 @@ export default function Welcome() {
                     <h2 className="text-3xl font-bold tracking-tight mb-10 text-center">Frequently Asked Questions</h2>
                     <Accordion type="single" collapsible className="w-full">
                         <AccordionItem value="item-1" className="border-b-muted">
-                            <AccordionTrigger className="text-lg">Is Mareff free to use?</AccordionTrigger>
+                            <AccordionTrigger className="text-lg">Is Mareef free to use?</AccordionTrigger>
                             <AccordionContent className="text-muted-foreground text-base">
-                                Yes, Mareff is currently in public beta and is free for all users. We want to help as many teachers as possible streamline their workflow.
+                                Yes, Mareef is currently in public beta and is free for all users. We want to help as many teachers as possible streamline their workflow.
                             </AccordionContent>
                         </AccordionItem>
                         <AccordionItem value="item-2" className="border-b-muted">
@@ -506,9 +506,9 @@ export default function Welcome() {
                             </AccordionContent>
                         </AccordionItem>
                         <AccordionItem value="item-3" className="border-b-muted">
-                            <AccordionTrigger className="text-lg">Can I use Mareff for other types of assignments?</AccordionTrigger>
+                            <AccordionTrigger className="text-lg">Can I use Mareef for other types of assignments?</AccordionTrigger>
                             <AccordionContent className="text-muted-foreground text-base">
-                                Mareff is laser-focused on <strong>writing assignments</strong>. This specialization allows us to build the best possible tools for text-based work, rather than trying to be a generic LMS.
+                                Mareef is laser-focused on <strong>writing assignments</strong>. This specialization allows us to build the best possible tools for text-based work, rather than trying to be a generic LMS.
                             </AccordionContent>
                         </AccordionItem>
                         <AccordionItem value="item-4" className="border-b-muted">
@@ -529,7 +529,7 @@ export default function Welcome() {
                 <div className="container mx-auto px-4 md:px-6 text-center">
                     <h2 className="text-4xl md:text-6xl font-bold tracking-tight mb-8">Ready to simplify your teaching?</h2>
                     <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-12 leading-relaxed">
-                        Join other tutors who are saving time and improving their student's writing experience with Mareff.
+                        Join other tutors who are saving time and improving their student's writing experience with Mareef.
                     </p>
                     <div className="flex flex-col sm:flex-row gap-5 justify-center">
                         <a href={teacherLoginUrl}>
@@ -553,14 +553,14 @@ export default function Welcome() {
             <footer className="py-12 border-t bg-background">
                 <div className="container mx-auto px-4 md:px-6">
                     <div className="flex flex-col md:flex-row justify-between items-center gap-6">
-                        <MareffLogo iconSize="sm" />
+                        <MareefLogo iconSize="sm" />
                         <div className="flex gap-8 text-sm text-muted-foreground">
                             <Link href="#" className="hover:text-foreground transition-colors">Privacy</Link>
                             <Link href="#" className="hover:text-foreground transition-colors">Terms</Link>
                             <Link href="#" className="hover:text-foreground transition-colors">Contact</Link>
                         </div>
                         <p className="text-sm text-muted-foreground text-center md:text-right">
-                            &copy; {new Date().getFullYear()} Mareff. All rights reserved.
+                            &copy; {new Date().getFullYear()} Mareef. All rights reserved.
                         </p>
                     </div>
                 </div>
