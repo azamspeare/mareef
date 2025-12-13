@@ -21,7 +21,7 @@ final class WaitlistController extends Controller
             return redirect()->back()->with('success', 'You are already on the waitlist.');
         }
 
-        $newWaitlist = Waitlist::query()->create($attributes);
+        Waitlist::query()->create($attributes);
 
         return redirect()->back()->with('success', 'You have been added to the waitlist.');
     }

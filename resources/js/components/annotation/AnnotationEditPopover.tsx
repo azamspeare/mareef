@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Popover, PopoverContent, PopoverAnchor } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Trash2, X } from 'lucide-react';
+import { Trash2, X, WrapText } from 'lucide-react';
 import { AnnotationColorPicker } from './AnnotationColorPicker';
 import { ANNOTATION_COLORS, type Annotation, type AnnotationColor } from './types';
 
@@ -14,6 +14,7 @@ interface AnnotationEditPopoverProps {
     isEditable: boolean;
     onUpdate: (id: string, updates: Partial<Annotation>) => void;
     onDelete: (id: string) => void;
+    text: string;
 }
 
 export function AnnotationEditPopover({
@@ -24,6 +25,7 @@ export function AnnotationEditPopover({
     isEditable,
     onUpdate,
     onDelete,
+    text,
 }: AnnotationEditPopoverProps) {
     const [color, setColor] = useState<AnnotationColor>(annotation?.color ?? 'suggestion');
     const [comment, setComment] = useState(annotation?.comment ?? '');
@@ -34,8 +36,52 @@ export function AnnotationEditPopover({
         if (annotation.comment !== comment && !open) setComment(annotation.comment);
     }
 
+    // Check if annotation has partial word boundaries
+    const wordBoundaryInfo = useMemo(() => {
+        if (!annotation || !text) return { hasPartialWords: false, expanded: null };
+
+        const { startOffset, endOffset } = annotation;
+
+        // Check if start is in the middle of a word
+        const startInMiddle = startOffset > 0 && !/\s/.test(text[startOffset - 1]);
+        // Check if end is in the middle of a word
+        const endInMiddle = endOffset < text.length && !/\s/.test(text[endOffset]);
+
+        if (!startInMiddle && !endInMiddle) {
+            return { hasPartialWords: false, expanded: null };
+        }
+
+        // Calculate expanded boundaries
+        let wordStart = startOffset;
+        while (wordStart > 0 && !/\s/.test(text[wordStart - 1])) {
+            wordStart--;
+        }
+
+        let wordEnd = endOffset;
+        while (wordEnd < text.length && !/\s/.test(text[wordEnd])) {
+            wordEnd++;
+        }
+
+        return {
+            hasPartialWords: true,
+            expanded: { start: wordStart, end: wordEnd },
+        };
+    }, [annotation, text]);
+
+    const handleSnapToWords = () => {
+        if (!annotation || !wordBoundaryInfo.expanded) return;
+        onUpdate(annotation.id, {
+            startOffset: wordBoundaryInfo.expanded.start,
+            endOffset: wordBoundaryInfo.expanded.end,
+        });
+    };
+
+    // Check if comment is required (only "praise" can skip comment)
+    const isCommentRequired = color !== 'praise';
+    const canSave = !isCommentRequired || comment.trim();
+
     const handleSave = () => {
-        if (!annotation || !comment.trim()) return;
+        if (!annotation || (isCommentRequired && !comment.trim())) return;
         onUpdate(annotation.id, { color, comment: comment.trim() });
         onOpenChange(false);
     };
@@ -74,13 +120,27 @@ export function AnnotationEditPopover({
                 <div className="space-y-3">
                     {isEditable ? (
                         <>
+                            {wordBoundaryInfo.hasPartialWords && (
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={handleSnapToWords}
+                                    className="w-full text-xs"
+                                >
+                                    <WrapText className="h-3 w-3 mr-1.5" />
+                                    Snap to full words
+                                </Button>
+                            )}
+
                             <div>
                                 <p className="text-xs text-muted-foreground mb-2">Highlight color:</p>
                                 <AnnotationColorPicker value={color} onChange={setColor} />
                             </div>
 
                             <div>
-                                <p className="text-xs text-muted-foreground mb-1">Comment:</p>
+                                <p className="text-xs text-muted-foreground mb-1">
+                                    Comment{!isCommentRequired && ' (optional)'}:
+                                </p>
                                 <Textarea
                                     value={comment}
                                     onChange={(e) => setComment(e.target.value)}
@@ -104,7 +164,7 @@ export function AnnotationEditPopover({
                                     <Button variant="ghost" size="sm" onClick={handleClose}>
                                         Cancel
                                     </Button>
-                                    <Button size="sm" onClick={handleSave} disabled={!comment.trim()}>
+                                    <Button size="sm" onClick={handleSave} disabled={!canSave}>
                                         Save
                                     </Button>
                                 </div>

@@ -9,24 +9,33 @@ interface AnnotationPopoverProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
     position: { x: number; y: number };
-    selectedText: string;
     selectionRange: { start: number; end: number } | null;
     onSave: (annotation: Annotation) => void;
+    onColorChange?: (color: AnnotationColor) => void;
 }
 
 export function AnnotationPopover({
     open,
     onOpenChange,
     position,
-    selectedText,
     selectionRange,
     onSave,
+    onColorChange,
 }: AnnotationPopoverProps) {
     const [color, setColor] = useState<AnnotationColor>('suggestion');
     const [comment, setComment] = useState('');
 
+    // Check if comment is required (only "praise" can skip comment)
+    const isCommentRequired = color !== 'praise';
+    const canSave = selectionRange && (!isCommentRequired || comment.trim());
+
+    const handleColorChange = (newColor: AnnotationColor) => {
+        setColor(newColor);
+        onColorChange?.(newColor);
+    };
+
     const handleSave = () => {
-        if (!selectionRange || !comment.trim()) return;
+        if (!selectionRange || (isCommentRequired && !comment.trim())) return;
 
         const annotation: Annotation = {
             id: generateAnnotationId(),
@@ -60,25 +69,20 @@ export function AnnotationPopover({
             />
             <PopoverContent
                 className="w-80"
-                side="bottom"
+                side="top"
                 align="start"
                 onOpenAutoFocus={(e) => e.preventDefault()}
             >
                 <div className="space-y-3">
                     <div>
-                        <p className="text-xs text-muted-foreground mb-1">Selected text:</p>
-                        <p className="text-sm font-medium line-clamp-2 bg-muted/50 px-2 py-1 rounded">
-                            "{selectedText}"
-                        </p>
-                    </div>
-
-                    <div>
                         <p className="text-xs text-muted-foreground mb-2">Highlight color:</p>
-                        <AnnotationColorPicker value={color} onChange={setColor} />
+                        <AnnotationColorPicker value={color} onChange={handleColorChange} />
                     </div>
 
                     <div>
-                        <p className="text-xs text-muted-foreground mb-1">Comment:</p>
+                        <p className="text-xs text-muted-foreground mb-1">
+                            Comment{!isCommentRequired && ' (optional)'}:
+                        </p>
                         <Textarea
                             value={comment}
                             onChange={(e) => setComment(e.target.value)}
@@ -92,8 +96,8 @@ export function AnnotationPopover({
                         <Button variant="ghost" size="sm" onClick={handleClose}>
                             Cancel
                         </Button>
-                        <Button size="sm" onClick={handleSave} disabled={!comment.trim()}>
-                            Add Comment
+                        <Button size="sm" onClick={handleSave} disabled={!canSave}>
+                            {color === 'praise' && !comment.trim() ? 'Add Highlight' : 'Add Comment'}
                         </Button>
                     </div>
                 </div>

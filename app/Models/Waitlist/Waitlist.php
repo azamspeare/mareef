@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Models\Waitlist;
 
 use Carbon\CarbonInterface;
-use Database\Factories\WritingFactory;
+use Database\Factories\WaitlistFactory;
 use Illuminate\Database\Eloquent\Attributes\UseFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -17,7 +17,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property-read CarbonInterface $created_at
  * @property-read CarbonInterface $updated_at
  */
-#[UseFactory(WritingFactory::class)]
+#[UseFactory(WaitlistFactory::class)]
 final class Waitlist extends Model
 {
     use HasFactory;

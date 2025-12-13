@@ -81,8 +81,11 @@ export function AnnotationEditor({
     // New annotation popover state
     const [popoverOpen, setPopoverOpen] = useState(false);
     const [popoverPosition, setPopoverPosition] = useState({ x: 0, y: 0 });
-    const [selectedText, setSelectedText] = useState('');
     const [selectionRange, setSelectionRange] = useState<{ start: number; end: number } | null>(null);
+
+    // Pending selection for instant highlight (before annotation is confirmed)
+    const [pendingSelection, setPendingSelection] = useState<{ start: number; end: number } | null>(null);
+    const [pendingColor, setPendingColor] = useState<'error' | 'suggestion' | 'praise' | 'neutral'>('suggestion');
 
     // Edit annotation popover state
     const [editPopoverOpen, setEditPopoverOpen] = useState(false);
@@ -91,12 +94,49 @@ export function AnnotationEditor({
 
     const [activeAnnotationId, setActiveAnnotationId] = useState<string | null>(null);
 
-    const segments = useMemo(() => buildSegments(text, annotations), [text, annotations]);
+    // Build segments including pending selection for instant highlight
+    const segments = useMemo(() => {
+        // If there's a pending selection, create a temporary annotation for it
+        const allAnnotations = pendingSelection
+            ? [
+                  ...annotations,
+                  {
+                      id: '__pending__',
+                      startOffset: pendingSelection.start,
+                      endOffset: pendingSelection.end,
+                      color: pendingColor,
+                      comment: '',
+                      createdAt: '',
+                  },
+              ]
+            : annotations;
+        return buildSegments(text, allAnnotations);
+    }, [text, annotations, pendingSelection, pendingColor]);
 
     // Sort annotations by position for drawer
     const sortedAnnotations = useMemo(
         () => [...annotations].sort((a, b) => a.startOffset - b.startOffset),
         [annotations]
+    );
+
+    // Helper function to expand selection to word boundaries
+    const expandToWordBoundaries = useCallback(
+        (start: number, end: number): { start: number; end: number } => {
+            // Expand start backwards to beginning of word
+            let wordStart = start;
+            while (wordStart > 0 && !/\s/.test(text[wordStart - 1])) {
+                wordStart--;
+            }
+
+            // Expand end forwards to end of word
+            let wordEnd = end;
+            while (wordEnd < text.length && !/\s/.test(text[wordEnd])) {
+                wordEnd++;
+            }
+
+            return { start: wordStart, end: wordEnd };
+        },
+        [text]
     );
 
     const handleTextMouseUp = useCallback(() => {
@@ -115,8 +155,14 @@ export function AnnotationEditor({
         const preSelectionRange = document.createRange();
         preSelectionRange.selectNodeContents(textRef.current);
         preSelectionRange.setEnd(range.startContainer, range.startOffset);
-        const startOffset = preSelectionRange.toString().length;
-        const endOffset = startOffset + selection.toString().length;
+        const rawStartOffset = preSelectionRange.toString().length;
+        const rawEndOffset = rawStartOffset + selection.toString().length;
+
+        // Expand selection to word boundaries
+        const { start: startOffset, end: endOffset } = expandToWordBoundaries(
+            rawStartOffset,
+            rawEndOffset
+        );
 
         // Check for overlap with existing annotations
         const hasOverlap = annotations.some(
@@ -131,26 +177,31 @@ export function AnnotationEditor({
             return;
         }
 
-        // Get position for popover
+        // Get position for popover - position at top of selection
         const rect = range.getBoundingClientRect();
         const containerRect = containerRef.current?.getBoundingClientRect();
 
         if (containerRect) {
             setPopoverPosition({
                 x: rect.left - containerRect.left,
-                y: rect.bottom - containerRect.top + 8,
+                y: rect.top - containerRect.top,
             });
         }
 
-        setSelectedText(selectionText);
+        // Set pending selection for instant highlight
+        setPendingSelection({ start: startOffset, end: endOffset });
         setSelectionRange({ start: startOffset, end: endOffset });
         setPopoverOpen(true);
-    }, [isEditable, annotations]);
+
+        // Remove browser selection immediately for cleaner UX
+        selection.removeAllRanges();
+    }, [isEditable, annotations, expandToWordBoundaries]);
 
     const handleAddAnnotation = useCallback(
         (annotation: Annotation) => {
             onAddAnnotation(annotation);
-            setActiveAnnotationId(annotation.id);
+            setPendingSelection(null);
+            setPendingColor('suggestion');
             window.getSelection()?.removeAllRanges();
         },
         [onAddAnnotation]
@@ -159,6 +210,9 @@ export function AnnotationEditor({
     const handleHighlightClick = useCallback(
         (e: React.MouseEvent, annotation: Annotation) => {
             e.stopPropagation();
+
+            // Don't open edit popover for pending selection highlight
+            if (annotation.id === '__pending__') return;
 
             // Get position for edit popover (anchor at top of highlight)
             const rect = (e.target as HTMLElement).getBoundingClientRect();
@@ -205,9 +259,11 @@ export function AnnotationEditor({
         }
     }, []);
 
-    // Clear selection when popover closes
+    // Clear pending selection when popover closes (handles cancel case)
     useEffect(() => {
         if (!popoverOpen) {
+            setPendingSelection(null);
+            setPendingColor('suggestion');
             window.getSelection()?.removeAllRanges();
         }
     }, [popoverOpen]);
@@ -248,6 +304,7 @@ export function AnnotationEditor({
                         // Use the first annotation's color for display
                         const primaryAnnotation = segment.annotations[0];
                         const colorConfig = ANNOTATION_COLORS[primaryAnnotation.color];
+                        const isPending = primaryAnnotation.id === '__pending__';
                         const isActive = segment.annotations.some(
                             (ann) => ann.id === activeAnnotationId
                         );
@@ -257,11 +314,13 @@ export function AnnotationEditor({
                                 key={index}
                                 data-annotation-id={primaryAnnotation.id}
                                 className={cn(
-                                    'cursor-pointer transition-all rounded px-0.5 -mx-0.5 border-b-2',
+                                    'transition-all rounded-sm border-b-2',
                                     colorConfig.bg,
                                     colorConfig.border.replace('border-', 'border-b-'),
-                                    colorConfig.bgHover,
-                                    isActive && 'ring-2 ring-offset-2 ring-offset-background',
+                                    // Only show hover effects and pointer for confirmed annotations
+                                    !isPending && 'cursor-pointer',
+                                    !isPending && colorConfig.bgHover,
+                                    isActive && 'ring-1 ring-offset-0',
                                     isActive && colorConfig.border.replace('border-', 'ring-')
                                 )}
                                 onClick={(e) => handleHighlightClick(e, primaryAnnotation)}
@@ -277,9 +336,9 @@ export function AnnotationEditor({
                     open={popoverOpen}
                     onOpenChange={setPopoverOpen}
                     position={popoverPosition}
-                    selectedText={selectedText}
                     selectionRange={selectionRange}
                     onSave={handleAddAnnotation}
+                    onColorChange={setPendingColor}
                 />
 
                 {/* Edit annotation popover */}
@@ -292,6 +351,7 @@ export function AnnotationEditor({
                     isEditable={isEditable}
                     onUpdate={onUpdateAnnotation}
                     onDelete={onRemoveAnnotation}
+                    text={text}
                 />
             </div>
 
