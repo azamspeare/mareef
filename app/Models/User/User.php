@@ -9,9 +9,11 @@ use App\Models\Submission\WritingSubmission;
 use App\Models\User\Traits\HasMethods;
 use App\Models\User\Traits\HasRelations;
 use App\Models\Writing\Writing;
+use App\Observers\User\UserObserver;
 use Carbon\CarbonInterface;
 use Database\Factories\UserFactory;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Attributes\UseFactory;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -41,6 +43,7 @@ use Illuminate\Notifications\Notifiable;
  * @property-read Collection<WritingSubmission> $submissions
  */
 #[UseFactory(UserFactory::class)]
+#[ObservedBy(UserObserver::class)]
 final class User extends Authenticatable implements MustVerifyEmail
 {
     use HasFactory, Notifiable, SoftDeletes;

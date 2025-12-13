@@ -9,8 +9,10 @@ use App\Models\Submission\Traits\HasMethods;
 use App\Models\Submission\Traits\HasRelations;
 use App\Models\User\User;
 use App\Models\Writing\Writing;
+use App\Observers\Submission\WritingSubmissionObserver;
 use Carbon\CarbonInterface;
 use Database\Factories\WritingSubmissionFactory;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Attributes\UseFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -36,6 +38,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property-read WritingFeedback|null $feedback
  */
 #[UseFactory(WritingSubmissionFactory::class)]
+#[ObservedBy(WritingSubmissionObserver::class)]
 final class WritingSubmission extends Model
 {
     use HasFactory;

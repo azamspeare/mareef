@@ -7,8 +7,10 @@ namespace App\Models\Feedback;
 use App\Models\Feedback\Traits\HasRelations;
 use App\Models\Submission\WritingSubmission;
 use App\Models\User\User;
+use App\Observers\Feedback\WritingFeedbackObserver;
 use Carbon\CarbonInterface;
 use Database\Factories\WritingFeedbackFactory;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Attributes\UseFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -31,6 +33,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property-read User $teacher
  */
 #[UseFactory(WritingFeedbackFactory::class)]
+#[ObservedBy(WritingFeedbackObserver::class)]
 final class WritingFeedback extends Model
 {
     use HasFactory, SoftDeletes;
