@@ -1,240 +1,618 @@
-# Mareef – Backend Specification (MVP)
+# Mareef - Backend Specification
 
-This document describes the **backend architecture**, **models**, and **database design** of Mareef’s MVP.
-Controllers, routes, and FormRequests are intentionally excluded.
+Backend architecture, models, and implementation patterns for Mareef.
 
 ---
 
-# **1. Backend Architecture Overview**
+## 1. Architecture Overview
 
-Mareef’s backend is a **Laravel 12 monolithic application** with:
+Mareef's backend is a **Laravel 12 monolithic application** with a domain-driven structure:
 
 - **Database:** MySQL
 - **ORM:** Eloquent
-- **Frontend communication:** Inertia.js (React)
-- **Auth:** Google OAuth (password column currently unused)
-- **Soft deletes:** Enabled on major tables (`users`, `writings`)
-- **Content storage:** JSON-based writing content
+- **Frontend:** Inertia.js (React)
+- **Auth:** Google OAuth (Laravel Socialite)
+- **Cache:** Redis (recommended) or Database
+- **Queue:** Redis (recommended) or Database
 
-The whole backend revolves around **four main models**:
+### 1.1 Core Domain Models
 
-- User
-- Writing
-- WritingSubmission
-- WritingFeedback
-
-These models represent the full writing → submission → evaluation cycle.
-
----
-
-# **2. Database Schema (Actual Implemented Tables)**
-
-Below is the exact database design currently implemented in your system.
-
-```sql
-CREATE TABLE `users`(
-    `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    `name` VARCHAR(255) NOT NULL,
-    `email` VARCHAR(255) NOT NULL,
-    `email_verified_at` TIMESTAMP NULL,
-    `password` VARCHAR(255) NOT NULL,
-    `role` VARCHAR(255) NOT NULL,
-    `avatar` VARCHAR(255) NULL,
-    `created_at` TIMESTAMP NOT NULL,
-    `updated_at` TIMESTAMP NOT NULL,
-    `deleted_at` TIMESTAMP NULL
-);
-ALTER TABLE `users` ADD UNIQUE `users_email_unique`(`email`);
-
-CREATE TABLE `writings`(
-    `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    `teacher_id` BIGINT NOT NULL,
-    `title` VARCHAR(255) NOT NULL,
-    `slug` VARCHAR(255) NOT NULL,
-    `content` JSON NOT NULL,
-    `allocated_time` TIME NULL,
-    `public_at` TIMESTAMP NULL,
-    `created_at` TIMESTAMP NOT NULL,
-    `updated_at` TIMESTAMP NOT NULL,
-    `deleted_at` TIMESTAMP NULL
-);
-
-CREATE TABLE `writing_submissions`(
-    `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    `writing_id` BIGINT NOT NULL,
-    `student_id` BIGINT NOT NULL,
-    `content` JSON NOT NULL,
-    `spent_time` TIME NOT NULL,
-    `submitted_at` TIMESTAMP NOT NULL,
-    `evaluated_at` TIMESTAMP NULL,
-    `created_at` TIMESTAMP NOT NULL,
-    `updated_at` TIMESTAMP NOT NULL
-);
-
-CREATE TABLE `writing_feedbacks`(
-    `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    `submission_id` BIGINT NOT NULL,
-    `teacher_id` BIGINT NOT NULL,
-    `content` JSON NOT NULL,
-    `score` BIGINT NOT NULL,
-    `feedback` MEDIUMTEXT NOT NULL,
-    `created_at` TIMESTAMP NOT NULL,
-    `updated_at` TIMESTAMP NOT NULL
-);
-
-ALTER TABLE `writing_submissions`
-    ADD CONSTRAINT `writing_submissions_student_id_foreign` FOREIGN KEY(`student_id`) REFERENCES `users`(`id`);
-ALTER TABLE `writing_feedbacks`
-    ADD CONSTRAINT `writing_feedbacks_teacher_id_foreign` FOREIGN KEY(`teacher_id`) REFERENCES `users`(`id`);
-ALTER TABLE `writing_feedbacks`
-    ADD CONSTRAINT `writing_feedbacks_submission_id_foreign` FOREIGN KEY(`submission_id`) REFERENCES `writing_submissions`(`id`);
-ALTER TABLE `writing_submissions`
-    ADD CONSTRAINT `writing_submissions_writing_id_foreign` FOREIGN KEY(`writing_id`) REFERENCES `writings`(`id`);
-ALTER TABLE `writings`
-    ADD CONSTRAINT `writings_teacher_id_foreign` FOREIGN KEY(`teacher_id`) REFERENCES `users`(`id`);
+```
+User ──────────────> Writing ──────────────> WritingSubmission ──────────────> WritingFeedback
+(teacher)           (task)                  (student answer)                  (evaluation)
 ```
 
 ---
 
-# **3. Model Descriptions (AI-Friendly)**
+## 2. Database Schema
 
-These descriptions help AI agents clearly understand the domain and what each entity represents.
+### 2.1 Users Table
 
----
+```sql
+CREATE TABLE users (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    email VARCHAR(50) NOT NULL UNIQUE,
+    username VARCHAR(50) NOT NULL UNIQUE,
+    email_verified_at TIMESTAMP NULL,
+    last_login_at TIMESTAMP NULL,
+    password VARCHAR(255) NULL,          -- Nullable for OAuth users
+    role VARCHAR(50) NOT NULL,           -- 'teacher' or 'student'
+    avatar VARCHAR(255) NULL,
+    remember_token VARCHAR(100) NULL,
+    created_at TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP NOT NULL,
+    deleted_at TIMESTAMP NULL            -- Soft deletes
+);
+```
 
-## **3.1 User Model (`users`)**
+### 2.2 Writings Table
 
-### **Purpose**
-Represents every user in the platform:
-- Teachers
-- Students
-- Admins
+```sql
+CREATE TABLE writings (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    teacher_id BIGINT UNSIGNED NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    slug VARCHAR(255) NOT NULL,
+    content JSON NOT NULL,               -- BlockNote editor content
+    allocated_time TIME NULL,            -- Optional time limit
+    public_at TIMESTAMP NULL,            -- Scheduled publishing
+    hash VARCHAR(255) NOT NULL,          -- Content hash for change detection
+    created_at TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP NOT NULL,
+    deleted_at TIMESTAMP NULL,
 
-### **Fields Explanation**
-- `name` — user’s full name
-- `email` — unique login identifier
-- `password` — currently unused (OAuth)
-- `role` — determines capabilities
-- `avatar` — optional profile image
-- `deleted_at` — soft delete indicator
+    FOREIGN KEY (teacher_id) REFERENCES users(id) ON DELETE CASCADE,
+    UNIQUE KEY (teacher_id, slug)
+);
 
-### **Relationships**
-- Teacher → has many writings
-- Student → has many submissions
-- Teacher → has many feedback items
+CREATE INDEX writings_teacher_id_index ON writings(teacher_id);
+```
 
-### **Role Meanings**
-- `student` — writes submissions
-- `teacher` — creates writings & evaluates submissions
-- `admin` — platform-wide access
+### 2.3 Writing Submissions Table
 
----
+```sql
+CREATE TABLE writing_submissions (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    writing_id BIGINT UNSIGNED NOT NULL,
+    student_id BIGINT UNSIGNED NOT NULL,
+    content JSON NOT NULL,               -- Student's writing content
+    spent_time TIME NULL,                -- Time spent writing
+    submitted_at TIMESTAMP NULL,         -- When submitted
+    evaluated_at TIMESTAMP NULL,         -- When teacher evaluated
+    status VARCHAR(50) DEFAULT 'in_progress', -- in_progress, completed
+    created_at TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP NOT NULL,
+    deleted_at TIMESTAMP NULL,
 
-## **3.2 Writing Model (`writings`)**
+    FOREIGN KEY (writing_id) REFERENCES writings(id) ON DELETE CASCADE,
+    FOREIGN KEY (student_id) REFERENCES users(id) ON DELETE CASCADE,
+    UNIQUE KEY (writing_id, student_id)
+);
 
-A writing task created by a teacher and shared with students.
+CREATE INDEX writing_submissions_writing_id_submitted_at_index
+    ON writing_submissions(writing_id, submitted_at);
+CREATE INDEX writing_submissions_evaluated_at_index ON writing_submissions(evaluated_at);
+CREATE INDEX writing_submissions_status_index ON writing_submissions(status);
+CREATE INDEX writing_submissions_student_id_index ON writing_submissions(student_id);
+```
 
-### **Purpose**
-- Store assignment instructions
-- Provide a shareable link via `slug`
-- Support scheduled publishing (`public_at`)
-- Track optional time limits
+### 2.4 Writing Feedbacks Table
 
-### **Fields Explanation**
-- `teacher_id` — owner/creator
-- `title` — name of the writing
-- `slug` — public URL identifier (`/w/:slug`)
-- `content` (JSON) — includes instructions, media, blocks
-- `allocated_time` — optional timer for students
-- `public_at` — writing becomes visible from this moment
-- `deleted_at` — soft delete
+```sql
+CREATE TABLE writing_feedbacks (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    submission_id BIGINT UNSIGNED NOT NULL,
+    teacher_id BIGINT UNSIGNED NOT NULL,
+    content JSON NOT NULL,               -- Inline annotations
+    score DECIMAL(8,2) NOT NULL,
+    feedback MEDIUMTEXT NOT NULL,        -- Overall feedback text
+    created_at TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP NOT NULL,
+    deleted_at TIMESTAMP NULL,
 
-### **Relationships**
-- Belongs to a teacher (`users`)
-- Has many submissions (`writing_submissions`)
-
----
-
-## **3.3 WritingSubmission Model (`writing_submissions`)**
-
-A student's answer to a writing task.
-
-### **Purpose**
-- Store submitted writing text
-- Track submission time
-- Track time spent
-- Provide data for teacher evaluation
-
-### **Fields Explanation**
-- `writing_id` — the writing assigned
-- `student_id` — the submitting student
-- `content` — JSON field to store writing content
-- `spent_time` — how long writing took
-- `submitted_at` — when student submitted
-- `evaluated_at` — when teacher completed evaluation
-- timestamps
-
-### **Relationships**
-- Belongs to writing
-- Belongs to student
-- Has one feedback record
-
----
-
-## **3.4 WritingFeedback Model (`writing_feedbacks`)**
-
-Represents a teacher’s evaluation of a student’s submission.
-
-### **Purpose**
-- Store structured & unstructured feedback
-- Store a numeric score
-- Link teacher → submission
-
-### **Fields Explanation**
-- `submission_id` — linked submission
-- `teacher_id` — evaluator
-- `content` (JSON) — structured details, inline notes
-- `score` — numeric grade
-- `feedback` — long text comment
-
-### **Relationships**
-- Belongs to submission
-- Belongs to teacher
+    FOREIGN KEY (submission_id) REFERENCES writing_submissions(id) ON DELETE CASCADE,
+    FOREIGN KEY (teacher_id) REFERENCES users(id) ON DELETE CASCADE
+);
+```
 
 ---
 
-# **4. Backend Concepts (Without Controllers)**
+## 3. Models
 
-Even without controllers, the backend design implies certain behaviors:
+### 3.1 User Model
 
-### **Writing Lifecycle**
-- Teacher creates writing
-- Writing becomes public via slug
-- Students open the public link and submit
+**Location:** `app/Models/User/User.php`
 
-### **Submission Lifecycle**
-- Student submits their writing
-- Student can only submit once
-- Teacher reviews submissions
+```php
+final class User extends Authenticatable
+{
+    use HasFactory, SoftDeletes;
 
-### **Feedback Lifecycle**
-- Teacher gives feedback
-- Submission becomes evaluated
-- Student can view feedback any time
+    protected $fillable = [
+        'name', 'email', 'username', 'password',
+        'role', 'avatar', 'last_login_at'
+    ];
+
+    protected $hidden = ['password', 'remember_token'];
+
+    // Relationships
+    public function writings(): HasMany;      // Teacher's writings
+    public function submissions(): HasMany;   // Student's submissions
+    public function feedbacks(): HasMany;     // Teacher's feedbacks
+}
+```
+
+**Role Values:**
+- `teacher` - Creates writings, evaluates submissions
+- `student` - Submits writings, views feedback
+
+### 3.2 Writing Model
+
+**Location:** `app/Models/Writing/Writing.php`
+
+```php
+final class Writing extends Model
+{
+    use HasFactory, SoftDeletes;
+
+    protected $fillable = [
+        'teacher_id', 'title', 'slug', 'content',
+        'allocated_time', 'public_at', 'hash'
+    ];
+
+    protected function casts(): array
+    {
+        return [
+            'content' => 'array',
+            'public_at' => 'datetime',
+        ];
+    }
+
+    // Relationships
+    public function teacher(): BelongsTo;
+    public function submissions(): HasMany;
+
+    // Content accessor transforms image paths to URLs
+    protected function content(): Attribute;
+}
+```
+
+### 3.3 WritingSubmission Model
+
+**Location:** `app/Models/Submission/WritingSubmission.php`
+
+```php
+#[ObservedBy(WritingSubmissionObserver::class)]
+final class WritingSubmission extends Model
+{
+    use HasFactory, SoftDeletes;
+
+    protected $fillable = [
+        'writing_id', 'student_id', 'content',
+        'spent_time', 'submitted_at', 'evaluated_at', 'status'
+    ];
+
+    protected function casts(): array
+    {
+        return [
+            'content' => 'array',
+            'submitted_at' => 'datetime',
+            'evaluated_at' => 'datetime',
+        ];
+    }
+
+    // Relationships
+    public function writing(): BelongsTo;
+    public function student(): BelongsTo;
+    public function feedback(): HasOne;
+}
+```
+
+### 3.4 WritingFeedback Model
+
+**Location:** `app/Models/Feedback/WritingFeedback.php`
+
+```php
+final class WritingFeedback extends Model
+{
+    use HasFactory, SoftDeletes;
+
+    protected $fillable = [
+        'submission_id', 'teacher_id', 'content', 'score', 'feedback'
+    ];
+
+    protected function casts(): array
+    {
+        return ['content' => 'array'];
+    }
+
+    // Relationships
+    public function submission(): BelongsTo;
+    public function teacher(): BelongsTo;
+}
+```
 
 ---
 
-# **5. Summary for AI Agents**
+## 4. Enums
 
-To build backend features, agents should understand:
+### 4.1 RoleEnum
 
-- **Users** create or submit content based on role
-- **Writings** are teacher-generated tasks stored as JSON
-- **Submissions** are student responses
-- **Feedbacks** evaluate submissions
+**Location:** `app/Contracts/Enums/RoleEnum.php`
 
-Everything in the backend revolves around these four models.
+```php
+enum RoleEnum: string
+{
+    case TEACHER = 'teacher';
+    case STUDENT = 'student';
+}
+```
 
-They form a clean, predictable domain for building features.
+### 4.2 SubmissionProcessEnum
+
+**Location:** `app/Contracts/Enums/SubmissionProcessEnum.php`
+
+```php
+enum SubmissionProcessEnum: string
+{
+    case IN_PROGRESS = 'in_progress';
+    case COMPLETED = 'completed';
+
+    public static function isInProgress(string $status): bool;
+}
+```
+
+### 4.3 SubmissionStatusEnum
+
+**Location:** `app/Contracts/Enums/SubmissionStatusEnum.php`
+
+```php
+enum SubmissionStatusEnum: string
+{
+    case ALL = 'all';
+    case NOT_REVIEWED = 'not_reviewed';
+    case EVALUATED = 'evaluated';
+}
+```
 
 ---
+
+## 5. Actions
+
+Single-purpose classes that perform domain operations.
+
+### 5.1 CreateSubmissionAction
+
+**Location:** `app/Actions/Submission/CreateSubmissionAction.php`
+
+```php
+final class CreateSubmissionAction
+{
+    public function run(SubmissionDTO $dto): WritingSubmission
+    {
+        return WritingSubmission::create([
+            'writing_id' => $dto->writingId,
+            'student_id' => $dto->studentId,
+            'content' => $dto->content,
+            'status' => SubmissionProcessEnum::IN_PROGRESS->value,
+        ]);
+    }
+}
+```
+
+### 5.2 UpdateSubmissionAction
+
+```php
+final class UpdateSubmissionAction
+{
+    public function run(WritingSubmission $submission, SubmissionDTO $dto): WritingSubmission
+    {
+        $submission->update($dto->toArray());
+        return $submission;
+    }
+}
+```
+
+---
+
+## 6. DTOs (Data Transfer Objects)
+
+### 6.1 SubmissionDTO
+
+**Location:** `app/DTOs/Submission/SubmissionDTO.php`
+
+```php
+final class SubmissionDTO extends AbstractDTO
+{
+    public function __construct(
+        public readonly int $writingId,
+        public readonly int $studentId,
+        public readonly ?array $content = null,
+        public readonly ?string $spentTime = null,
+        public readonly ?string $status = null,
+        public readonly ?Carbon $submittedAt = null,
+    ) {}
+
+    public static function make(array $attributes, int $studentId): self;
+    public function toArray(): array;
+}
+```
+
+---
+
+## 7. Queries
+
+Complex query builders for retrieving data.
+
+### 7.1 SubmissionFindForListQuery
+
+**Location:** `app/Queries/Submission/SubmissionFindForListQuery.php`
+
+```php
+final class SubmissionFindForListQuery extends AbstractFilterQueryable
+{
+    public function query(AbstractFilter $filter): LengthAwarePaginator
+    {
+        return WritingSubmission::query()
+            ->select([
+                'writing_submissions.id',
+                'writing_submissions.writing_id',
+                'writing_submissions.student_id',
+                'writing_submissions.spent_time',
+                'writing_submissions.submitted_at',
+                'writing_submissions.evaluated_at',
+                'writing_submissions.created_at',
+            ])
+            ->join('writings', 'writing_submissions.writing_id', '=', 'writings.id')
+            ->where('writings.teacher_id', $filter->teacherId)
+            ->whereNull('writings.deleted_at')
+            ->with([
+                'writing:id,title,allocated_time',
+                'student:id,name',
+                'feedback:id,submission_id,score',
+            ])
+            // Apply search and status filters
+            ->paginate($filter->perPage);
+    }
+}
+```
+
+---
+
+## 8. Filters
+
+### 8.1 SubmissionFilter
+
+**Location:** `app/Filters/Submission/SubmissionFilter.php`
+
+```php
+final class SubmissionFilter extends AbstractFilter
+{
+    public function __construct(
+        public readonly int $teacherId,
+        public readonly SubmissionStatusEnum $status = SubmissionStatusEnum::ALL,
+        public readonly ?string $search = null,
+        public readonly string $sortBy = 'submitted_at',
+        public readonly string $sortDirection = 'desc',
+        public readonly int $perPage = 15,
+    ) {}
+
+    public static function fromRequest(Request $request, int $teacherId): self;
+}
+```
+
+---
+
+## 9. Repositories
+
+Aggregated data access with caching.
+
+### 9.1 MetricsRepository
+
+**Location:** `app/Repositories/MetricsRepository.php`
+
+```php
+final class MetricsRepository
+{
+    private const CACHE_TTL = 300; // 5 minutes
+
+    public function calculateSubmissionsMetrics(int $teacher_id): array
+    {
+        return Cache::remember(
+            "metrics:submissions:{$teacher_id}",
+            self::CACHE_TTL,
+            fn () => $this->querySubmissionMetrics($teacher_id)
+        );
+    }
+
+    public function calculateStudentsMetrics(int $teacher_id): array;
+    public function calculateWritingMetrics(int $teacher_id): array;
+
+    public static function invalidateCache(int $teacher_id): void
+    {
+        Cache::forget("metrics:submissions:{$teacher_id}");
+        Cache::forget("metrics:students:{$teacher_id}");
+        Cache::forget("metrics:writings:{$teacher_id}");
+        Cache::forget("counts:submissions:{$teacher_id}");
+    }
+}
+```
+
+---
+
+## 10. Observers
+
+### 10.1 WritingSubmissionObserver
+
+**Location:** `app/Observers/Submission/WritingSubmissionObserver.php`
+
+```php
+final class WritingSubmissionObserver
+{
+    public function created(WritingSubmission $submission): void
+    {
+        $this->invalidateTeacherCache($submission);
+
+        defer(function () use ($submission) {
+            Mail::to($submission->writing->teacher->email)
+                ->send(new StudentSubmissionNotification($submission));
+        });
+    }
+
+    public function updated(WritingSubmission $submission): void
+    {
+        if ($submission->isDirty('evaluated_at') || $submission->isDirty('status')) {
+            $this->invalidateTeacherCache($submission);
+        }
+    }
+
+    private function invalidateTeacherCache(WritingSubmission $submission): void
+    {
+        MetricsRepository::invalidateCache($submission->writing->teacher_id);
+    }
+}
+```
+
+---
+
+## 11. Controllers
+
+### 11.1 DashboardController
+
+**Location:** `app/Http/Controllers/Dashboard/DashboardController.php`
+
+```php
+final class DashboardController extends Controller
+{
+    public function __invoke(
+        Request $request,
+        MetricsRepository $metricsRepository,
+        SubmissionsRepository $submissionsRepository,
+        SubmissionFindForListQuery $query
+    ): Response {
+        $teacher = $request->user();
+        $filter = SubmissionFilter::fromRequest($request, $teacher->id);
+
+        return Inertia::render('Dashboard/Home', [
+            'metrics' => [
+                'submissions' => $metricsRepository->calculateSubmissionsMetrics($teacher->id),
+                'students' => $metricsRepository->calculateStudentsMetrics($teacher->id),
+                'writings' => $metricsRepository->calculateWritingMetrics($teacher->id),
+            ],
+            'counts' => $submissionsRepository->getAllCounts($teacher->id),
+            'submissions' => $query->query($filter),
+        ]);
+    }
+}
+```
+
+---
+
+## 12. Middleware
+
+### 12.1 EnsureRoleIsValidMiddleware
+
+**Location:** `app/Http/Middleware/EnsureRoleIsValidMiddleware.php`
+
+```php
+final class EnsureRoleIsValidMiddleware
+{
+    public function handle(Request $request, Closure $next, string $role): Response
+    {
+        if ($request->user()?->role !== $role) {
+            abort(403, 'Unauthorized');
+        }
+        return $next($request);
+    }
+}
+```
+
+### 12.2 HandleInertiaRequests
+
+Shares global data with all Inertia responses:
+- `auth.user` - Current user (selective fields)
+- `flash` - Flash messages
+- `ziggy` - Route definitions (cached)
+
+---
+
+## 13. Rate Limiting
+
+**Location:** `app/Providers/AppServiceProvider.php`
+
+```php
+RateLimiter::for('web', fn (Request $request) =>
+    Limit::perMinute(60)->by($request->ip()));
+
+RateLimiter::for('auto-save', fn (Request $request) =>
+    Limit::perMinute(10)->by($request->user()?->id ?: $request->ip()));
+
+RateLimiter::for('auth', fn (Request $request) =>
+    Limit::perMinute(5)->by($request->ip()));
+
+RateLimiter::for('api', fn (Request $request) =>
+    Limit::perMinute(30)->by($request->user()?->id ?: $request->ip()));
+
+RateLimiter::for('uploads', fn (Request $request) =>
+    Limit::perMinute(20)->by($request->user()?->id ?: $request->ip()));
+```
+
+---
+
+## 14. Routes
+
+### 14.1 Teacher Portal (`app.{domain}`)
+
+```php
+Route::middleware(['auth', 'is_role:teacher'])->group(function () {
+    Route::get('dashboard', DashboardController::class);
+
+    Route::resource('students', StudentController::class)->only(['index', 'show']);
+    Route::resource('writings', WritingController::class);
+    Route::resource('submissions', SubmissionController::class)->only(['index', 'show']);
+    Route::post('submissions/{id}/evaluate', [SubmissionController::class, 'evaluate']);
+});
+```
+
+### 14.2 Student Portal (`student.{domain}`)
+
+```php
+Route::prefix('tasks')->group(function () {
+    Route::get('/{handle}/writing/{slug}', [WritingController::class, 'create']);
+
+    Route::middleware(['auth', 'is_role:student'])->group(function () {
+        Route::post('submissions/start', [WritingController::class, 'start']);
+        Route::post('submissions/save', [WritingController::class, 'update'])
+            ->middleware('throttle:auto-save');
+        Route::post('submissions/finish', [WritingController::class, 'finish']);
+    });
+});
+```
+
+---
+
+## 15. Testing
+
+### 15.1 Factories
+
+```php
+// WritingFactory
+Writing::factory()->create([
+    'teacher_id' => $teacher->id,
+    'title' => 'Test Writing',
+]);
+
+// WritingSubmissionFactory
+WritingSubmission::factory()->create([
+    'writing_id' => $writing->id,
+    'student_id' => $student->id,
+]);
+```
+
+### 15.2 Running Tests
+
+```bash
+php artisan test
+php artisan test --filter=SubmissionTest
+```
