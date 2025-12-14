@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Middleware;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Inertia\Middleware;
 use Tighten\Ziggy\Ziggy;
 
@@ -18,6 +19,11 @@ final class HandleInertiaRequests extends Middleware
      * @var string
      */
     protected $rootView = 'app';
+
+    /**
+     * Cached Ziggy routes (computed once per deployment)
+     */
+    private static ?array $ziggyRoutes = null;
 
     /**
      * Determines the current asset version.
@@ -40,18 +46,35 @@ final class HandleInertiaRequests extends Middleware
     {
         return [
             ...parent::share($request),
-            'auth' => [
-                'user' => $request->user(),
+            'auth' => fn () => [
+                'user' => $request->user()?->only(['id', 'name', 'email', 'avatar', 'role']),
             ],
-            'flash' => [
+            'flash' => fn () => [
                 'error' => $request->session()->get('error'),
                 'success' => $request->session()->get('success'),
                 'message' => $request->session()->get('message'),
             ],
             'ziggy' => fn () => [
-                ...(new Ziggy)->toArray(),
+                ...$this->getZiggyRoutes(),
                 'location' => $request->url(),
             ],
         ];
+    }
+
+    /**
+     * Get cached Ziggy routes.
+     * Routes are cached in memory for the request lifecycle and in cache for 1 hour.
+     */
+    private function getZiggyRoutes(): array
+    {
+        if (self::$ziggyRoutes !== null) {
+            return self::$ziggyRoutes;
+        }
+
+        self::$ziggyRoutes = Cache::remember('ziggy:routes', 3600, function () {
+            return (new Ziggy)->toArray();
+        });
+
+        return self::$ziggyRoutes;
     }
 }

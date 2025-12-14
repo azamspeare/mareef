@@ -21,7 +21,7 @@ Route::domain('app.' . config('app.domain'))->group(function () {
         return Auth::check() ? redirect()->route('dashboard') : redirect()->route('login');
     });
 
-    Route::middleware('guest')->group(function () {
+    Route::middleware(['guest', 'throttle:auth'])->group(function () {
         Route::get('login', [LoginController::class, 'login'])->name('login');
 
         Route::prefix('auth')->group(function () {
@@ -68,7 +68,7 @@ Route::domain('app.' . config('app.domain'))->group(function () {
 Route::domain('student.' . config('app.domain'))->group(function () {
     Route::get('/', [LandingController::class, 'welcome']);
 
-    Route::middleware('guest')->group(function () {
+    Route::middleware(['guest', 'throttle:auth'])->group(function () {
         Route::prefix('auth')->name('auth.')->group(function () {
             Route::get('google/redirect', [StudentAuthController::class, 'redirect'])->name('google.redirect');
             Route::get('google/callback', [StudentAuthController::class, 'callback'])->name('google.callback');
@@ -80,9 +80,9 @@ Route::domain('student.' . config('app.domain'))->group(function () {
 
         Route::middleware(['auth', 'is_role:' . RoleEnum::STUDENT->value])->group(function () {
             Route::prefix('submissions')->name('submissions.')->group(function () {
-                Route::post('start', [StudentWritingController::class, 'start'])->name('start');
-                Route::post('save', [StudentWritingController::class, 'update'])->name('save');
-                Route::post('finish', [StudentWritingController::class, 'finish'])->name('finish');
+                Route::post('start', [StudentWritingController::class, 'start'])->name('start')->middleware('throttle:api');
+                Route::post('save', [StudentWritingController::class, 'update'])->name('save')->middleware('throttle:auto-save');
+                Route::post('finish', [StudentWritingController::class, 'finish'])->name('finish')->middleware('throttle:api');
             });
         });
     });
@@ -99,6 +99,6 @@ Route::prefix('tasks')->name('tasks.')->group(function () {
     Route::get('speaking', [LandingController::class, 'speaking'])->name('speaking');
 });
 Route::prefix('images')->name('images.')->group(function () {
-    Route::post('upload', [ImageController::class, 'store'])->name('store')->middleware('auth');
+    Route::post('upload', [ImageController::class, 'store'])->name('store')->middleware(['auth', 'throttle:uploads']);
     Route::get('{filename}', [ImageController::class, 'show'])->name('show');
 });

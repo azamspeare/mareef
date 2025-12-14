@@ -20,6 +20,8 @@ export default defineConfig({
     build: {
         // Increase limit since syntax highlighting grammars are large but lazy-loaded
         chunkSizeWarningLimit: 1000,
+        // Use esbuild for minification (faster than terser, included by default)
+        minify: 'esbuild',
         rollupOptions: {
             onwarn(warning, warn) {
                 // Suppress "__serializeForClipboard" warning from BlockNote/prosemirror-view
@@ -34,13 +36,15 @@ export default defineConfig({
             },
             output: {
                 manualChunks: {
-                    // Vendor chunks
+                    // Core vendor chunks - loaded immediately
                     'vendor-react': ['react', 'react-dom'],
+                    // Heavy editor chunk - loaded lazily on writing pages
                     'vendor-blocknote': [
                         '@blocknote/core',
                         '@blocknote/react',
                         '@blocknote/mantine',
                     ],
+                    // UI component library
                     'vendor-radix': [
                         '@radix-ui/react-accordion',
                         '@radix-ui/react-avatar',
@@ -57,9 +61,17 @@ export default defineConfig({
                         '@radix-ui/react-toggle-group',
                         '@radix-ui/react-tooltip',
                     ],
+                    // Charts - only loaded on dashboard
                     'vendor-charts': ['recharts'],
+                    // Inertia - core routing
+                    'vendor-inertia': ['@inertiajs/react'],
                 },
             },
         },
+    },
+    // Optimize dependency pre-bundling for faster dev server
+    optimizeDeps: {
+        include: ['react', 'react-dom', '@inertiajs/react'],
+        exclude: ['@blocknote/core', '@blocknote/react', '@blocknote/mantine'],
     },
 });

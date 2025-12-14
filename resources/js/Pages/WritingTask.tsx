@@ -418,8 +418,8 @@ export default function WritingTask({ writing, submission }: WritingTaskProps) {
         content: JSON.stringify(writingEditor.document),
     }), [writing.id, writingEditor]);
 
-    // Use custom auto-save hook
-    const { isSaving } = useAutoSave({
+    // Use custom auto-save hook with dirty tracking
+    const { isSaving, markDirty } = useAutoSave({
         isActive: isInProgress,
         interval: 60000,
         routeName: 'tasks.submissions.save',
@@ -521,10 +521,11 @@ export default function WritingTask({ writing, submission }: WritingTaskProps) {
     // Editor change handler
     const handleEditorChange = useCallback(() => {
         updateWordCount();
+        markDirty(); // Mark content as dirty for auto-save
         if (typeof window !== "undefined" && storageKey) {
             localStorage.setItem(storageKey, JSON.stringify(writingEditor.document));
         }
-    }, [updateWordCount, writingEditor, storageKey]);
+    }, [updateWordCount, writingEditor, storageKey, markDirty]);
 
     // Force paste as plain text inside the writing editor
     useEffect(() => {

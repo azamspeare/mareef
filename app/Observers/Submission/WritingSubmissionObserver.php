@@ -6,6 +6,7 @@ namespace App\Observers\Submission;
 
 use App\Mail\Writing\StudentSubmissionNotification;
 use App\Models\Submission\WritingSubmission;
+use App\Repositories\MetricsRepository;
 use Illuminate\Support\Facades\Mail;
 
 final class WritingSubmissionObserver
@@ -15,6 +16,9 @@ final class WritingSubmissionObserver
      */
     public function created(WritingSubmission $submission): void
     {
+        // Invalidate metrics cache for the teacher
+        $this->invalidateTeacherCache($submission);
+
         defer(function () use ($submission) {
             $email = $submission->writing->teacher->email;
 
@@ -27,7 +31,10 @@ final class WritingSubmissionObserver
      */
     public function updated(WritingSubmission $submission): void
     {
-        //
+        // Only invalidate cache if evaluation status changed
+        if ($submission->isDirty('evaluated_at') || $submission->isDirty('status')) {
+            $this->invalidateTeacherCache($submission);
+        }
     }
 
     /**
@@ -35,7 +42,7 @@ final class WritingSubmissionObserver
      */
     public function deleted(WritingSubmission $submission): void
     {
-        //
+        $this->invalidateTeacherCache($submission);
     }
 
     /**
@@ -43,7 +50,7 @@ final class WritingSubmissionObserver
      */
     public function restored(WritingSubmission $submission): void
     {
-        //
+        $this->invalidateTeacherCache($submission);
     }
 
     /**
@@ -51,6 +58,15 @@ final class WritingSubmissionObserver
      */
     public function forceDeleted(WritingSubmission $submission): void
     {
-        //
+        $this->invalidateTeacherCache($submission);
+    }
+
+    /**
+     * Invalidate the teacher's metrics and counts cache.
+     */
+    private function invalidateTeacherCache(WritingSubmission $submission): void
+    {
+        $teacherId = $submission->writing->teacher_id;
+        MetricsRepository::invalidateCache($teacherId);
     }
 }
