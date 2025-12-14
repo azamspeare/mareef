@@ -1,486 +1,750 @@
-# Mareef – Frontend Specification (MVP)
+# Mareef - Frontend Specification
 
-This document describes the **frontend architecture and conventions** for Mareef’s MVP.
-
-The frontend is built with:
-
-- **Framework:** React (via Inertia.js + Laravel)
-- **Styling:** Tailwind CSS
-- **UI library:** shadcn/ui
-- **Build tool:** Vite (default with Laravel 12)
-- **Interaction with backend:** Inertia.js (no REST/JSON API layer in MVP)
-
-The goal is to make the frontend:
-
-- predictable and easy to extend,
-- clean for AI agents to work on,
-- minimal but solid for real teachers and students.
+Frontend architecture and conventions for Mareef.
 
 ---
 
-## 1. High-Level Frontend Design
+## 1. Technology Stack
 
-### 1.1 SPA-like via Inertia
-
-Mareef uses **Inertia.js** to bridge Laravel and React:
-
-- Laravel defines routes and returns **Inertia responses**.
-- Each route corresponds to a **React page component**.
-- Navigation feels like a SPA, but SSR and routing are still controlled by Laravel.
-
-**Key idea:** There is **no client-side router** like React Router in MVP.
-Routing is handled by Laravel; React pages map to server routes.
+- **Framework:** React 18 + TypeScript
+- **Routing:** Inertia.js (server-driven)
+- **Styling:** Tailwind CSS 4
+- **Components:** Radix UI + shadcn/ui
+- **Editor:** BlockNote
+- **Charts:** Recharts
+- **Build:** Vite 7
 
 ---
 
 ## 2. Project Structure
 
-Expected structure under `resources/js` (or similar):
-
-```txt
+```
 resources/js/
-  ├─ Pages/
-  │   ├─ Auth/
-  │   │   └─ Login.jsx
-  │   ├─ Home/
-  │   │   └─ Index.jsx
-  │   ├─ Writings/
-  │   │   ├─ Index.jsx
-  │   │   ├─ Create.jsx
-  │   │   ├─ Edit.jsx
-  │   │   ├─ Show.jsx
-  │   │   └─ SubmissionsIndex.jsx
-  │   ├─ Submissions/
-  │   │   └─ Show.jsx
-  │   ├─ PublicWriting/
-  │   │   └─ Show.jsx
-  │   └─ Admin/
-  │       └─ UsersIndex.jsx (optional MVP)
-  │
-  ├─ Components/
-  │   ├─ layouts/
-  │   │   ├─ AuthenticatedLayout.jsx
-  │   │   └─ GuestLayout.jsx
-  │   ├─ ui/        (shadcn wrappers / re-exports)
-  │   ├─ navigation/
-  │   │   ├─ Sidebar.jsx
-  │   │   └─ Topbar.jsx
-  │   ├─ writings/
-  │   │   ├─ WritingEditor.jsx
-  │   │   ├─ WritingCard.jsx
-  │   │   ├─ WritingStatusBadge.jsx
-  │   │   └─ ShareLinkBox.jsx
-  │   ├─ submissions/
-  │   │   ├─ SubmissionRow.jsx
-  │   │   ├─ SubmissionViewer.jsx
-  │   │   └─ FeedbackPanel.jsx
-  │   └─ common/
-  │       ├─ PageHeader.jsx
-  │       ├─ EmptyState.jsx
-  │       ├─ LoadingState.jsx
-  │       └─ ErrorAlert.jsx
-  │
-  ├─ hooks/
-  │   └─ useRole.js (helper to check user role)
-  │
-  ├─ lib/
-  │   ├─ inertiaHelpers.js
-  │   ├─ editorConfig.js
-  │   └─ formatters.js
-  │
-  └─ app.jsx (Inertia setup, layouts, etc.)
+├── Pages/                    # Page components (route-mapped)
+│   ├── Auth/
+│   │   └── Login.tsx
+│   ├── Dashboard/
+│   │   └── Home.tsx
+│   ├── Landing/
+│   │   ├── Welcome.tsx
+│   │   ├── Pricing.tsx
+│   │   ├── Listening.tsx
+│   │   ├── Reading.tsx
+│   │   ├── Writing.tsx
+│   │   └── Speaking.tsx
+│   ├── Students/
+│   │   ├── Index.tsx
+│   │   └── Show.tsx
+│   ├── Submissions/
+│   │   ├── Index.tsx
+│   │   └── Show.tsx
+│   ├── Writings/
+│   │   ├── Index.tsx
+│   │   ├── Create.tsx
+│   │   ├── Edit.tsx
+│   │   └── Show.tsx
+│   └── WritingTask.tsx       # Student writing interface
+│
+├── Layouts/
+│   └── DashboardLayout.tsx   # Teacher portal layout
+│
+├── components/
+│   ├── ui/                   # shadcn/ui components
+│   │   ├── button.tsx
+│   │   ├── card.tsx
+│   │   ├── dialog.tsx
+│   │   ├── input.tsx
+│   │   ├── select.tsx
+│   │   ├── table.tsx
+│   │   ├── tabs.tsx
+│   │   └── ...
+│   ├── annotation/           # Text annotation system
+│   │   ├── annotated-content.tsx
+│   │   └── highlight-popover.tsx
+│   ├── app-sidebar.tsx
+│   ├── data-table.tsx
+│   ├── empty.tsx
+│   ├── metrics-card.tsx
+│   └── ...
+│
+├── hooks/
+│   ├── use-auto-save.ts      # Auto-save with dirty tracking
+│   └── use-timer.ts          # Countdown timer for writing tasks
+│
+├── lib/
+│   └── utils.ts              # Utility functions (cn, formatters)
+│
+├── types/
+│   └── index.d.ts            # TypeScript type definitions
+│
+├── app.tsx                   # Inertia app setup
+└── bootstrap.js              # Axios configuration
 ```
 
-Paths and filenames can be adjusted, but the **conceptual structure** should remain.
-
 ---
 
-## 3. Styling & UI
-
-### 3.1 Tailwind CSS
-
-Tailwind is the primary styling engine:
-
-- Utility classes for layout, spacing, typography.
-- Use **consistent spacing and typography scale** across pages.
-- Prefer reusable components over massive class strings repeated everywhere.
-
-Example patterns:
-
-- Layout containers: `max-w-6xl mx-auto px-4 sm:px-6 lg:px-8`
-- Section spacing: `py-6` / `pb-8`
-- Cards: `rounded-xl border bg-background shadow-sm p-4 sm:p-6`
-
-### 3.2 shadcn/ui Usage
-
-shadcn/ui provides headless + styled components. Use it for:
-
-- Buttons (`<Button />`)
-- Inputs (`<Input />`, `<Textarea />`)
-- Selects, Combobox
-- Dialogs/Modals
-- Tabs, Badges
-- Table / Data Table patterns
-- Alerts, Toasts
-
-**Conventions:**
-
-- Wrap shadcn components in `Components/ui` if we need custom variants.
-- Use `variant` prop (e.g., `variant="outline"`, `variant="destructive"`) for semantic styling.
-- Use consistent button types:
-  - Primary actions → `variant="default"`
-  - Secondary → `variant="outline"`
-  - Destructive → `variant="destructive"`
-
----
-
-## 4. Layouts & Navigation
-
-### 4.1 AuthenticatedLayout
-
-Used by any page that requires login (teacher, student, admin).
-
-Contains:
-
-- **Topbar**
-  - App name / logo
-  - User avatar + name
-  - Dropdown with “Profile” (future) and “Logout”
-- **Sidebar**
-  - Navigation items depending on role:
-    - All roles:
-      - Home
-    - Teachers:
-      - Writings
-    - Admin:
-      - Admin → Users (and future admin pages)
-- **Main content**
-  - Scrollable area for the current page
-  - Uses `<main className="flex-1 ...">` pattern
-
-### 4.2 GuestLayout
-
-Used for unauthenticated pages (e.g. landing, login prompt for public writing page).
-
-- Centered container
-- Simple branding + “Login with Google” button
-
----
-
-## 5. Pages (Detailed)
-
-### 5.1 Home Page
-
-**Path:** `/dashboard`
-**Component:** `Pages/Home/Index.jsx`
-
-**Purpose:**
-- Provide teachers/students/admin a quick overview.
-- MVP layout:
-
-For **teachers**:
-- “Recent submissions to your writings”
-  - Table:
-    - Student name
-    - Writing title
-    - Status (submitted / evaluated)
-    - Submitted_at
-    - Action: View
-
-For **students**:
-- “Recent submissions you’ve made”
-  - Table:
-    - Writing title
-    - Status
-    - Score (if evaluated)
-    - Action: Open writing
-
-For **admin**:
-- Same as teacher + a simple metrics block (future).
-
-### 5.2 Writings – Index
-
-**Path:** `/writings`
-**Component:** `Pages/Writings/Index.jsx`
-**Role:** Teacher / Admin only
-
-**Features:**
-- List all writings created by the logged-in teacher.
-- Table columns:
-  - Title
-  - Created_at (formatted)
-  - Status (with badge)
-  - Submissions count
-  - Actions:
-    - View
-    - Edit
-    - Archive/Restore
-    - Delete (optional in UI for MVP)
-
-- Primary button: “Create Writing Task”
-
-### 5.3 Writings – Create
-
-**Path:** `/writings/create`
-**Component:** `Pages/Writings/Create.jsx`
-
-**Form fields:**
-- Title (input)
-- Instructions (WritingEditor)
-- Max score (optional, number input)
-
-**Behavior:**
-- Use Inertia `useForm` to handle form state.
-- On submit:
-  - POST to `/writings`
-  - Show validation errors under fields
-  - On success, redirect to Writings/Show with success toast.
-
-### 5.4 Writings – Edit
-
-**Path:** `/writings/{id}/edit`
-**Component:** `Pages/Writings/Edit.jsx`
-
-Same UI as Create, but prefilled with existing data.
-
-### 5.5 Writings – Show
-
-**Path:** `/writings/{id}`
-**Component:** `Pages/Writings/Show.jsx`
-
-Displays:
-
-- Title
-- Instructions (rendered view)
-- Status
-- Submissions count
-- **Share link box**:
-  - Readonly input with URL: `https://app.mareef.uz/w/{slug}`
-  - “Copy link” button
-- Button: “View submissions”
-
-### 5.6 Writings – Submissions List
-
-**Path:** `/writings/{id}/submissions`
-**Component:** `Pages/Writings/SubmissionsIndex.jsx`
-
-Features:
-
-- Filter dropdown:
-  - Default: `Not evaluated`
-  - Option: `All`
-- Submissions table:
-  - Student name
-  - Submitted_at (formatted)
-  - Status
-  - Action: “Open”
-
-### 5.7 Submission – Show (Teacher Marking View)
-
-**Path:** `/submissions/{id}`
-**Component:** `Pages/Submissions/Show.jsx`
-
-Layout:
-
-- Left column: `SubmissionViewer`
-  - Shows student’s writing content
-  - Read-only
-- Right column: `FeedbackPanel`
-  - Score input
-  - Overall comment textarea
-  - (Optional) inline feedback controls / list
-  - Button: “Send feedback”
-
-On submit:
-
-- POST to `/submissions/{id}/feedback` with:
-  - score
-  - overall_comment
-  - inline_feedback (JSON, if used)
-- On success:
-  - Show toast “Feedback sent”
-  - Possibly redirect back to submissions list
-  - Submissions list shows updated status (`evaluated`)
-
----
-
-## 6. Public Writing Page (Student View)
-
-### 6.1 PublicWriting – Show
-
-**Path (server):** `/w/{slug}`
-**Component:** `Pages/PublicWriting/Show.jsx`
-
-**Behavior:**
-
-- If user is **not authenticated**:
-  - Show GuestLayout.
-  - Display writing title + instructions (read-only).
-  - Big CTA: “Login with Google to start writing”.
-  - After login, redirect back to the same slug.
-
-- If user is **authenticated as student**:
-  - Check if student has already submitted this writing.
-  - If not:
-    - Show WritingEditor for student answer.
-    - Button: “Submit”.
-  - If yes and status = `submitted` but not evaluated:
-    - Show message: “You’ve already submitted this writing. Await feedback from your teacher.”
-    - Show their own submitted content read-only.
-  - If status = `evaluated` with feedback:
-    - Show banner: “Your task has been evaluated.”
-    - Show:
-      - Their own writing
-      - Score
-      - Overall feedback
-      - Inline feedback (if implemented)
-
----
-
-## 7. State Management & Inertia Patterns
-
-### 7.1 Inertia `usePage` & `useForm`
-
-- Use `usePage()` to access:
-  - Authenticated user (`page.props.auth.user`)
-  - Shared props (e.g., flash messages)
-
-- Use `useForm()` for form handling:
-  - Example:
-
-    ```js
-    const { data, setData, post, processing, errors } = useForm({
-      title: '',
-      instructions: '',
-      max_score: '',
-    });
-
-    const submit = (e) => {
-      e.preventDefault();
-      post(route('writings.store'));
+## 3. Inertia.js Integration
+
+### 3.1 App Setup
+
+**Location:** `resources/js/app.tsx`
+
+```tsx
+import { createInertiaApp } from '@inertiajs/react';
+import { createRoot } from 'react-dom/client';
+
+createInertiaApp({
+    resolve: (name) => {
+        const pages = import.meta.glob('./Pages/**/*.tsx', { eager: true });
+        return pages[`./Pages/${name}.tsx`];
+    },
+    setup({ el, App, props }) {
+        createRoot(el).render(<App {...props} />);
+    },
+});
+```
+
+### 3.2 Shared Props
+
+Available on all pages via `usePage()`:
+
+```tsx
+interface PageProps {
+    auth: {
+        user: {
+            id: number;
+            name: string;
+            email: string;
+            avatar: string | null;
+            role: 'teacher' | 'student';
+        } | null;
     };
-    ```
-
-### 7.2 Global Flash Messages
-
-- Backend sets flash via `session()->flash('success', '...')`.
-- Inertia shares `flash` props globally (via Inertia middleware).
-- Frontend listens to `flash.success`, `flash.error` and displays:
-  - Toast or `<Alert />`.
-
-### 7.3 Role Helpers
-
-`hooks/useRole.js`:
-
-```js
-import { usePage } from '@inertiajs/react';
-
-export function useRole() {
-  const { props } = usePage();
-  const role = props.auth?.user?.role;
-  const isTeacher = role === 'teacher';
-  const isStudent = role === 'student';
-  const isAdmin = role === 'admin';
-
-  return { role, isTeacher, isStudent, isAdmin };
+    flash: {
+        success?: string;
+        error?: string;
+        message?: string;
+    };
+    ziggy: {
+        url: string;
+        port: number | null;
+        defaults: Record<string, any>;
+        routes: Record<string, any>;
+        location: string;
+    };
 }
 ```
 
-Use this hook in layouts and pages for role-based UI rendering.
+### 3.3 Navigation
+
+```tsx
+import { Link, router } from '@inertiajs/react';
+
+// Link navigation
+<Link href={route('dashboard')}>Dashboard</Link>
+
+// Programmatic navigation
+router.visit(route('writings.show', { id: 1 }));
+
+// Form submission
+router.post(route('writings.store'), data, {
+    onSuccess: () => toast.success('Writing created'),
+});
+```
 
 ---
 
-## 8. Editor Implementation
+## 4. Layouts
 
-### 8.1 MVP Strategy
+### 4.1 DashboardLayout
 
-For MVP v0:
+**Location:** `resources/js/Layouts/DashboardLayout.tsx`
 
-- Use a **single editor component** `WritingEditor` that can be configured for:
-  - Teacher instructions -> `mode="instructions"`
-  - Student writing -> `mode="submission"`
+Used for all authenticated teacher pages.
 
-- Start with:
-  - Either a `<textarea>` with autosize
-  - Or a minimal WYSIWYG with:
-    - Bold, italic, underline
-    - Lists
-    - Paragraphs
+```tsx
+interface DashboardLayoutProps {
+    children: React.ReactNode;
+}
 
-### 8.2 Data Format
+export default function DashboardLayout({ children }: DashboardLayoutProps) {
+    return (
+        <SidebarProvider>
+            <AppSidebar />
+            <SidebarInset>
+                <header>{/* Breadcrumb, user menu */}</header>
+                <main>{children}</main>
+            </SidebarInset>
+        </SidebarProvider>
+    );
+}
+```
 
-- Keep it simple:
-  - Store editor content as **HTML** or **plain text** in MVP.
-- For richer structures later (inline comments etc.), we can move to JSON with structure.
-
-### 8.3 Inline Feedback (Future Consideration)
-
-- MVP can:
-  - Skip fully dynamic inline selections.
-  - Instead allow teachers to add **comment blocks** referencing a line/paragraph.
-
-- Later we can:
-  - Implement true text-range comments.
-  - Use IDs/offsets stored in `inline_feedback` JSON.
-
----
-
-## 9. Error & Loading States
-
-### 9.1 Loading
-
-- On Inertia navigation, use:
-  - A top progress bar (e.g., NProgress) or a minimal loading spinner.
-- For long operations (e.g., submitting forms):
-  - Disable button (`disabled={processing}`)
-  - Change label to “Saving…” or “Submitting…”
-
-### 9.2 Error Handling
-
-- Validation errors:
-  - Display under each input using `errors.fieldName`.
-- Global errors:
-  - Show an `<ErrorAlert>` at the top when `flash.error` exists.
+**Features:**
+- Collapsible sidebar with navigation
+- Breadcrumb navigation
+- User dropdown menu
+- Toast notifications
 
 ---
 
-## 10. Accessibility & UX Notes
+## 5. Pages
 
-- Ensure all interactive elements are keyboard accessible.
-- Use ARIA labels where needed (modals, dialogs).
-- Don’t rely **only** on color to convey status:
-  - Use text + color (e.g., “Evaluated” label).
-- Make share link and important actions easy to find visually.
+### 5.1 Dashboard/Home
+
+**Route:** `/dashboard`
+
+Teacher dashboard with metrics and recent submissions.
+
+```tsx
+interface HomeProps {
+    metrics: {
+        submissions: { this_week_submissions: number; ctr: number };
+        students: { total_students: number; new_students: number };
+        writings: { total_writings: number; submitted_writings: number };
+    };
+    counts: {
+        total: number;
+        not_reviewed: number;
+        evaluated: number;
+    };
+    submissions: PaginatedData<Submission>;
+}
+```
+
+**Components:**
+- `MetricsCard` - Displays metric with trend indicator
+- `DataTable` - Submissions list with tabs
+- `SubmissionsChart` - Weekly submissions chart
+
+### 5.2 Writings/Index
+
+**Route:** `/writings`
+
+List of teacher's writing tasks.
+
+```tsx
+interface WritingsIndexProps {
+    writings: PaginatedData<Writing>;
+}
+```
+
+**Features:**
+- Data table with sorting/filtering
+- Search by title
+- Quick actions (edit, delete, view submissions)
+- Create new writing button
+
+### 5.3 Writings/Create & Edit
+
+**Route:** `/writings/create`, `/writings/{id}/edit`
+
+Writing task editor with BlockNote.
+
+```tsx
+interface WritingFormProps {
+    writing?: Writing; // Undefined for create, defined for edit
+}
+```
+
+**Form Fields:**
+- Title (input)
+- Content (BlockNote editor)
+- Allocated time (time picker)
+- Publish date (date picker, optional)
+
+### 5.4 Submissions/Show
+
+**Route:** `/submissions/{id}`
+
+Teacher view for evaluating a submission.
+
+```tsx
+interface SubmissionShowProps {
+    submission: Submission & {
+        writing: Writing;
+        student: User;
+        feedback?: Feedback;
+    };
+}
+```
+
+**Layout:**
+- Left: Student's writing with annotation support
+- Right: Evaluation form (score, feedback)
+
+### 5.5 WritingTask
+
+**Route:** `student.{domain}/tasks/{handle}/writing/{slug}`
+
+Student interface for completing a writing task.
+
+```tsx
+interface WritingTaskProps {
+    writing: Writing;
+    submission?: Submission;
+    teacher: { username: string };
+}
+```
+
+**Features:**
+- Timer countdown
+- Auto-save with dirty tracking
+- Word count
+- Submit confirmation dialog
 
 ---
 
-## 11. Frontend Testing (Future)
+## 6. Components
 
-MVP may not include heavy automated tests, but patterns to consider later:
+### 6.1 UI Components (shadcn/ui)
 
-- Unit tests for components (Jest + React Testing Library).
-- Cypress or Playwright for end-to-end flows:
-  - Teacher creates a writing
-  - Student submits
-  - Teacher evaluates
-  - Student views feedback
+Pre-styled components from shadcn/ui:
+
+| Component | Usage |
+|-----------|-------|
+| `Button` | Actions, form submission |
+| `Card` | Content containers |
+| `Dialog` | Modal dialogs |
+| `Input` | Text inputs |
+| `Select` | Dropdowns |
+| `Table` | Data tables |
+| `Tabs` | Tab navigation |
+| `Badge` | Status indicators |
+| `Tooltip` | Help text |
+| `Sheet` | Side panels |
+| `Accordion` | Collapsible content |
+
+### 6.2 Custom Components
+
+**MetricsCard**
+```tsx
+interface MetricsCardProps {
+    title: string;
+    value: number;
+    change?: number;
+    icon: React.ReactNode;
+}
+```
+
+**DataTable**
+```tsx
+interface DataTableProps<T> {
+    columns: ColumnDef<T>[];
+    data: T[];
+    searchKey?: string;
+    pagination?: PaginationInfo;
+}
+```
+
+**Empty**
+```tsx
+interface EmptyProps {
+    title: string;
+    description?: string;
+    action?: React.ReactNode;
+}
+```
+
+### 6.3 Annotation Components
+
+**AnnotatedContent**
+```tsx
+interface AnnotatedContentProps {
+    content: BlockNoteDocument;
+    annotations: Annotation[];
+    onAnnotationClick?: (annotation: Annotation) => void;
+}
+```
+
+**HighlightPopover**
+```tsx
+interface HighlightPopoverProps {
+    selectedText: string;
+    position: { x: number; y: number };
+    onAddAnnotation: (note: string) => void;
+}
+```
 
 ---
 
-## 12. Summary
+## 7. Hooks
 
-The Mareef frontend is:
+### 7.1 useAutoSave
 
-- **React + Inertia-based**, no separate SPA router.
-- Structured around **pages + layouts + reusable components**.
-- Styled with **Tailwind + shadcn/ui** for clean, modern UI.
-- Designed for **fast iteration** and clarity so engineers and AI agents can easily extend it.
+**Location:** `resources/js/hooks/use-auto-save.ts`
 
-The most critical parts for UX are:
+Auto-saves content at intervals with dirty tracking.
 
-- Smooth teacher flow:
-  - Create → share link → view submissions → evaluate
-- Clear student flow:
-  - Open link → login → write → submit → come back → view feedback
+```tsx
+interface UseAutoSaveOptions {
+    isActive: boolean;
+    interval?: number;        // Default: 60000ms (1 min)
+    routeName: string;
+    getPayload: () => Record<string, any>;
+    debounceMs?: number;      // Default: 2000ms
+}
 
-Everything else in the frontend should support and simplify these two flows.
+interface UseAutoSaveReturn {
+    isSaving: boolean;
+    saveNow: () => void;
+    markDirty: () => void;
+}
+
+// Usage
+const { isSaving, saveNow, markDirty } = useAutoSave({
+    isActive: isInProgress,
+    routeName: 'tasks.submissions.save',
+    getPayload: () => ({
+        writing_id: writing.id,
+        content: JSON.stringify(editor.document),
+    }),
+});
+
+// Mark dirty on content change
+const handleEditorChange = () => {
+    markDirty();
+};
+```
+
+**Features:**
+- Only saves when content has changed
+- Debounces rapid save requests
+- Prevents duplicate saves in flight
+- Compares content to skip unchanged saves
+
+### 7.2 useTimer
+
+**Location:** `resources/js/hooks/use-timer.ts`
+
+Countdown timer for timed writing tasks.
+
+```tsx
+interface UseTimerOptions {
+    allocatedTime: string;      // "HH:MM:SS" format
+    spentTime?: string;
+    onTimeUp?: () => void;
+    isActive: boolean;
+}
+
+interface UseTimerReturn {
+    timeLeft: number;           // Seconds remaining
+    spentTime: string;          // "HH:MM:SS" format
+    formattedTimeLeft: string;  // "MM:SS" display format
+    isExpired: boolean;
+}
+
+// Usage
+const { timeLeft, spentTime, formattedTimeLeft, isExpired } = useTimer({
+    allocatedTime: writing.allocated_time,
+    spentTime: submission?.spent_time,
+    onTimeUp: handleAutoSubmit,
+    isActive: isInProgress,
+});
+```
+
+---
+
+## 8. BlockNote Editor
+
+### 8.1 Configuration
+
+```tsx
+import { useCreateBlockNote } from '@blocknote/react';
+import { BlockNoteView } from '@blocknote/mantine';
+
+const editor = useCreateBlockNote({
+    initialContent: writing.content,
+    uploadFile: async (file) => {
+        const formData = new FormData();
+        formData.append('image', file);
+        const response = await axios.post(route('images.store'), formData);
+        return response.data.url;
+    },
+});
+```
+
+### 8.2 Read-Only Mode
+
+For viewing submissions:
+
+```tsx
+<BlockNoteView
+    editor={editor}
+    editable={false}
+    theme="light"
+/>
+```
+
+### 8.3 Content Structure
+
+BlockNote stores content as JSON:
+
+```json
+[
+    {
+        "id": "1",
+        "type": "paragraph",
+        "props": {},
+        "content": [{ "type": "text", "text": "Hello world" }],
+        "children": []
+    },
+    {
+        "id": "2",
+        "type": "image",
+        "props": { "url": "/images/abc123.jpg" },
+        "children": []
+    }
+]
+```
+
+---
+
+## 9. Forms
+
+### 9.1 Inertia Form Hook
+
+```tsx
+import { useForm } from '@inertiajs/react';
+
+const { data, setData, post, processing, errors, reset } = useForm({
+    title: '',
+    content: [],
+    allocated_time: null,
+});
+
+const submit = (e: FormEvent) => {
+    e.preventDefault();
+    post(route('writings.store'), {
+        onSuccess: () => {
+            reset();
+            toast.success('Writing created');
+        },
+    });
+};
+```
+
+### 9.2 Validation Errors
+
+```tsx
+<Input
+    value={data.title}
+    onChange={(e) => setData('title', e.target.value)}
+    className={errors.title ? 'border-red-500' : ''}
+/>
+{errors.title && (
+    <p className="text-sm text-red-500">{errors.title}</p>
+)}
+```
+
+---
+
+## 10. State Management
+
+### 10.1 Server State
+
+All data comes from server via Inertia props:
+
+```tsx
+import { usePage } from '@inertiajs/react';
+
+const { auth, flash } = usePage<PageProps>().props;
+```
+
+### 10.2 Local State
+
+Use React state for UI-only concerns:
+
+```tsx
+const [isDialogOpen, setIsDialogOpen] = useState(false);
+const [selectedTab, setSelectedTab] = useState('all');
+```
+
+### 10.3 Form State
+
+Use Inertia's `useForm` for form handling:
+
+```tsx
+const { data, setData, post, processing } = useForm(initialData);
+```
+
+---
+
+## 11. Styling Conventions
+
+### 11.1 Tailwind Classes
+
+```tsx
+// Layout containers
+<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+// Cards
+<div className="rounded-xl border bg-card p-6 shadow-sm">
+
+// Spacing
+<div className="space-y-4">  // Vertical spacing
+<div className="gap-4">      // Grid/flex gap
+
+// Responsive
+<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+```
+
+### 11.2 Component Variants
+
+Using `class-variance-authority`:
+
+```tsx
+const buttonVariants = cva(
+    'inline-flex items-center justify-center rounded-md font-medium',
+    {
+        variants: {
+            variant: {
+                default: 'bg-primary text-primary-foreground',
+                outline: 'border border-input bg-background',
+                destructive: 'bg-destructive text-destructive-foreground',
+            },
+            size: {
+                default: 'h-10 px-4 py-2',
+                sm: 'h-9 px-3',
+                lg: 'h-11 px-8',
+            },
+        },
+        defaultVariants: {
+            variant: 'default',
+            size: 'default',
+        },
+    }
+);
+```
+
+---
+
+## 12. Build Configuration
+
+### 12.1 Vite Config
+
+**Location:** `vite.config.js`
+
+```js
+export default defineConfig({
+    plugins: [laravel(), react(), tailwindcss()],
+    build: {
+        minify: 'esbuild',
+        rollupOptions: {
+            output: {
+                manualChunks: {
+                    'vendor-react': ['react', 'react-dom'],
+                    'vendor-blocknote': ['@blocknote/core', '@blocknote/react'],
+                    'vendor-radix': ['@radix-ui/react-*'],
+                    'vendor-charts': ['recharts'],
+                    'vendor-inertia': ['@inertiajs/react'],
+                },
+            },
+        },
+    },
+});
+```
+
+### 12.2 Code Splitting
+
+Heavy dependencies are split into separate chunks:
+
+| Chunk | Size (gzip) | Loaded On |
+|-------|-------------|-----------|
+| vendor-react | ~45 KB | All pages |
+| vendor-blocknote | ~412 KB | Writing pages |
+| vendor-radix | ~27 KB | All pages |
+| vendor-charts | ~15 KB | Dashboard |
+
+---
+
+## 13. Type Definitions
+
+### 13.1 Core Types
+
+```tsx
+interface User {
+    id: number;
+    name: string;
+    email: string;
+    username: string;
+    avatar: string | null;
+    role: 'teacher' | 'student';
+}
+
+interface Writing {
+    id: number;
+    teacher_id: number;
+    title: string;
+    slug: string;
+    content: BlockNoteDocument;
+    allocated_time: string | null;
+    public_at: string | null;
+    created_at: string;
+}
+
+interface Submission {
+    id: number;
+    writing_id: number;
+    student_id: number;
+    content: BlockNoteDocument;
+    spent_time: string | null;
+    submitted_at: string | null;
+    evaluated_at: string | null;
+    status: 'in_progress' | 'completed';
+}
+
+interface Feedback {
+    id: number;
+    submission_id: number;
+    teacher_id: number;
+    content: Annotation[];
+    score: number;
+    feedback: string;
+}
+```
+
+### 13.2 Pagination
+
+```tsx
+interface PaginatedData<T> {
+    data: T[];
+    links: {
+        first: string;
+        last: string;
+        prev: string | null;
+        next: string | null;
+    };
+    meta: {
+        current_page: number;
+        from: number;
+        last_page: number;
+        per_page: number;
+        to: number;
+        total: number;
+    };
+}
+```
+
+---
+
+## 14. Testing
+
+### 14.1 Component Testing
+
+```tsx
+import { render, screen } from '@testing-library/react';
+
+test('renders metrics card', () => {
+    render(<MetricsCard title="Students" value={42} icon={<Users />} />);
+    expect(screen.getByText('Students')).toBeInTheDocument();
+    expect(screen.getByText('42')).toBeInTheDocument();
+});
+```
+
+### 14.2 E2E Testing (Future)
+
+Playwright tests for critical flows:
+- Teacher creates writing
+- Student submits writing
+- Teacher evaluates submission
+- Student views feedback
