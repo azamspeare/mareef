@@ -58,7 +58,69 @@ final class HandleInertiaRequests extends Middleware
                 ...$this->getZiggyRoutes(),
                 'location' => $request->url(),
             ],
+            'seo' => fn () => $this->getSeoMeta($request),
         ];
+    }
+
+    /**
+     * Get SEO meta data based on current route.
+     *
+     * @return array<string, string>
+     */
+    private function getSeoMeta(Request $request): array
+    {
+        $routeName = $request->route()?->getName();
+        $path = $request->path();
+
+        // Default meta
+        $meta = [
+            'title' => 'Mareef - The Task Platform for Language Teachers',
+            'description' => 'Create, share, and evaluate language tasks. Simplify your teaching workflow with Mareef.',
+            'image' => '/images/og/welcome.png',
+        ];
+
+        // Route-specific meta
+        $routeMeta = [
+            'home' => $meta, // Default
+            'pricing' => [
+                'title' => 'Pricing - Mareef',
+                'description' => 'Simple, transparent pricing for language teachers. Start free, upgrade when you need more.',
+                'image' => '/images/og/pricing.png',
+            ],
+            'tasks.writing' => [
+                'title' => 'Writing Tasks - Mareef',
+                'description' => 'No more Google Docs chaos. Create, assign, and evaluate writing tasks in one clean workflow.',
+                'image' => '/images/og/tasks.png',
+            ],
+            'tasks.reading' => [
+                'title' => 'Reading Tasks - Mareef',
+                'description' => 'Build, assign, and auto-grade reading comprehension tasks. No more paper worksheets.',
+                'image' => '/images/og/tasks.png',
+            ],
+            'tasks.listening' => [
+                'title' => 'Listening Tasks - Mareef',
+                'description' => 'Create structured listening tasks with synced questions. No more audio files in chat.',
+                'image' => '/images/og/tasks.png',
+            ],
+            'tasks.speaking' => [
+                'title' => 'Speaking Tasks - Mareef',
+                'description' => 'Collect and evaluate student speech with timestamped feedback. No more voice messages in chat.',
+                'image' => '/images/og/tasks.png',
+            ],
+        ];
+
+        // Check for writing task page (dynamic route)
+        if (str_starts_with($path, 'w/')) {
+            $meta = [
+                'title' => 'Writing Task - Mareef',
+                'description' => 'Complete your writing task on Mareef.',
+                'image' => '/images/og/writing-task.png',
+            ];
+
+            return $meta;
+        }
+
+        return $routeMeta[$routeName] ?? $meta;
     }
 
     /**

@@ -326,11 +326,8 @@ export default function WritingTask({ writing, submission }: WritingTaskProps) {
     const { theme } = useTheme();
     const locale = en;
 
-    // Memoize OG image URL to avoid recalculating on every render
-    const ogImageUrl = useMemo(() => {
-        if (typeof window === "undefined") return "";
-        return `${window.location.origin}/images/writing-task-og.png`;
-    }, []);
+    // OG image URL for writing task sharing
+    const ogImageUrl = "/images/og/writing-task.png";
 
     // Storage key uses submission.id to be student-specific
     const storageKey = submission?.id ? `writing_draft_${submission.id}` : null;

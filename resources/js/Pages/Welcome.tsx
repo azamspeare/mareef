@@ -12,7 +12,16 @@ import FooterSection from '@/components/sections/footer-section';
 export default function Welcome() {
     return (
         <div className="min-h-screen bg-background text-foreground font-sans selection:bg-primary/20 overflow-x-hidden">
-            <Head title="Mareef - The Task Platform for Language Teachers" />
+            <Head title="Mareef - The Task Platform for Language Teachers">
+                <meta property="og:title" content="Mareef - The Task Platform for Language Teachers" />
+                <meta property="og:description" content="Create, share, and evaluate language tasks. Simplify your teaching workflow with Mareef." />
+                <meta property="og:image" content="/images/og/welcome.png" />
+                <meta property="og:type" content="website" />
+                <meta name="twitter:card" content="summary_large_image" />
+                <meta name="twitter:title" content="Mareef - The Task Platform for Language Teachers" />
+                <meta name="twitter:description" content="Create, share, and evaluate language tasks. Simplify your teaching workflow with Mareef." />
+                <meta name="twitter:image" content="/images/og/welcome.png" />
+            </Head>
 
             {/* Hero Section */}
             <HeroSection />

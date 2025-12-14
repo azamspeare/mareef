@@ -52,7 +52,16 @@ const readingSolutions: Solution2[] = [
 export default function Reading() {
     return (
         <div className="min-h-screen bg-background text-foreground font-sans selection:bg-primary/20 overflow-x-hidden">
-            <Head title="Reading Tasks - Mareef" />
+            <Head title="Reading Tasks - Mareef">
+                <meta property="og:title" content="Reading Tasks - Mareef" />
+                <meta property="og:description" content="Build, assign, and auto-grade reading comprehension tasks. No more paper worksheets." />
+                <meta property="og:image" content="/images/og/tasks.png" />
+                <meta property="og:type" content="website" />
+                <meta name="twitter:card" content="summary_large_image" />
+                <meta name="twitter:title" content="Reading Tasks - Mareef" />
+                <meta name="twitter:description" content="Build, assign, and auto-grade reading comprehension tasks. No more paper worksheets." />
+                <meta name="twitter:image" content="/images/og/tasks.png" />
+            </Head>
 
             {/* Header */}
             <HeroHeader faqHref="/#faq" />

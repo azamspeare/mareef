@@ -52,7 +52,16 @@ const listeningSolutions: Solution2[] = [
 export default function Listening() {
     return (
         <div className="min-h-screen bg-background text-foreground font-sans selection:bg-primary/20 overflow-x-hidden">
-            <Head title="Listening Tasks - Mareef" />
+            <Head title="Listening Tasks - Mareef">
+                <meta property="og:title" content="Listening Tasks - Mareef" />
+                <meta property="og:description" content="Create structured listening tasks with synced questions. No more audio files in chat." />
+                <meta property="og:image" content="/images/og/tasks.png" />
+                <meta property="og:type" content="website" />
+                <meta name="twitter:card" content="summary_large_image" />
+                <meta name="twitter:title" content="Listening Tasks - Mareef" />
+                <meta name="twitter:description" content="Create structured listening tasks with synced questions. No more audio files in chat." />
+                <meta name="twitter:image" content="/images/og/tasks.png" />
+            </Head>
 
             {/* Header */}
             <HeroHeader faqHref="/#faq" />

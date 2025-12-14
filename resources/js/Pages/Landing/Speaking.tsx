@@ -52,7 +52,16 @@ const speakingSolutions: Solution2[] = [
 export default function Speaking() {
     return (
         <div className="min-h-screen bg-background text-foreground font-sans selection:bg-primary/20 overflow-x-hidden">
-            <Head title="Speaking Tasks - Mareef" />
+            <Head title="Speaking Tasks - Mareef">
+                <meta property="og:title" content="Speaking Tasks - Mareef" />
+                <meta property="og:description" content="Collect and evaluate student speech with timestamped feedback. No more voice messages in chat." />
+                <meta property="og:image" content="/images/og/tasks.png" />
+                <meta property="og:type" content="website" />
+                <meta name="twitter:card" content="summary_large_image" />
+                <meta name="twitter:title" content="Speaking Tasks - Mareef" />
+                <meta name="twitter:description" content="Collect and evaluate student speech with timestamped feedback. No more voice messages in chat." />
+                <meta name="twitter:image" content="/images/og/tasks.png" />
+            </Head>
 
             {/* Header */}
             <HeroHeader faqHref="/#faq" />

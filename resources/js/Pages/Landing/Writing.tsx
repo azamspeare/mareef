@@ -51,7 +51,16 @@ const writingSolutions: Solution2[] = [
 export default function Writing() {
     return (
         <div className="min-h-screen bg-background text-foreground font-sans selection:bg-primary/20 overflow-x-hidden">
-            <Head title="Writing Tasks - Mareef" />
+            <Head title="Writing Tasks - Mareef">
+                <meta property="og:title" content="Writing Tasks - Mareef" />
+                <meta property="og:description" content="No more Google Docs chaos. Create, assign, and evaluate writing tasks in one clean workflow." />
+                <meta property="og:image" content="/images/og/tasks.png" />
+                <meta property="og:type" content="website" />
+                <meta name="twitter:card" content="summary_large_image" />
+                <meta name="twitter:title" content="Writing Tasks - Mareef" />
+                <meta name="twitter:description" content="No more Google Docs chaos. Create, assign, and evaluate writing tasks in one clean workflow." />
+                <meta name="twitter:image" content="/images/og/tasks.png" />
+            </Head>
 
             {/* Header */}
             <HeroHeader faqHref="/#faq" />
