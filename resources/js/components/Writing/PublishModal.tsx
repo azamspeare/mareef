@@ -265,7 +265,7 @@ export function PublishModal({
                     )}
                 </div>
 
-                <DialogFooter className="flex-col gap-2 sm:flex-row sm:justify-between">
+                <DialogFooter className="gap-2 flex-row justify-between">
                     <Button
                         variant="outline"
                         onClick={onClose}

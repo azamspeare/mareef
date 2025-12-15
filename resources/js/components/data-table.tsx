@@ -522,17 +522,18 @@ export function DataTable({
       onValueChange={handleTabChange}
       className="w-full flex-col justify-start gap-6"
     >
-      <div className="flex items-center justify-between px-4 lg:px-6">
-        <div className="flex items-center gap-4">
+      <div className="flex flex-col gap-3 px-4 md:flex-row md:items-center md:justify-between md:gap-4 lg:px-6">
+        {/* Row 1 on mobile: Search + Status Group */}
+        <div className="flex items-center justify-between gap-3 md:justify-start md:gap-4">
           {/* Search Input */}
-          <div className="relative">
+          <div className="relative flex-1 md:flex-none">
             <IconSearch className="absolute left-2.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
             <Input
               type="text"
-              placeholder="Search by title or student..."
+              placeholder="Search..."
               value={searchInputValue}
               onChange={(e) => handleSearchChange(e.target.value)}
-              className="pl-8 pr-8 w-48 lg:w-64 h-9"
+              className="pl-8 pr-8 w-full md:w-48 lg:w-64 h-9"
             />
             {searchInputValue && (
               <button
@@ -549,8 +550,7 @@ export function DataTable({
           </Label>
           <Select value={currentStatus} onValueChange={handleTabChange}>
             <SelectTrigger
-              className="flex w-fit @4xl/main:hidden"
-              size="sm"
+              className="flex w-fit shrink-0 @4xl/main:hidden"
               id="view-selector"
             >
               <SelectValue placeholder="Select a view" />
@@ -571,10 +571,12 @@ export function DataTable({
             </TabsTrigger>
           </TabsList>
         </div>
-        <div className="flex items-center gap-2">
+
+        {/* Row 2 on mobile: Columns + Add Writing */}
+        <div className="flex items-center justify-between gap-2 md:justify-end">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm">
+              <Button variant="outline">
                 <IconLayoutColumns />
                 <span className="hidden lg:inline">Customize Columns</span>
                 <span className="lg:hidden">Columns</span>
@@ -605,10 +607,10 @@ export function DataTable({
                 })}
             </DropdownMenuContent>
           </DropdownMenu>
-          <Button size="sm" asChild>
+          <Button asChild>
             <Link href={route('writings.create')}>
               <IconPlus />
-              <span className="hidden lg:inline">Add Writing</span>
+              Add Writing
             </Link>
           </Button>
         </div>

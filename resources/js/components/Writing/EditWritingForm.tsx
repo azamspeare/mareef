@@ -148,7 +148,7 @@ export default function EditWritingForm({ writing }: EditWritingFormProps) {
                     />
 
                     {/* Editor */}
-                    <div className="mt-6 [&_.bn-editor]:pl-0 [&_.bn-block-group]:ml-0 lg:-ml-12">
+                    <div className="mt-6 [&_.bn-editor]:pl-0 [&_.bn-block-group]:ml-0 lg:-ml-12 form-writing-details">
                         <BlockNoteView
                             editor={editor}
                             theme={theme === "dark" ? "dark" : "light"}

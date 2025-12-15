@@ -44,7 +44,7 @@ final class TeacherEvaluationNotification extends Mailable implements ShouldQueu
                 'teacherName' => $writing->teacher->name,
                 'taskTitle' => $writing->title,
                 'isUpdated' => $this->isUpdated,
-                'feedbackUrl' => route('tasks.writing', [
+                'feedbackUrl' => route('student.tasks.writing', [
                     'handle' => $writing->teacher->username,
                     'slug' => $writing->slug,
                 ]),

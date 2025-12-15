@@ -21,12 +21,12 @@ Route::domain('app.' . config('app.domain'))->group(function () {
         return Auth::check() ? redirect()->route('dashboard') : redirect()->route('login');
     });
 
-    Route::middleware(['guest', 'throttle:auth'])->group(function () {
+    Route::middleware(['guest'])->group(function () {
         Route::get('login', [LoginController::class, 'login'])->name('login');
 
         Route::prefix('auth')->group(function () {
             Route::get('google/redirect', [TeacherAuthController::class, 'redirect'])->name('google.redirect');
-            Route::get('google/callback', [TeacherAuthController::class, 'callback'])->name('google.callback');
+            Route::get('google/callback', [TeacherAuthController::class, 'callback'])->name('google.callback')->middleware('throttle:auth');
         });
     });
 
@@ -65,13 +65,13 @@ Route::domain('app.' . config('app.domain'))->group(function () {
     });
 });
 
-Route::domain('student.' . config('app.domain'))->group(function () {
+Route::domain('student.' . config('app.domain'))->name('student.')->group(function () {
     Route::get('/', [LandingController::class, 'welcome']);
 
-    Route::middleware(['guest', 'throttle:auth'])->group(function () {
+    Route::middleware(['guest'])->group(function () {
         Route::prefix('auth')->name('auth.')->group(function () {
             Route::get('google/redirect', [StudentAuthController::class, 'redirect'])->name('google.redirect');
-            Route::get('google/callback', [StudentAuthController::class, 'callback'])->name('google.callback');
+            Route::get('google/callback', [StudentAuthController::class, 'callback'])->name('google.callback')->middleware('throttle:auth');
         });
     });
 
@@ -89,7 +89,6 @@ Route::domain('student.' . config('app.domain'))->group(function () {
 });
 
 Route::get('/', [LandingController::class, 'welcome'])->name('landing');
-Route::get('/old', [LandingController::class, 'old'])->name('old-landing');
 Route::get('pricing', [LandingController::class, 'pricing'])->name('pricing');
 Route::post('waitlist', WaitlistController::class)->name('waitlist');
 Route::prefix('tasks')->name('tasks.')->group(function () {

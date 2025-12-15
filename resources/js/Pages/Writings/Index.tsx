@@ -626,50 +626,91 @@ export default function Writings({ writings }: WritingsProps) {
                             </div>
                         </div>
 
-                        <div className="flex items-center justify-between mb-6 gap-4">
-                            <div className="flex items-center gap-4 flex-1">
-                                <div className="relative w-64">
-                                    <IconSearch className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                                    <Input
-                                        type="text"
-                                        placeholder="Search writings..."
-                                        value={search}
-                                        onChange={(e) => setSearch(e.target.value)}
-                                        className="pl-9 pr-9"
-                                    />
-                                    {search && (
-                                        <button
-                                            onClick={() => setSearch('')}
-                                            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer"
-                                        >
-                                            <IconX className="h-4 w-4" />
-                                            <span className="sr-only">Clear search</span>
-                                        </button>
-                                    )}
-                                </div>
-
-                                <Tabs value={currentTrashed} onValueChange={handleTabChange}>
-                                    <TabsList>
-                                        <TabsTrigger value="active">
-                                            Active
-                                        </TabsTrigger>
-                                        <TabsTrigger value="archived">
-                                            Archived
-                                        </TabsTrigger>
-                                        <TabsTrigger value="all">
-                                            All
-                                        </TabsTrigger>
-                                    </TabsList>
-                                </Tabs>
+                        {/* Filters - Mobile: 2 rows, Desktop: 1 row */}
+                        <div className="flex flex-col gap-3 mb-6">
+                            {/* Mobile Row 1: Search (full width) */}
+                            <div className="relative md:hidden">
+                                <IconSearch className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                <Input
+                                    type="text"
+                                    placeholder="Search writings..."
+                                    value={search}
+                                    onChange={(e) => setSearch(e.target.value)}
+                                    className="pl-9 pr-9 w-full"
+                                />
+                                {search && (
+                                    <button
+                                        onClick={() => setSearch('')}
+                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer"
+                                    >
+                                        <IconX className="h-4 w-4" />
+                                        <span className="sr-only">Clear search</span>
+                                    </button>
+                                )}
                             </div>
 
-                            {writings.total > 0 && (
-                                <Button asChild size="sm">
-                                    <Link href={route('writings.create')}>
-                                        Create Writing
-                                    </Link>
-                                </Button>
-                            )}
+                            {/* Mobile Row 2: Status dropdown + Create button */}
+                            <div className="flex items-center justify-between md:hidden">
+                                <Select value={currentTrashed} onValueChange={handleTabChange}>
+                                    <SelectTrigger className="w-fit">
+                                        <SelectValue placeholder="Status" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="active">Active</SelectItem>
+                                        <SelectItem value="archived">Archived</SelectItem>
+                                        <SelectItem value="all">All</SelectItem>
+                                    </SelectContent>
+                                </Select>
+
+                                {writings.total > 0 && (
+                                    <Button asChild>
+                                        <Link href={route('writings.create')}>
+                                            Create Writing
+                                        </Link>
+                                    </Button>
+                                )}
+                            </div>
+
+                            {/* Desktop: Single row - Search + Tabs + Create button */}
+                            <div className="hidden md:flex md:items-center md:justify-between md:gap-4">
+                                <div className="flex items-center gap-4">
+                                    <div className="relative w-64">
+                                        <IconSearch className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                        <Input
+                                            type="text"
+                                            placeholder="Search writings..."
+                                            value={search}
+                                            onChange={(e) => setSearch(e.target.value)}
+                                            className="pl-9 pr-9"
+                                        />
+                                        {search && (
+                                            <button
+                                                onClick={() => setSearch('')}
+                                                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer"
+                                            >
+                                                <IconX className="h-4 w-4" />
+                                                <span className="sr-only">Clear search</span>
+                                            </button>
+                                        )}
+                                    </div>
+
+                                    <Tabs value={currentTrashed} onValueChange={handleTabChange}>
+                                        <TabsList>
+                                            <TabsTrigger value="active">Active</TabsTrigger>
+                                            <TabsTrigger value="archived">Archived</TabsTrigger>
+                                            <TabsTrigger value="all">All</TabsTrigger>
+                                        </TabsList>
+                                    </Tabs>
+                                </div>
+
+                                {writings.total > 0 && (
+                                    <Button asChild>
+                                        <Link href={route('writings.create')}>
+                                            Create Writing
+                                        </Link>
+                                    </Button>
+                                )}
+                            </div>
                         </div>
 
                         <Tabs value={currentTrashed}>
@@ -778,44 +819,53 @@ export default function Writings({ writings }: WritingsProps) {
                                         </div>
 
                                         {/* Pagination */}
-                                        <div className="flex items-center justify-between px-4">
-                                            <div className="hidden flex-1 lg:flex">
-                                                {table.getFilteredSelectedRowModel().rows.length > 0 ? (
+                                        <div className="flex flex-col gap-3 px-4 lg:flex-row lg:items-center lg:justify-between">
+                                            {/* Row 1 on mobile: Selection count + Bulk actions (only when selected) */}
+                                            {table.getFilteredSelectedRowModel().rows.length > 0 && (
+                                                <div className="flex items-center justify-between lg:flex-1">
                                                     <div className="flex items-center gap-2">
-                                                        <span className="text-sm text-muted-foreground">
+                                                        <span className="text-sm text-muted-foreground hidden lg:inline">
                                                             {table.getFilteredSelectedRowModel().rows.length} of{' '}
                                                             {table.getFilteredRowModel().rows.length} row(s) selected
                                                         </span>
-                                                        <div className="flex items-center gap-1 ml-2">
-                                                            {currentTrashed === 'active' && (
-                                                                <Button
-                                                                    size="sm"
-                                                                    onClick={handleBulkArchive}
-                                                                    className="h-8 bg-yellow-600 text-white hover:bg-yellow-700"
-                                                                >
-                                                                    <IconArchive className="h-3.5 w-3.5 mr-1.5" />
-                                                                    Archive
-                                                                </Button>
-                                                            )}
-                                                            {currentTrashed === 'archived' && (
-                                                                <Button
-                                                                    size="sm"
-                                                                    onClick={handleBulkRestore}
-                                                                    className="h-8 bg-sky-600 text-white hover:bg-sky-700"
-                                                                >
-                                                                    <ArchiveRestore className="h-3.5 w-3.5 mr-1.5" />
-                                                                    Restore
-                                                                </Button>
-                                                            )}
-                                                        </div>
+                                                        <span className="text-sm text-muted-foreground lg:hidden">
+                                                            {table.getFilteredSelectedRowModel().rows.length} selected
+                                                        </span>
                                                     </div>
-                                                ) : (
-                                                    <span className="text-sm text-muted-foreground">
-                                                        {table.getFilteredRowModel().rows.length} row(s) total
-                                                    </span>
-                                                )}
-                                            </div>
-                                            <div className="flex w-full items-center gap-8 lg:w-fit">
+                                                    <div className="flex items-center gap-1 ml-2">
+                                                        {currentTrashed === 'active' && (
+                                                            <Button
+                                                                size="sm"
+                                                                onClick={handleBulkArchive}
+                                                                className="h-8 bg-yellow-600 text-white hover:bg-yellow-700"
+                                                            >
+                                                                <IconArchive className="h-3.5 w-3.5 mr-1.5" />
+                                                                Archive
+                                                            </Button>
+                                                        )}
+                                                        {currentTrashed === 'archived' && (
+                                                            <Button
+                                                                size="sm"
+                                                                onClick={handleBulkRestore}
+                                                                className="h-8 bg-sky-600 text-white hover:bg-sky-700"
+                                                            >
+                                                                <ArchiveRestore className="h-3.5 w-3.5 mr-1.5" />
+                                                                Restore
+                                                            </Button>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            {/* Desktop only: Row count when nothing selected */}
+                                            {table.getFilteredSelectedRowModel().rows.length === 0 && (
+                                                <span className="text-sm text-muted-foreground hidden lg:inline">
+                                                    {table.getFilteredRowModel().rows.length} row(s) total
+                                                </span>
+                                            )}
+
+                                            {/* Row 2 on mobile: Pagination controls */}
+                                            <div className="flex items-center justify-between gap-4 lg:gap-8">
                                                 <div className="hidden items-center gap-2 lg:flex">
                                                     <Label htmlFor="rows-per-page" className="text-sm font-medium">
                                                         Rows per page
@@ -838,11 +888,11 @@ export default function Writings({ writings }: WritingsProps) {
                                                         </SelectContent>
                                                     </Select>
                                                 </div>
-                                                <div className="flex w-fit items-center justify-center text-sm font-medium">
+                                                <div className="flex items-center text-sm font-medium">
                                                     Page {table.getState().pagination.pageIndex + 1} of{' '}
                                                     {table.getPageCount()}
                                                 </div>
-                                                <div className="ml-auto flex items-center gap-2 lg:ml-0">
+                                                <div className="flex items-center gap-2">
                                                     <Button
                                                         variant="outline"
                                                         className="hidden h-8 w-8 p-0 lg:flex"

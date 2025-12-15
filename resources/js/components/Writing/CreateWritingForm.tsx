@@ -164,7 +164,7 @@ export default function CreateWritingForm() {
                 {/* Header */}
                 <header className="flex items-center justify-between py-6">
                     <div className="flex items-center gap-4 text-muted-foreground">
-                        <Link href={route("dashboard")} className="hover:text-foreground transition-colors">
+                        <Link href={route("writings.index")} className="hover:text-foreground transition-colors">
                             <ArrowLeft className="w-5 h-5" />
                         </Link>
                         <span className="text-sm">
@@ -195,7 +195,7 @@ export default function CreateWritingForm() {
                     />
 
                     {/* Editor */}
-                    <div className="mt-6 [&_.bn-editor]:pl-0 [&_.bn-block-group]:ml-0 lg:-ml-12 create-writing-details">
+                    <div className="mt-6 [&_.bn-editor]:pl-0 [&_.bn-block-group]:ml-0 lg:-ml-12 form-writing-details">
                         <BlockNoteView
                             editor={editor}
                             theme={theme.theme === "dark" ? "dark" : "light"}

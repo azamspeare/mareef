@@ -12,6 +12,7 @@ import { Clock, UserCheck, GraduationCap, PenLine, ArrowUpRightIcon, MessageSqua
 import { useTheme } from "next-themes";
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
+import { useIsMobile } from "@/hooks/use-mobile";
 import {
     Drawer,
     DrawerContent,
@@ -138,38 +139,58 @@ const Header = memo(function Header({
     onFinishClick,
 }: HeaderProps) {
     return (
-        <header className="flex items-center justify-between px-6 py-3 border-b border-border bg-card">
-            <div className="flex items-center gap-3">
-                <div className="bg-primary text-primary-foreground flex size-6 items-center justify-center rounded-md">
-                    <span className="font-bold text-sm">M</span>
+        <header className="px-4 py-3 border-b border-border bg-card md:px-6">
+            {/* Mobile: 2 rows, Desktop: 1 row */}
+            <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between md:gap-4">
+                {/* Row 1 on mobile: Logo + Theme Toggle */}
+                <div className="flex items-center justify-between md:justify-start md:gap-3">
+                    <div className="flex items-center gap-3">
+                        <div className="bg-primary text-primary-foreground flex size-6 items-center justify-center rounded-md">
+                            <span className="font-bold text-sm">M</span>
+                        </div>
+                        <h1 className="text-lg font-bold tracking-tight md:text-xl">Writing Task</h1>
+                    </div>
+                    {/* Theme toggle - visible on mobile in row 1 */}
+                    <div className="md:hidden">
+                        <ThemeToggle />
+                    </div>
                 </div>
-                <h1 className="text-xl font-bold tracking-tight">Writing Task</h1>
-            </div>
-            <div className="flex items-center gap-4">
-                {isSaving && (
-                    <span className="text-sm text-muted-foreground">Saving...</span>
-                )}
-                <div className={`flex items-center gap-2 px-3 py-1.5 rounded-md font-medium text-sm ${isInProgress ? timeColorClass : 'bg-muted'}`}>
-                    <Clock className="w-4 h-4" />
-                    <span>{formattedTime}</span>
+
+                {/* Row 2 on mobile: Time + Actions */}
+                <div className="flex items-center justify-between gap-3 md:gap-4">
+                    <div className="flex items-center gap-3 md:gap-4">
+                        {isSaving && (
+                            <span className="text-sm text-muted-foreground">Saving...</span>
+                        )}
+                        <div className={`flex items-center gap-2 px-3 py-1.5 rounded-md font-medium text-sm ${isInProgress ? timeColorClass : 'bg-muted'}`}>
+                            <Clock className="w-4 h-4" />
+                            <span>{formattedTime}</span>
+                        </div>
+                    </div>
+                    <div className="flex items-center gap-3 md:gap-4">
+                        {/* Theme toggle - visible on desktop */}
+                        <div className="hidden md:block">
+                            <ThemeToggle />
+                        </div>
+                        {isInProgress && (
+                            <Button
+                                variant="default"
+                                size="sm"
+                                onClick={onFinishClick}
+                                disabled={timeLeft <= 0}
+                                className="relative overflow-hidden group md:size-default"
+                            >
+                                <span className="relative z-10">Finish</span>
+                                <div className="absolute top-0 -left-[100%] w-[50%] h-full skew-x-[-25deg] bg-gradient-to-r from-transparent via-white/30 dark:via-black/20 to-transparent animate-shine" />
+                            </Button>
+                        )}
+                        {isCompleted && (
+                            <Button variant="outline" size="sm" disabled className="md:size-default">
+                                Completed {completedSpentTime && `· ${completedSpentTime}`}
+                            </Button>
+                        )}
+                    </div>
                 </div>
-                <ThemeToggle />
-                {isInProgress && (
-                    <Button
-                        variant="default"
-                        onClick={onFinishClick}
-                        disabled={timeLeft <= 0}
-                        className="relative overflow-hidden group"
-                    >
-                        <span className="relative z-10">Finish</span>
-                        <div className="absolute top-0 -left-[100%] w-[50%] h-full skew-x-[-25deg] bg-gradient-to-r from-transparent via-white/30 dark:via-black/20 to-transparent animate-shine" />
-                    </Button>
-                )}
-                {isCompleted && (
-                    <Button variant="outline" disabled>
-                        Completed {completedSpentTime && `· ${completedSpentTime}`}
-                    </Button>
-                )}
             </div>
         </header>
     );
@@ -215,7 +236,7 @@ interface LoginDrawerProps {
 
 const LoginDrawer = memo(function LoginDrawer({ isOpen }: LoginDrawerProps) {
     const handleLogin = useCallback(() => {
-        window.location.href = route('auth.google.redirect');
+        window.location.href = route('student.auth.google.redirect');
     }, []);
 
     return (
@@ -325,14 +346,12 @@ export default function WritingTask({ writing, submission }: WritingTaskProps) {
 
     const { theme } = useTheme();
     const locale = en;
-
-    // OG image URL for writing task sharing
-    const ogImageUrl = "/images/og/writing-task.png";
+    const isMobile = useIsMobile();
 
     // Storage key uses submission.id to be student-specific
     const storageKey = submission?.id ? `writing_draft_${submission.id}` : null;
 
-    // Create writing editor
+    // Create a writing editor
     const initialEditorContent = useMemo(() => {
         // 1. Try local storage (only if we have a submission/student-specific key)
         const localDraft = getLocalDraft(storageKey);
@@ -419,7 +438,7 @@ export default function WritingTask({ writing, submission }: WritingTaskProps) {
     const { isSaving, markDirty } = useAutoSave({
         isActive: isInProgress,
         interval: 60000,
-        routeName: 'tasks.submissions.save',
+        routeName: 'student.tasks.submissions.save',
         getPayload: getAutoSavePayload,
     });
 
@@ -487,12 +506,12 @@ export default function WritingTask({ writing, submission }: WritingTaskProps) {
 
     // Start the task
     const handleStart = useCallback(() => {
-        router.post(route('tasks.submissions.start'), {
+        router.post(route('student.tasks.submissions.start'), {
             writing_id: writing.id,
         });
     }, [writing.id]);
 
-    // Open finish confirmation dialog
+    // Open the finish confirmation dialog
     const handleFinishClick = useCallback(() => {
         setIsFinishDialogOpen(true);
     }, []);
@@ -502,7 +521,7 @@ export default function WritingTask({ writing, submission }: WritingTaskProps) {
         if (timeLeft <= 0 && !isInProgress) return;
 
         setIsFinishDialogOpen(false);
-        router.post(route('tasks.submissions.finish'), {
+        router.post(route('student.tasks.submissions.finish'), {
             writing_id: writing.id,
             content: JSON.stringify(writingEditor.document),
             spent_time: spentTime,
@@ -550,10 +569,10 @@ export default function WritingTask({ writing, submission }: WritingTaskProps) {
                 <title>Writing Task</title>
                 <meta property="og:title" content={writing.title || "Writing Task"} />
                 <meta property="og:description" content="Complete your writing task on Mareef." />
-                <meta property="og:image" content={ogImageUrl} />
+                <meta property="og:image" content="/images/og/writing-task.png" />
                 <meta property="og:type" content="website" />
                 <meta name="twitter:card" content="summary_large_image" />
-                <meta name="twitter:image" content={ogImageUrl} />
+                <meta name="twitter:image" content="/images/og/writing-task.png" />
             </Head>
 
             <Header
@@ -569,111 +588,217 @@ export default function WritingTask({ writing, submission }: WritingTaskProps) {
 
             {/* Main Content - Split Pane */}
             <div className="flex-1 overflow-hidden">
-                <ResizablePanelGroup direction="horizontal">
-                    {/* Left Panel - Task Content */}
-                    <ResizablePanel
-                        defaultSize={50}
-                        minSize={20}
-                        maxSize={50}
-                        className="bg-muted/30"
-                    >
-                        <TaskPanel title={writing.title} content={writing.content} />
-                    </ResizablePanel>
+                {isMobile ? (
+                    /* Mobile Layout - Vertical with static separator */
+                    <div className="h-full flex flex-col">
+                        {/* Top - Task Description */}
+                        <div className="h-[40%] overflow-y-auto bg-muted/30">
+                            <TaskPanel title={writing.title} content={writing.content} />
+                        </div>
 
-                    <ResizableHandle withHandle />
+                        {/* Static Separator */}
+                        <div className="h-px bg-border shrink-0" />
 
-                    {/* Right Panel - Editor or Feedback View */}
-                    <ResizablePanel defaultSize={50} minSize={30}>
-                        <div className="h-full flex flex-col px-8 pt-8">
-                            {/* Feedback Summary Banner */}
-                            {isEvaluated && (
-                                <div className="mb-6 rounded-lg border bg-card p-4">
-                                    <div className="flex items-center justify-between">
-                                        <div className="flex items-center gap-3">
-                                            <div className="p-2 rounded-full bg-muted">
-                                                <Star className="h-4 w-4 text-muted-foreground" />
+                        {/* Bottom - Editor */}
+                        <div className="flex-1 overflow-hidden">
+                            <div className="h-full flex flex-col px-4 pt-4">
+                                {/* Feedback Summary Banner */}
+                                {isEvaluated && (
+                                    <div className="mb-4 rounded-lg border bg-card p-3">
+                                        <div className="flex flex-col gap-3">
+                                            <div className="flex items-center gap-3">
+                                                <div className="p-2 rounded-full bg-muted">
+                                                    <Star className="h-4 w-4 text-muted-foreground" />
+                                                </div>
+                                                <div>
+                                                    <p className="font-medium text-sm">
+                                                        Your submission has been evaluated
+                                                    </p>
+                                                    <p className="text-xs text-muted-foreground">
+                                                        {submission?.feedback?.score !== null && (
+                                                            <span>Score: {submission?.feedback?.score} · </span>
+                                                        )}
+                                                        {feedbackAnnotations.length} comment(s) from your teacher
+                                                    </p>
+                                                </div>
                                             </div>
-                                            <div>
-                                                <p className="font-medium">
-                                                    Your submission has been evaluated
-                                                </p>
-                                                <p className="text-sm text-muted-foreground">
-                                                    {submission?.feedback?.score !== null && (
-                                                        <span>Score: {submission?.feedback?.score} · </span>
-                                                    )}
-                                                    {feedbackAnnotations.length} comment(s) from your teacher
-                                                </p>
-                                            </div>
+                                            {feedbackAnnotations.length > 0 && (
+                                                <Button
+                                                    variant="outline"
+                                                    size="sm"
+                                                    onClick={() => setCommentsDrawerOpen(true)}
+                                                    className="gap-2 w-full"
+                                                >
+                                                    <MessageSquare className="h-4 w-4" />
+                                                    View Comments
+                                                </Button>
+                                            )}
                                         </div>
-                                        {feedbackAnnotations.length > 0 && (
-                                            <Button
-                                                variant="outline"
-                                                size="sm"
-                                                onClick={() => setCommentsDrawerOpen(true)}
-                                                className="gap-2"
-                                            >
-                                                <MessageSquare className="h-4 w-4" />
-                                                View Comments
-                                            </Button>
+                                        {submission?.feedback?.feedback && (
+                                            <div className="mt-3 pt-3 border-t">
+                                                <p className="text-sm font-medium mb-1">
+                                                    Overall Feedback:
+                                                </p>
+                                                <p className="text-sm text-muted-foreground whitespace-pre-wrap">
+                                                    {submission.feedback.feedback}
+                                                </p>
+                                            </div>
                                         )}
                                     </div>
-                                    {submission?.feedback?.feedback && (
-                                        <div className="mt-3 pt-3 border-t">
-                                            <p className="text-sm font-medium mb-1">
-                                                Overall Feedback:
-                                            </p>
-                                            <p className="text-sm text-muted-foreground whitespace-pre-wrap">
-                                                {submission.feedback.feedback}
-                                            </p>
+                                )}
+
+                                <div className="flex-1 overflow-y-auto">
+                                    {!hasStarted && isAuthenticated && (
+                                        <EmptyState onStart={handleStart} />
+                                    )}
+                                    {!hasStarted && !isAuthenticated && (
+                                        <div className="flex items-center justify-center h-full text-muted-foreground">
+                                            <p>Please log in to start writing</p>
                                         </div>
                                     )}
-                                </div>
-                            )}
-
-                            <div className="flex-1 overflow-y-auto">
-                                {!hasStarted && isAuthenticated && (
-                                    <EmptyState onStart={handleStart} />
-                                )}
-                                {!hasStarted && !isAuthenticated && (
-                                    <div className="flex items-center justify-center h-full text-muted-foreground">
-                                        <p>Please log in to start writing</p>
-                                    </div>
-                                )}
-                                {hasStarted && !isEvaluated && (
-                                    <div className="[&_.bn-editor]:pl-0 [&_.bn-block-group]:ml-0 writing-details">
-                                        <BlockNoteView
-                                            key={`editor-${submission?.status}-${submission?.id}`}
-                                            editor={writingEditor}
-                                            theme={theme === "dark" ? "dark" : "light"}
-                                            slashMenu={false}
-                                            sideMenu={false}
-                                            formattingToolbar={false}
-                                            editable={isInProgress && timeLeft > 0}
-                                            onChange={handleEditorChange}
+                                    {hasStarted && !isEvaluated && (
+                                        <div className="[&_.bn-editor]:pl-0 [&_.bn-block-group]:ml-0 writing-details">
+                                            <BlockNoteView
+                                                key={`editor-${submission?.status}-${submission?.id}`}
+                                                editor={writingEditor}
+                                                theme={theme === "dark" ? "dark" : "light"}
+                                                slashMenu={false}
+                                                sideMenu={false}
+                                                formattingToolbar={false}
+                                                editable={isInProgress && timeLeft > 0}
+                                                onChange={handleEditorChange}
+                                            />
+                                        </div>
+                                    )}
+                                    {hasStarted && isEvaluated && (
+                                        <AnnotationEditor
+                                            text={submissionPlainText}
+                                            annotations={feedbackAnnotations}
+                                            isEditable={false}
+                                            onAddAnnotation={() => {}}
+                                            onUpdateAnnotation={() => {}}
+                                            onRemoveAnnotation={() => {}}
+                                            drawerOpen={commentsDrawerOpen}
+                                            onDrawerOpenChange={setCommentsDrawerOpen}
                                         />
+                                    )}
+                                </div>
+                                {hasStarted && (
+                                    <div className="my-3 text-right text-sm text-muted-foreground">
+                                        Words: {wordCount}
                                     </div>
-                                )}
-                                {hasStarted && isEvaluated && (
-                                    <AnnotationEditor
-                                        text={submissionPlainText}
-                                        annotations={feedbackAnnotations}
-                                        isEditable={false}
-                                        onAddAnnotation={() => {}}
-                                        onUpdateAnnotation={() => {}}
-                                        onRemoveAnnotation={() => {}}
-                                        drawerOpen={commentsDrawerOpen}
-                                        onDrawerOpenChange={setCommentsDrawerOpen}
-                                    />
                                 )}
                             </div>
-                            {hasStarted && (
-                                <div className="my-4 text-right text-sm text-muted-foreground">
-                                    Words: {wordCount}
-                                </div>
-                            )}
                         </div>
-                    </ResizablePanel>
-                </ResizablePanelGroup>
+                    </div>
+                ) : (
+                    /* Desktop Layout - Horizontal with resizable panels */
+                    <ResizablePanelGroup direction="horizontal">
+                        {/* Left Panel - Task Content */}
+                        <ResizablePanel
+                            defaultSize={50}
+                            minSize={20}
+                            maxSize={50}
+                            className="bg-muted/30"
+                        >
+                            <TaskPanel title={writing.title} content={writing.content} />
+                        </ResizablePanel>
+
+                        <ResizableHandle withHandle />
+
+                        {/* Right Panel - Editor or Feedback View */}
+                        <ResizablePanel defaultSize={50} minSize={30}>
+                            <div className="h-full flex flex-col px-8 pt-8">
+                                {/* Feedback Summary Banner */}
+                                {isEvaluated && (
+                                    <div className="mb-6 rounded-lg border bg-card p-4">
+                                        <div className="flex items-center justify-between">
+                                            <div className="flex items-center gap-3">
+                                                <div className="p-2 rounded-full bg-muted">
+                                                    <Star className="h-4 w-4 text-muted-foreground" />
+                                                </div>
+                                                <div>
+                                                    <p className="font-medium">
+                                                        Your submission has been evaluated
+                                                    </p>
+                                                    <p className="text-sm text-muted-foreground">
+                                                        {submission?.feedback?.score !== null && (
+                                                            <span>Score: {submission?.feedback?.score} · </span>
+                                                        )}
+                                                        {feedbackAnnotations.length} comment(s) from your teacher
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            {feedbackAnnotations.length > 0 && (
+                                                <Button
+                                                    variant="outline"
+                                                    size="sm"
+                                                    onClick={() => setCommentsDrawerOpen(true)}
+                                                    className="gap-2"
+                                                >
+                                                    <MessageSquare className="h-4 w-4" />
+                                                    View Comments
+                                                </Button>
+                                            )}
+                                        </div>
+                                        {submission?.feedback?.feedback && (
+                                            <div className="mt-3 pt-3 border-t">
+                                                <p className="text-sm font-medium mb-1">
+                                                    Overall Feedback:
+                                                </p>
+                                                <p className="text-sm text-muted-foreground whitespace-pre-wrap">
+                                                    {submission.feedback.feedback}
+                                                </p>
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+
+                                <div className="flex-1 overflow-y-auto">
+                                    {!hasStarted && isAuthenticated && (
+                                        <EmptyState onStart={handleStart} />
+                                    )}
+                                    {!hasStarted && !isAuthenticated && (
+                                        <div className="flex items-center justify-center h-full text-muted-foreground">
+                                            <p>Please log in to start writing</p>
+                                        </div>
+                                    )}
+                                    {hasStarted && !isEvaluated && (
+                                        <div className="[&_.bn-editor]:pl-0 [&_.bn-block-group]:ml-0 writing-details">
+                                            <BlockNoteView
+                                                key={`editor-${submission?.status}-${submission?.id}`}
+                                                editor={writingEditor}
+                                                theme={theme === "dark" ? "dark" : "light"}
+                                                slashMenu={false}
+                                                sideMenu={false}
+                                                formattingToolbar={false}
+                                                editable={isInProgress && timeLeft > 0}
+                                                onChange={handleEditorChange}
+                                            />
+                                        </div>
+                                    )}
+                                    {hasStarted && isEvaluated && (
+                                        <AnnotationEditor
+                                            text={submissionPlainText}
+                                            annotations={feedbackAnnotations}
+                                            isEditable={false}
+                                            onAddAnnotation={() => {}}
+                                            onUpdateAnnotation={() => {}}
+                                            onRemoveAnnotation={() => {}}
+                                            drawerOpen={commentsDrawerOpen}
+                                            onDrawerOpenChange={setCommentsDrawerOpen}
+                                        />
+                                    )}
+                                </div>
+                                {hasStarted && (
+                                    <div className="my-4 text-right text-sm text-muted-foreground">
+                                        Words: {wordCount}
+                                    </div>
+                                )}
+                            </div>
+                        </ResizablePanel>
+                    </ResizablePanelGroup>
+                )}
             </div>
 
             <LoginDrawer isOpen={isLoginDrawerOpen} />
@@ -689,7 +814,7 @@ export default function WritingTask({ writing, submission }: WritingTaskProps) {
                             any further changes after submission.
                         </DialogDescription>
                     </DialogHeader>
-                    <div className="flex items-center gap-4 py-2 text-sm text-muted-foreground">
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 py-2 text-sm text-muted-foreground">
                         <div className="flex items-center gap-2">
                             <Clock className="w-4 h-4" />
                             <span>Time remaining: {formattedTime}</span>

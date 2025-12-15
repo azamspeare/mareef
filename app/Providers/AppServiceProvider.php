@@ -42,9 +42,10 @@ final class AppServiceProvider extends ServiceProvider
             return Limit::perMinute(10)->by($request->user()?->id ?: $request->ip());
         });
 
-        // Authentication endpoints: 5 attempts per minute to prevent brute force
+        // Authentication callback: 10 attempts per minute to prevent brute force
+        // Only applied to OAuth callbacks, not login page views
         RateLimiter::for('auth', function (Request $request) {
-            return Limit::perMinute(5)->by($request->ip());
+            return Limit::perMinute(10)->by($request->ip());
         });
 
         // API-like endpoints (submissions, writings): 30 per minute per user

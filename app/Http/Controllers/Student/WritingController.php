@@ -52,6 +52,11 @@ final class WritingController extends Controller
         return Inertia::render('WritingTask', [
             'writing' => $writing,
             'submission' => $submission,
+            'seo' => [
+                'title' => $writing->title . ' - Writing Task',
+                'description' => 'Complete your writing task on Mareef.',
+                'image' => '/images/og/writing-task.png',
+            ],
         ]);
     }
 

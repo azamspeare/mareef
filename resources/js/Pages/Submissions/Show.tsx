@@ -265,97 +265,116 @@ export default function Show({ submission, auth }: ShowProps) {
 
     return (
         <DashboardLayout title="Submission Review">
-            <Head title={`Submission by ${submission.student.name} - Mareef`} />
-            <div className="max-w-3xl lg:max-w-4xl 2xl:max-w-6xl mx-auto px-6 lg:px-8">
+            <Head title={`Submission by ${submission.student.name}`} />
+            <div className="max-w-full lg:max-w-4xl 2xl:max-w-6xl mx-auto px-4 md:px-6 lg:px-8 overflow-hidden">
                 {/* Header */}
-                <div className="flex items-center gap-4 py-6">
-                    <Link href={route('dashboard')}>
+                <div className="flex items-start gap-3 py-6 md:gap-4">
+                    {/* Back button */}
+                    <Link href={route('dashboard')} className="shrink-0 mt-1">
                         <Button variant="ghost" size="icon">
                             <ArrowLeft className="h-4 w-4" />
                         </Button>
                     </Link>
-                    <div className="flex-1">
-                        <div className="flex items-center gap-3">
-                            <h1 className="text-2xl font-bold tracking-tight">
-                                {submission.writing.title}
-                            </h1>
-                            {isEvaluated ? (
-                                <Badge variant="default" className="bg-green-600 dark:text-white">
-                                    <CheckCircle className="h-3 w-3 mr-1" />
-                                    Evaluated
-                                </Badge>
-                            ) : (
-                                <Badge variant="secondary">Not Evaluated</Badge>
-                            )}
-                            {hasDraft && !isEvaluated && (
-                                <Badge variant="outline" className="border-yellow-500 text-yellow-600">
-                                    Draft Saved
-                                </Badge>
-                            )}
-                        </div>
-                        <p className="text-muted-foreground mt-1">
+
+                    {/* Title + Student name */}
+                    <div className="flex-1 min-w-0">
+                        <h1 className="text-xl font-bold tracking-tight md:text-2xl truncate">
+                            {submission.writing.title}
+                        </h1>
+                        <p className="text-sm text-muted-foreground mt-0.5">
                             Submission by {submission.student.name}
                         </p>
                     </div>
 
-                    {/* Action buttons */}
-                    {isEvaluating ? (
-                        <div className="flex items-center gap-2">
-                            <Button variant="ghost" onClick={handleCancelEvaluation}>
-                                <X className="h-4 w-4 mr-2" />
-                                Cancel
-                            </Button>
-                            <Button onClick={handleFinishEvaluation}>
-                                <CheckCircle className="h-4 w-4 mr-2" />
-                                Finish Assessment
-                            </Button>
-                        </div>
-                    ) : (
-                        <div className="flex items-center gap-2">
-                            <Tooltip>
-                                <TooltipTrigger asChild>
-                                    <Button variant="outline" size="icon" onClick={handleShare} className="bg-background">
-                                        <Share className="h-4 w-4" />
-                                    </Button>
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                    <p>Share Writing Task</p>
-                                </TooltipContent>
-                            </Tooltip>
-                            <Button onClick={handleStartEvaluation}>
-                                {isEvaluated ? 'Edit Evaluation' : 'Start Evaluation'}
-                            </Button>
-                        </div>
-                    )}
+                    {/* Status badges - always on the right */}
+                    <div className="flex flex-col items-end gap-1 shrink-0">
+                        {isEvaluated ? (
+                            <Badge variant="default" className="bg-green-600 dark:text-white">
+                                <CheckCircle className="h-3 w-3 mr-1" />
+                                Evaluated
+                            </Badge>
+                        ) : (
+                            <Badge variant="secondary">Not Evaluated</Badge>
+                        )}
+                        {hasDraft && !isEvaluated && (
+                            <Badge variant="outline" className="border-yellow-500 text-yellow-600">
+                                Draft Saved
+                            </Badge>
+                        )}
+                    </div>
                 </div>
 
                 {/* Evaluation mode banner */}
                 {isEvaluating && (
-                    <div className="mb-6 rounded-lg border border-blue-200 bg-blue-50 dark:border-blue-900 dark:bg-blue-950/50 p-4">
-                        <div className="flex items-start gap-3">
-                            <AlertCircle className="h-5 w-5 text-blue-600 dark:text-blue-400 mt-0.5" />
+                    <div className="mb-6 rounded-lg border border-blue-200 bg-blue-50 dark:border-blue-900 dark:bg-blue-950/50 p-3 md:p-4">
+                        <div className="flex items-start gap-2 md:gap-3">
+                            <AlertCircle className="h-5 w-5 text-blue-600 dark:text-blue-400 mt-0.5 shrink-0" />
                             <div>
-                                <p className="font-medium text-blue-900 dark:text-blue-100">
+                                <p className="font-medium text-blue-900 dark:text-blue-100 text-sm md:text-base">
                                     Evaluation Mode
                                 </p>
-                                <p className="text-sm text-blue-700 dark:text-blue-300">
-                                    Select any text in the student response below to add a comment.
-                                    Choose a highlight color to categorize your feedback.
-                                    Your progress is automatically saved as a draft.
+                                <p className="text-xs md:text-sm text-blue-700 dark:text-blue-300">
+                                    Select text below to add comments. Progress is auto-saved.
                                 </p>
                             </div>
                         </div>
                     </div>
                 )}
 
-                <div className="space-y-6 pb-6">
+                <div className="space-y-4 md:space-y-6 pb-6">
                     {/* Tabs for writing assignment and details */}
                     <Tabs defaultValue={isEvaluated ? "evaluation-details" : "writing-assignment"}>
-                        <TabsList>
-                            <TabsTrigger value="writing-assignment">Writing Assignment</TabsTrigger>
-                            <TabsTrigger value="submission-details">Submission Details</TabsTrigger>
-                            <TabsTrigger value="evaluation-details">Evaluation Details</TabsTrigger>
-                        </TabsList>
+                        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between md:gap-2">
+                            {/* Action buttons - above tabs on mobile, right side on desktop */}
+                            <div className="flex items-center justify-end gap-2 md:order-2 shrink-0">
+                                {isEvaluating ? (
+                                    <>
+                                        <Button variant="ghost" onClick={handleCancelEvaluation}>
+                                            <X className="h-4 w-4 mr-2" />
+                                            Cancel
+                                        </Button>
+                                        <Button onClick={handleFinishEvaluation}>
+                                            <CheckCircle className="h-4 w-4 mr-2" />
+                                            Finish Assessment
+                                        </Button>
+                                    </>
+                                ) : (
+                                    <>
+                                        <Tooltip>
+                                            <TooltipTrigger asChild>
+                                                <Button variant="outline" size="icon" onClick={handleShare} className="bg-background">
+                                                    <Share className="h-4 w-4" />
+                                                </Button>
+                                            </TooltipTrigger>
+                                            <TooltipContent>
+                                                <p>Share Writing Task</p>
+                                            </TooltipContent>
+                                        </Tooltip>
+                                        <Button onClick={handleStartEvaluation}>
+                                            {isEvaluated ? 'Edit Evaluation' : 'Start Evaluation'}
+                                        </Button>
+                                    </>
+                                )}
+                            </div>
+
+                            {/* Tabs */}
+                            <div className="overflow-x-auto -mx-4 px-4 md:mx-0 md:px-0 md:order-1">
+                                <TabsList className="w-max md:w-auto">
+                                    <TabsTrigger value="writing-assignment">
+                                        <span className="hidden md:inline">Writing Assignment</span>
+                                        <span className="md:hidden">Assignment</span>
+                                    </TabsTrigger>
+                                    <TabsTrigger value="submission-details">
+                                        <span className="hidden md:inline">Submission Details</span>
+                                        <span className="md:hidden">Details</span>
+                                    </TabsTrigger>
+                                    <TabsTrigger value="evaluation-details">
+                                        <span className="hidden md:inline">Evaluation Details</span>
+                                        <span className="md:hidden">Evaluation</span>
+                                    </TabsTrigger>
+                                </TabsList>
+                            </div>
+                        </div>
                         <TabsContent value="writing-assignment">
                             <Card>
                                 <CardContent>
@@ -510,8 +529,7 @@ export default function Show({ submission, auth }: ShowProps) {
                     <DialogHeader>
                         <DialogTitle>Finish Assessment</DialogTitle>
                         <DialogDescription>
-                            Add an optional score and overall feedback for this submission.
-                            You have added {annotations.length} inline comment(s).
+                            Add an optional score and overall feedback. {annotations.length} comment(s) added.
                         </DialogDescription>
                     </DialogHeader>
                     <div className="space-y-4 py-4">
@@ -531,7 +549,7 @@ export default function Show({ submission, auth }: ShowProps) {
                             <Label htmlFor="overall-feedback">Overall Feedback (optional)</Label>
                             <Textarea
                                 id="overall-feedback"
-                                placeholder="Add any overall comments about this submission..."
+                                placeholder="Add any overall comments..."
                                 value={overallFeedback}
                                 onChange={(e) => setOverallFeedback(e.target.value)}
                                 className="min-h-[100px]"
@@ -548,7 +566,7 @@ export default function Show({ submission, auth }: ShowProps) {
                         </Button>
                         <Button onClick={handleSubmitEvaluation} disabled={isSubmitting}>
                             {isSubmitting && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-                            Submit Evaluation
+                            Submit
                         </Button>
                     </DialogFooter>
                 </DialogContent>
