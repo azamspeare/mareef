@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Database\Seeders\defaults;
+namespace Database\Seeders\defaults\User;
 
 use App\Contracts\Enums\RoleEnum;
 use App\Models\User\User;

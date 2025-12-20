@@ -6,8 +6,10 @@ namespace App\Models\User\Traits;
 
 use App\Models\Feedback\WritingFeedback;
 use App\Models\Submission\WritingSubmission;
+use App\Models\Telegram\TelegramUser;
 use App\Models\Writing\Writing;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 trait HasRelations
 {
@@ -33,5 +35,13 @@ trait HasRelations
     public function feedbacks(): HasMany
     {
         return $this->hasMany(WritingFeedback::class, 'teacher_id', 'id');
+    }
+
+    /**
+     * Get the telegram user associated with this user.
+     */
+    public function telegramUser(): HasOne
+    {
+        return $this->hasOne(TelegramUser::class, 'user_id', 'id');
     }
 }

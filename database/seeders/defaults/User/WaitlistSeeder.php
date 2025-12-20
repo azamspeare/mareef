@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Database\Seeders\defaults;
+namespace Database\Seeders\defaults\User;
 
 use App\Models\Waitlist\Waitlist;
 use Illuminate\Database\Seeder;

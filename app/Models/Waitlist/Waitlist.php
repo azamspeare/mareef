@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Models\Waitlist;
 
 use Carbon\CarbonInterface;
-use Database\Factories\WaitlistFactory;
+use Database\Factories\User\WaitlistFactory;
 use Illuminate\Database\Eloquent\Attributes\UseFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;

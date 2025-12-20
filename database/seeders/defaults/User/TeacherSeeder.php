@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Database\Seeders\defaults;
+namespace Database\Seeders\defaults\User;
 
 use App\Contracts\Enums\RoleEnum;
 use App\Models\User\User;
@@ -20,6 +20,7 @@ final class TeacherSeeder extends Seeder
                 'name' => "A'zam Maxsudov",
                 'email' => 'abduazamdev@gmail.com',
                 'username' => 'abduazamdev',
+                'phone_number' => '+998901234567',
                 'email_verified_at' => now(),
                 'role' => RoleEnum::TEACHER->value,
                 'avatar' => "https://lh3.googleusercontent.com/a/ACg8ocJeqBWubgaV9te0T8FkFIVqEAQQbu2VBte7z73A895LB2w9A7d0=s96-c"
@@ -30,14 +31,14 @@ final class TeacherSeeder extends Seeder
                 'name' => "Sanjar Nig'matov",
                 'email' => 'nigmatovsanjar00@gmail.com',
                 'username' => 'nigmatovsanjar00',
+                'phone_number' => '+998917654321',
                 'email_verified_at' => now(),
                 'role' => RoleEnum::TEACHER->value,
             ]);
 
         User::factory()
             ->count(3)
-            ->create([
-                'role' => RoleEnum::TEACHER->value,
-            ]);
+            ->teacher()
+            ->create();
     }
 }

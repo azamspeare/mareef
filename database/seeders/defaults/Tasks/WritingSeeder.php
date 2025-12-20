@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Database\Seeders\defaults;
+namespace Database\Seeders\defaults\Tasks;
 
 use App\Contracts\Enums\RoleEnum;
 use App\Models\Feedback\WritingFeedback;

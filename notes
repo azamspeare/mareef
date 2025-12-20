@@ -1,0 +1,19 @@
+Phase 3: Telegram Bot Integration
+
+1. Set up Telegram Bot (you'll need to create one via BotFather)
+2. Create webhook handler for incoming Telegram messages
+3. Implement phone matching logic (user sends phone → match to DB)
+4. Generate and send OTP code back to user
+
+Phase 4: OTP Verification (Web)
+
+1. Create verification page to enter code from Telegram
+2. Create API endpoint to verify OTP
+3. Link Telegram account to user on successful verification
+4. Handle redirect back to original destination
+
+Phase 5: Notification System Update
+
+1. Create Telegram notification service
+2. Update WritingSubmissionObserver - send via Telegram (fallback to email)
+3. Update WritingFeedbackObserver - send via Telegram (fallback to email)

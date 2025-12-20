@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Database\Factories;
+namespace Database\Factories\User;
 
 use App\Models\Waitlist\Waitlist;
 use Illuminate\Database\Eloquent\Factories\Factory;

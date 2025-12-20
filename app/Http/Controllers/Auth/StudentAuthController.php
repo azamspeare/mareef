@@ -6,7 +6,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Actions\User\CreateUserAction;
 use App\Contracts\Enums\RoleEnum;
-use App\DTOs\User\RegisterDTO;
+use App\DTOs\User\LoginDTO;
 use App\Http\Controllers\Controller;
 use App\Queries\User\UserFindByEmailQuery;
 use Illuminate\Http\RedirectResponse;
@@ -85,7 +85,7 @@ final class StudentAuthController extends Controller
                     ->with('success', 'Welcome back! You have successfully logged in.');
             }
 
-            $newUser = $action->run(RegisterDTO::make($socialiteUser, RoleEnum::STUDENT));
+            $newUser = $action->run(LoginDTO::make($socialiteUser, RoleEnum::STUDENT));
 
             if (! $newUser) {
                 // Get the intended URL from session or fallback to home

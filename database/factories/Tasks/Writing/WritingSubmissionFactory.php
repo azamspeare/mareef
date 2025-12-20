@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Database\Factories;
+namespace Database\Factories\Tasks\Writing;
 
 use App\Models\Submission\WritingSubmission;
 use App\Models\User\User;
 use App\Models\Writing\Writing;
-use Database\Factories\Traits\HasBlockNoteContent;
+use Database\Factories\Tasks\Writing\Traits\HasBlockNoteContent;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**

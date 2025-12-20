@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace App\Actions\User;
 
-use App\DTOs\User\RegisterDTO;
+use App\DTOs\User\LoginDTO;
 use App\Models\User\User;
 
 final class CreateUserAction
 {
-    public function run(RegisterDTO $dto): User
+    public function run(LoginDTO $dto): User
     {
         $data = $dto->toArray();
 

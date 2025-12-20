@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Database\Factories;
+namespace Database\Factories\User;
 
 use App\Models\User\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -33,6 +33,7 @@ final class UserFactory extends Factory
             'name' => fake()->name(),
             'email' => $email,
             'username' => $username,
+            'phone_number' => $this->generateUzbekPhoneNumber(),
             'email_verified_at' => now(),
             'password' => self::$password ??= Hash::make('password'),
             'role' => fake()->randomElement(['admin', 'teacher', 'student']),
@@ -42,12 +43,34 @@ final class UserFactory extends Factory
     }
 
     /**
+     * Generate a fake Uzbekistan phone number.
+     */
+    private function generateUzbekPhoneNumber(): string
+    {
+        $prefixes = ['90', '91', '93', '94', '95', '97', '98', '99', '33', '88'];
+        $prefix = fake()->randomElement($prefixes);
+        $number = fake()->numerify('#######');
+
+        return '+998' . $prefix . $number;
+    }
+
+    /**
      * Indicate that the model's email address should be unverified.
      */
     public function unverified(): self
     {
         return $this->state(fn (array $attributes) => [
             'email_verified_at' => null,
+        ]);
+    }
+
+    /**
+     * Indicate that the user has no phone number.
+     */
+    public function withoutPhone(): self
+    {
+        return $this->state(fn (array $attributes) => [
+            'phone_number' => null,
         ]);
     }
 

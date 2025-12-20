@@ -2,8 +2,10 @@
 
 use App\Contracts\Enums\RoleEnum;
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Auth\RegisterPhoneNumberController;
 use App\Http\Controllers\Auth\StudentAuthController;
 use App\Http\Controllers\Auth\TeacherAuthController;
+use App\Http\Controllers\Auth\VerifyOTPCodeController;
 use App\Http\Controllers\Dashboard\DashboardController;
 use App\Http\Controllers\Dashboard\StudentController;
 use App\Http\Controllers\Dashboard\Writing\SubmissionController;
@@ -30,7 +32,7 @@ Route::domain('app.' . config('app.domain'))->group(function () {
         });
     });
 
-    Route::middleware(['auth', 'is_role:' . RoleEnum::TEACHER->value])->group(function () {
+    Route::middleware(['auth', 'is_role:' . RoleEnum::TEACHER->value, 'phone_registered'])->group(function () {
         Route::get('dashboard', DashboardController::class)->name('dashboard');
 
         Route::prefix('students')->name('students.')->group(function () {
@@ -78,7 +80,7 @@ Route::domain('student.' . config('app.domain'))->name('student.')->group(functi
     Route::prefix('tasks')->name('tasks.')->group(function () {
         Route::get('/{handle}/writing/{slug}', [StudentWritingController::class, 'create'])->name('writing');
 
-        Route::middleware(['auth', 'is_role:' . RoleEnum::STUDENT->value])->group(function () {
+        Route::middleware(['auth', 'is_role:' . RoleEnum::STUDENT->value, 'phone_registered'])->group(function () {
             Route::prefix('submissions')->name('submissions.')->group(function () {
                 Route::post('start', [StudentWritingController::class, 'start'])->name('start')->middleware('throttle:api');
                 Route::post('save', [StudentWritingController::class, 'update'])->name('save')->middleware('throttle:auto-save');
@@ -100,4 +102,11 @@ Route::prefix('tasks')->name('tasks.')->group(function () {
 Route::prefix('images')->name('images.')->group(function () {
     Route::post('upload', [ImageController::class, 'store'])->name('store')->middleware(['auth', 'throttle:uploads']);
     Route::get('{filename}', [ImageController::class, 'show'])->name('show');
+});
+
+Route::prefix('register')->name('register.')->middleware(['auth', 'redirect_if_phone_registered'])->group(function () {
+    Route::get('phone-number', [RegisterPhoneNumberController::class, 'create'])->name('phone-number');
+    Route::post('phone-number', [RegisterPhoneNumberController::class, 'store'])->name('phone-number.store');
+    Route::get('otp', [VerifyOTPCodeController::class, 'create'])->name('otp');
+    Route::post('otp', [VerifyOTPCodeController::class, 'store'])->name('otp.store');
 });

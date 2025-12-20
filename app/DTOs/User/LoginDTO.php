@@ -9,7 +9,7 @@ use App\Contracts\Enums\RoleEnum;
 use Illuminate\Support\Str;
 use Laravel\Socialite\Two\User;
 
-final readonly class RegisterDTO extends AbstractDataObject
+final readonly class LoginDTO extends AbstractDataObject
 {
     public function __construct(
         public string $name,
@@ -38,7 +38,6 @@ final readonly class RegisterDTO extends AbstractDataObject
             'name' => $this->name,
             'email' => $this->email,
             'username' => $this->username,
-            'email_verified_at' => now(),
             'password' => $this->password,
             'role' => $this->role->value,
             'avatar' => $this->avatar,

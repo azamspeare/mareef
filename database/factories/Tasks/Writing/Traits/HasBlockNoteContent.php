@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Database\Factories\Traits;
+namespace Database\Factories\Tasks\Writing\Traits;
 
 use Illuminate\Support\Str;
 

@@ -6,7 +6,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Actions\User\CreateUserAction;
 use App\Contracts\Enums\RoleEnum;
-use App\DTOs\User\RegisterDTO;
+use App\DTOs\User\LoginDTO;
 use App\Http\Controllers\Controller;
 use App\Queries\User\UserFindByEmailQuery;
 use Illuminate\Http\RedirectResponse;
@@ -69,7 +69,7 @@ final class TeacherAuthController extends Controller
                 return redirect()->route('dashboard');
             }
 
-            $newUser = $action->run(RegisterDTO::make($socialiteUser, RoleEnum::TEACHER));
+            $newUser = $action->run(LoginDTO::make($socialiteUser, RoleEnum::TEACHER));
 
             if (! $newUser) {
                 return redirect()

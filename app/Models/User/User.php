@@ -6,12 +6,13 @@ namespace App\Models\User;
 
 use App\Models\Feedback\WritingFeedback;
 use App\Models\Submission\WritingSubmission;
+use App\Models\Telegram\TelegramUser;
 use App\Models\User\Traits\HasMethods;
 use App\Models\User\Traits\HasRelations;
 use App\Models\Writing\Writing;
 use App\Observers\User\UserObserver;
 use Carbon\CarbonInterface;
-use Database\Factories\UserFactory;
+use Database\Factories\User\UserFactory;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Attributes\UseFactory;
@@ -27,6 +28,7 @@ use Illuminate\Notifications\Notifiable;
  * @property-read string $name
  * @property-read string $email
  * @property-read string $username
+ * @property-read string|null $phone_number
  * @property-read CarbonInterface|null $email_verified_at
  * @property-read CarbonInterface|null $last_login_at
  * @property-read string $password
@@ -41,6 +43,7 @@ use Illuminate\Notifications\Notifiable;
  * @property-read Collection<Writing> $writings
  * @property-read Collection<WritingFeedback> $feedbacks
  * @property-read Collection<WritingSubmission> $submissions
+ * @property-read TelegramUser|null $telegramUser
  */
 #[UseFactory(UserFactory::class)]
 #[ObservedBy(UserObserver::class)]
@@ -53,6 +56,7 @@ final class User extends Authenticatable implements MustVerifyEmail
         'name',
         'email',
         'username',
+        'phone_number',
         'email_verified_at',
         'last_login_at',
         'password',

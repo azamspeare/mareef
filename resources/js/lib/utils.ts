@@ -16,3 +16,7 @@ export function getTeacherUrl(path: string = ''): string {
 export function getContactUrl(): string {
   return 'https://t.me/mareef_support'
 }
+
+export function getTelegramBotUrl(): string {
+  return 'https://t.me/mareef_bot'
+}

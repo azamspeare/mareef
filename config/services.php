@@ -18,10 +18,6 @@ return [
         'key' => env('POSTMARK_API_KEY'),
     ],
 
-    'resend' => [
-        'key' => env('RESEND_API_KEY'),
-    ],
-
     'ses' => [
         'key' => env('AWS_ACCESS_KEY_ID'),
         'secret' => env('AWS_SECRET_ACCESS_KEY'),
@@ -40,6 +36,12 @@ return [
         'client_secret' => env('GOOGLE_CLIENT_SECRET'),
         'app_redirect' => env('GOOGLE_APP_REDIRECT_URL'),
         'student_redirect' => env('GOOGLE_STUDENT_REDIRECT_URL'),
+    ],
+
+    'telegram' => [
+        'bots' => [
+            'mareef_bot' => env('TELEGRAM_BOT_TOKEN'),
+        ]
     ]
 
 ];
