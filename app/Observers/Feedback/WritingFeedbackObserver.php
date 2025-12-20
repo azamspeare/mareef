@@ -4,22 +4,23 @@ declare(strict_types=1);
 
 namespace App\Observers\Feedback;
 
-use App\Mail\Writing\TeacherEvaluationNotification;
 use App\Models\Feedback\WritingFeedback;
-use Illuminate\Support\Facades\Mail;
+use App\Telegram\Messages\TeacherEvaluationNotification;
+use App\Telegram\Notifier;
 
 final class WritingFeedbackObserver
 {
+    public function __construct(
+        protected Notifier $notifier
+    ) {
+    }
+
     /**
      * Handle the WritingFeedback "created" event.
      */
     public function created(WritingFeedback $feedback): void
     {
-        defer(function () use ($feedback) {
-            $email = $feedback->submission->student->email;
-
-            Mail::to($email)->send(new TeacherEvaluationNotification($feedback));
-        });
+        $this->sendTelegramNotification($feedback, isUpdated: false);
     }
 
     /**
@@ -27,34 +28,18 @@ final class WritingFeedbackObserver
      */
     public function updated(WritingFeedback $feedback): void
     {
-        defer(function () use ($feedback) {
-            $email = $feedback->submission->student->email;
-
-            Mail::to($email)->send(new TeacherEvaluationNotification($feedback, true));
-        });
+        $this->sendTelegramNotification($feedback, isUpdated: true);
     }
 
-    /**
-     * Handle the WritingFeedback "deleted" event.
-     */
-    public function deleted(WritingFeedback $feedback): void
+    private function sendTelegramNotification(WritingFeedback $feedback, bool $isUpdated): void
     {
-        //
-    }
+        $student = $feedback->submission->student;
+        $telegramUser = $student->telegramUser;
 
-    /**
-     * Handle the WritingFeedback "restored" event.
-     */
-    public function restored(WritingFeedback $feedback): void
-    {
-        //
-    }
+        if (! $telegramUser) {
+            return;
+        }
 
-    /**
-     * Handle the WritingFeedback "force deleted" event.
-     */
-    public function forceDeleted(WritingFeedback $feedback): void
-    {
-        //
+        defer(fn () => $this->notifier->send($telegramUser->chat_id, new TeacherEvaluationNotification($feedback, $isUpdated)));
     }
 }

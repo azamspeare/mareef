@@ -4,26 +4,33 @@ declare(strict_types=1);
 
 namespace App\Observers\Submission;
 
-use App\Mail\Writing\StudentSubmissionNotification;
 use App\Models\Submission\WritingSubmission;
 use App\Repositories\MetricsRepository;
-use Illuminate\Support\Facades\Mail;
+use App\Telegram\Messages\StudentSubmissionNotification;
+use App\Telegram\Notifier;
 
 final class WritingSubmissionObserver
 {
+    public function __construct(
+        protected Notifier $notifier
+    ) {
+    }
+
     /**
      * Handle the WritingSubmission "created" event.
      */
     public function created(WritingSubmission $submission): void
     {
-        // Invalidate metrics cache for the teacher
         $this->invalidateTeacherCache($submission);
 
-        defer(function () use ($submission) {
-            $email = $submission->writing->teacher->email;
+        $teacher = $submission->writing->teacher;
+        $telegramUser = $teacher->telegramUser;
 
-            Mail::to($email)->send(new StudentSubmissionNotification($submission));
-        });
+        if (! $telegramUser) {
+            return;
+        }
+
+        defer(fn () => $this->notifier->send($telegramUser->chat_id, new StudentSubmissionNotification($submission)));
     }
 
     /**
