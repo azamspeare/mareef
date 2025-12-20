@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Telegram\Commands;
 
-use App\Actions\Telegram\CreateTelegramUserAction;
+use App\Actions\Telegram\SetupTelegramUserAction;
 use App\DTOs\User\TelegramDTO;
 use SergiX44\Nutgram\Handlers\Type\Command;
 use SergiX44\Nutgram\Nutgram;
@@ -17,7 +17,7 @@ final class StartCommand extends Command
 
     protected ?string $description = 'Start the bot';
 
-    public function handle(Nutgram $bot, CreateTelegramUserAction $action): void
+    public function handle(Nutgram $bot, SetupTelegramUserAction $action): void
     {
         $user = $bot->user();
 
