@@ -17,13 +17,7 @@ final class StartCommand extends Command
 
     protected ?string $description = 'Start the bot';
 
-    public function __construct(
-        protected CreateTelegramUserAction $action
-    ) {
-        parent::__construct();
-    }
-
-    public function handle(Nutgram $bot): void
+    public function handle(Nutgram $bot, CreateTelegramUserAction $action): void
     {
         $user = $bot->user();
 
@@ -39,7 +33,7 @@ final class StartCommand extends Command
             'is_premium' => $user->is_premium ?? false
         ]);
 
-        $this->action->run($dto);
+        $action->run($dto);
 
         $bot->sendMessage(
             text: "👋 Welcome to Mareef Bot.

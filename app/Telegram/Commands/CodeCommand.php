@@ -16,13 +16,7 @@ final class CodeCommand extends Command
 
     protected ?string $description = 'Regenerate your verification code';
 
-    public function __construct(
-        protected ServiceHandler $handler
-    ) {
-        parent::__construct();
-    }
-
-    public function handle(Nutgram $bot): void
+    public function handle(Nutgram $bot, ServiceHandler $handler): void
     {
         $user = $bot->user();
 
@@ -30,7 +24,7 @@ final class CodeCommand extends Command
             return;
         }
 
-        $result = $this->handler->handle(new GenerateNewOTPCodeService($user->id));
+        $result = $handler->handle(new GenerateNewOTPCodeService($user->id));
         if (! $result) {
             $bot->sendMessage(
                 text: "You haven't linked your account yet.
