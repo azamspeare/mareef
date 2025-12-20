@@ -20,6 +20,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property-read string $first_name
  * @property-read string|null $last_name
  * @property-read string|null $username
+ * @property-read string|null $phone_number
  * @property-read bool $is_premium
  * @property-read string|null $photo
  * @property-read string|null $birthday
@@ -32,7 +33,6 @@ use Illuminate\Database\Eloquent\Model;
 #[UseFactory(TelegramUserFactory::class)]
 final class TelegramUser extends Model
 {
-    /** @use HasFactory<TelegramUserFactory> */
     use HasFactory, HasRelations;
 
     protected $fillable = [
@@ -41,6 +41,7 @@ final class TelegramUser extends Model
         'first_name',
         'last_name',
         'username',
+        'phone_number',
         'is_premium',
         'photo',
         'birthday'

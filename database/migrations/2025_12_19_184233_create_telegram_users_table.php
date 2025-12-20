@@ -22,6 +22,7 @@ return new class extends Migration
             $table->string('first_name', 50);
             $table->string('last_name', 50)->nullable();
             $table->string('username', 50)->nullable();
+            $table->string('phone_number', 15)->unique()->nullable();
             $table->boolean('is_premium')->default(false);
             $table->string('photo')->nullable();
             $table->date('birthday')->nullable();

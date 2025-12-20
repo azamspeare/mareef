@@ -3,7 +3,7 @@
 namespace App\DTOs\User;
 
 use App\Contracts\Abstracts\DTO\AbstractDataObject;
-use App\Helpers\Generators\CodeGenerator;
+use App\Helpers\Generator\CodeGenerator;
 
 final readonly class PhoneNumberDTO extends AbstractDataObject
 {

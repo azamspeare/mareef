@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Helpers\Generators;
+namespace App\Helpers\Generator;
 
 final class CodeGenerator
 {
