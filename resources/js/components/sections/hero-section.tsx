@@ -3,6 +3,8 @@ import { Button } from '@/components/ui/button'
 import { TextEffect } from '@/components/ui/text-effect'
 import { AnimatedGroup } from '@/components/ui/animated-group'
 import { HeroHeader } from '@/components/header'
+import { ThemedImage } from '@/components/themed-image'
+import { dashboardMockups } from '@/lib/images'
 import { getTeacherUrl } from '@/lib/utils'
 
 const transitionVariants = {
@@ -138,17 +140,11 @@ export default function HeroSection() {
                             }}>
                             <div className="relative mt-8 sm:mt-12 md:mt-20 w-full flex justify-center px-4">
                                 <div className="w-full max-w-7xl relative rounded-xl overflow-hidden border shadow-2xl">
-                                    {/* Light mode image */}
-                                    <img
-                                        src="/images/dashboard-mockups/light.png"
+                                    <ThemedImage
+                                        src={dashboardMockups}
                                         alt="Mareef Dashboard"
-                                        className="w-full h-auto block dark:hidden"
-                                    />
-                                    {/* Dark mode image */}
-                                    <img
-                                        src="/images/dashboard-mockups/dark.png"
-                                        alt="Mareef Dashboard"
-                                        className="w-full h-auto hidden dark:block"
+                                        className="w-full h-auto"
+                                        priority
                                     />
                                     {/* Fade overlay at bottom */}
                                     <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background to-transparent pointer-events-none"></div>

@@ -6,6 +6,7 @@ import SolutionSection2, { Solution2 } from '@/components/sections/task/solution
 import CallToActionSection from '@/components/sections/call-to-action-section'
 import FooterSection from '@/components/sections/footer-section'
 import { Toaster } from '@/components/ui/sonner'
+import { dashboardMockups, ogImages } from '@/lib/images'
 import { MessageCircle, Clock, History, Mic, FileText, MessageSquareQuote, Archive } from 'lucide-react'
 
 const speakingProblems: Problem[] = [
@@ -55,12 +56,12 @@ export default function Speaking() {
             <Head title="Speaking Tasks - Mareef">
                 <meta property="og:title" content="Speaking Tasks - Mareef" />
                 <meta property="og:description" content="Collect and evaluate student speech with timestamped feedback. No more voice messages in chat." />
-                <meta property="og:image" content="/images/og/tasks.png" />
+                <meta property="og:image" content={ogImages.tasks} />
                 <meta property="og:type" content="website" />
                 <meta name="twitter:card" content="summary_large_image" />
                 <meta name="twitter:title" content="Speaking Tasks - Mareef" />
                 <meta name="twitter:description" content="Collect and evaluate student speech with timestamped feedback. No more voice messages in chat." />
-                <meta name="twitter:image" content="/images/og/tasks.png" />
+                <meta name="twitter:image" content={ogImages.tasks} />
             </Head>
 
             {/* Header */}
@@ -74,10 +75,7 @@ export default function Speaking() {
                     description="No more lost voice messages or timestampless replies. Mareef's upcoming Speaking Tasks will give teachers a clean way to collect, evaluate, and comment on student speech."
                     primaryButtonText="Join Waitlist"
                     isWaitlist={true}
-                    imageSrc={{
-                        light: '/images/dashboard-mockups/light.png',
-                        dark: '/images/dashboard-mockups/dark.png',
-                    }}
+                    imageSrc={dashboardMockups}
                 />
 
                 {/* Problem Section */}

@@ -6,6 +6,7 @@ import SolutionSection2, { Solution2 } from '@/components/sections/task/solution
 import CallToActionSection from '@/components/sections/call-to-action-section'
 import FooterSection from '@/components/sections/footer-section'
 import { Toaster } from '@/components/ui/sonner'
+import { dashboardMockups, ogImages } from '@/lib/images'
 import { MessageSquare, Link2, FileQuestion, Headphones, Timer, Lock, ClipboardCheck } from 'lucide-react'
 
 const listeningProblems: Problem[] = [
@@ -55,12 +56,12 @@ export default function Listening() {
             <Head title="Listening Tasks - Mareef">
                 <meta property="og:title" content="Listening Tasks - Mareef" />
                 <meta property="og:description" content="Create structured listening tasks with synced questions. No more audio files in chat." />
-                <meta property="og:image" content="/images/og/tasks.png" />
+                <meta property="og:image" content={ogImages.tasks} />
                 <meta property="og:type" content="website" />
                 <meta name="twitter:card" content="summary_large_image" />
                 <meta name="twitter:title" content="Listening Tasks - Mareef" />
                 <meta name="twitter:description" content="Create structured listening tasks with synced questions. No more audio files in chat." />
-                <meta name="twitter:image" content="/images/og/tasks.png" />
+                <meta name="twitter:image" content={ogImages.tasks} />
             </Head>
 
             {/* Header */}
@@ -74,10 +75,7 @@ export default function Listening() {
                     description="No more sending audio in chats and chasing down answers. Mareef will let you create structured listening tasks with synced questions all in one clean flow."
                     primaryButtonText="Join Waitlist"
                     isWaitlist={true}
-                    imageSrc={{
-                        light: '/images/dashboard-mockups/light.png',
-                        dark: '/images/dashboard-mockups/dark.png',
-                    }}
+                    imageSrc={dashboardMockups}
                 />
 
                 {/* Problem Section */}

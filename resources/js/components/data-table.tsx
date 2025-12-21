@@ -14,7 +14,7 @@ import {
   IconX,
 } from "@tabler/icons-react"
 import { z } from "zod"
-import { Link, router, usePage } from "@inertiajs/react"
+import { Link, router } from "@inertiajs/react"
 import { format } from "date-fns"
 
 import {
@@ -72,7 +72,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { toast } from "sonner"
+import {
+  getLocalStorageValue as getStoredFilter,
+  setLocalStorageValue as setStoredFilter,
+} from "@/hooks/use-local-storage"
 
 export const schema = z.object({
   id: z.number(),
@@ -123,18 +126,6 @@ const STORAGE_KEYS = {
   SEARCH: 'dashboard.filter.search',
 };
 
-// Helper functions for localStorage
-const getStoredFilter = (key: string, defaultValue: any) => {
-  if (typeof window === 'undefined') return defaultValue;
-  const stored = localStorage.getItem(key);
-  return stored ? JSON.parse(stored) : defaultValue;
-};
-
-const setStoredFilter = (key: string, value: any) => {
-  if (typeof window === 'undefined') return;
-  localStorage.setItem(key, JSON.stringify(value));
-};
-
 export function DataTable({
   data: initialData,
   counts,
@@ -155,18 +146,6 @@ export function DataTable({
   const [deleteDialogOpen, setDeleteDialogOpen] = React.useState(false)
   const [submissionToDelete, setSubmissionToDelete] = React.useState<Submission | null>(null)
   const [isDeleting, setIsDeleting] = React.useState(false)
-
-  const { flash } = usePage<{ flash?: { success?: string; error?: string } }>().props
-
-  // Handle flash messages
-  React.useEffect(() => {
-    if (flash?.success) {
-      toast.success(flash.success)
-    }
-    if (flash?.error) {
-      toast.error(flash.error)
-    }
-  }, [flash])
 
   // Initialize filters from localStorage or URL params
   const [currentStatus, setCurrentStatus] = React.useState(() => {

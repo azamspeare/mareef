@@ -5,6 +5,7 @@ import ProblemSection, { Problem } from '@/components/sections/task/problem-sect
 import SolutionSection2, { Solution2 } from '@/components/sections/task/solution-section-2'
 import CallToActionSection from '@/components/sections/call-to-action-section'
 import FooterSection from '@/components/sections/footer-section'
+import { ogImages, taskMockups } from '@/lib/images'
 import { FileText, MessageSquareMore, BarChart3, PenLine, Edit3, MessageSquare, Bell } from 'lucide-react'
 
 const writingProblems: Problem[] = [
@@ -54,12 +55,12 @@ export default function Writing() {
             <Head title="Writing Tasks - Mareef">
                 <meta property="og:title" content="Writing Tasks - Mareef" />
                 <meta property="og:description" content="No more Google Docs chaos. Create, assign, and evaluate writing tasks in one clean workflow." />
-                <meta property="og:image" content="/images/og/tasks.png" />
+                <meta property="og:image" content={ogImages.tasks} />
                 <meta property="og:type" content="website" />
                 <meta name="twitter:card" content="summary_large_image" />
                 <meta name="twitter:title" content="Writing Tasks - Mareef" />
                 <meta name="twitter:description" content="No more Google Docs chaos. Create, assign, and evaluate writing tasks in one clean workflow." />
-                <meta name="twitter:image" content="/images/og/tasks.png" />
+                <meta name="twitter:image" content={ogImages.tasks} />
             </Head>
 
             {/* Header */}
@@ -75,10 +76,7 @@ Mareef makes writing tasks clean, trackable, and fast — for teachers and stude
                     primaryButtonText="Create Writing Task"
                     secondaryButtonText="See Example"
                     secondaryButtonHref="#features"
-                    imageSrc={{
-                        light: '/images/task-mockup/writing/light.png',
-                        dark: '/images/task-mockup/writing/dark.png',
-                    }}
+                    imageSrc={taskMockups.writing}
                 />
 
                 {/* Problem Section */}

@@ -31,7 +31,19 @@ final class WritingFindByIDQuery extends AbstractArrayQueryable implements Array
             })
             ->where('teacher_id', '=', $teacher_id)
             ->where('id', '=', $id)
-            ->with('submissions.student')
+            ->with([
+                'submissions' => fn ($q) => $q->select([
+                    'id',
+                    'writing_id',
+                    'student_id',
+                    'spent_time',
+                    'submitted_at',
+                    'evaluated_at',
+                    'status',
+                ]),
+                'submissions.student:id,name,email,username',
+                'submissions.feedback:id,submission_id,score',
+            ])
             ->first();
     }
 }

@@ -3,33 +3,40 @@ import { cn } from '@/lib/utils'
 interface MareefLogoProps {
     className?: string
     showText?: boolean
-    iconSize?: 'sm' | 'md' | 'lg'
+    size?: 'xs' | 'sm' | 'md' | 'lg'
 }
 
-export function MareefLogo({ className, showText = true, iconSize = 'md' }: MareefLogoProps) {
-    const iconSizes = {
-        sm: 'h-6 w-6 text-base',
-        md: 'h-8 w-8 text-xl',
-        lg: 'h-10 w-10 text-2xl',
-    }
+const sizes = {
+    xs: { icon: 'size-6', text: 'text-base' },
+    sm: { icon: 'size-7', text: 'text-lg' },
+    md: { icon: 'size-8', text: 'text-xl' },
+    lg: { icon: 'size-10', text: 'text-2xl' },
+}
 
-    const textSizes = {
-        sm: 'text-lg',
-        md: 'text-xl',
-        lg: 'text-2xl',
-    }
-
+function LogoIcon({ className }: { className?: string }) {
     return (
-        <div className={cn('flex items-center space-x-2', className)}>
-            <div
-                className={cn(
-                    'rounded-lg bg-primary flex items-center justify-center text-primary-foreground font-bold',
-                    iconSizes[iconSize]
-                )}>
-                M
-            </div>
+        <svg
+            viewBox="0 0 600 600"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            className={className}
+        >
+            <rect width="600" height="600" className="fill-white dark:fill-zinc-950" rx="100" />
+            <circle cx="234" cy="234" r="88" className="fill-black dark:fill-white" />
+            <circle cx="300" cy="366" r="88" className="fill-black dark:fill-white" />
+            <circle cx="168" cy="366" r="88" className="fill-black dark:fill-white" />
+            <circle cx="432" cy="366" r="88" className="fill-black dark:fill-white" />
+            <circle cx="366" cy="234" r="88" className="fill-black dark:fill-white" />
+        </svg>
+    )
+}
+
+export function MareefLogo({ className, showText = true, size = 'md' }: MareefLogoProps) {
+    return (
+        <div className={cn('flex items-center gap-2', className)}>
+            <LogoIcon className={cn('rounded-md', sizes[size].icon)} />
             {showText && (
-                <span className={cn('font-bold tracking-tight', textSizes[iconSize])}>
+                <span className={cn('font-semibold', sizes[size].text)}>
                     Mareef
                 </span>
             )}
@@ -38,13 +45,5 @@ export function MareefLogo({ className, showText = true, iconSize = 'md' }: Mare
 }
 
 export function MareefLogoIcon({ className }: { className?: string }) {
-    return (
-        <div
-            className={cn(
-                'h-8 w-8 rounded-lg bg-primary flex items-center justify-center text-primary-foreground font-bold text-xl',
-                className
-            )}>
-            M
-        </div>
-    )
+    return <LogoIcon className={cn('size-8 rounded-lg', className)} />
 }

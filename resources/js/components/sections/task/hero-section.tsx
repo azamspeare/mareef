@@ -1,7 +1,7 @@
 import { Button } from '@/components/ui/button'
 import { TextEffect } from '@/components/ui/text-effect'
 import { AnimatedGroup } from '@/components/ui/animated-group'
-import { WaitlistDialog } from '@/components/waitlist-dialog'
+import { WaitlistForm } from '@/forms/public/waitlist-form'
 import { getTeacherUrl } from '@/lib/utils'
 
 interface TaskHeroSectionProps {
@@ -114,13 +114,13 @@ export default function TaskHeroSection({
                         className="mt-12 flex items-center gap-2">
                         <div className="bg-foreground/10 rounded-[calc(var(--radius-xl)+0.125rem)] border p-0.5">
                             {isWaitlist ? (
-                                <WaitlistDialog>
+                                <WaitlistForm>
                                     <Button
                                         size="lg"
                                         className="rounded-xl px-5 text-base">
                                         <span className="text-nowrap">{primaryButtonText}</span>
                                     </Button>
-                                </WaitlistDialog>
+                                </WaitlistForm>
                             ) : (
                                 <Button
                                     asChild

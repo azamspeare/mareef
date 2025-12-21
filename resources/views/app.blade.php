@@ -12,6 +12,9 @@
 
         <title inertia>{{ config('app.name', 'Laravel') }}</title>
 
+        <!-- Favicon -->
+        <link rel="icon" type="image/png" href="/images/logo/favicon.png" />
+
         <!-- Open Graph / Social Meta Tags -->
         <meta property="og:type" content="website" />
         <meta property="og:site_name" content="Mareef" />

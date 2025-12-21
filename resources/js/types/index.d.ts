@@ -1,14 +1,13 @@
-export interface User {
-    id: number;
-    name: string;
-    email: string;
-    email_verified_at: string | null;
-    role: 'admin' | 'teacher' | 'student';
-    avatar: string | null;
-}
+import type { AuthUser } from './models/user';
+import type { SharedPageProps } from './api/responses';
 
-export type PageProps<T extends Record<string, unknown> = Record<string, unknown>> = T & {
-    auth: {
-        user: User | null;
-    };
-};
+/**
+ * Generic page props type for Inertia pages
+ */
+export type PageProps<T extends Record<string, unknown> = Record<string, unknown>> = T & SharedPageProps;
+
+/**
+ * Re-export for backwards compatibility
+ * @deprecated Use AuthUser from '@/types' instead
+ */
+export type User = AuthUser;

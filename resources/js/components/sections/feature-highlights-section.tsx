@@ -1,5 +1,7 @@
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { BookOpen, MessageSquare, LayoutGrid, Sparkles } from 'lucide-react'
+import { ThemedImage } from '@/components/themed-image'
+import { featureMockups } from '@/lib/images'
 
 export default function FeatureHighlightsSection() {
     return (
@@ -27,15 +29,10 @@ export default function FeatureHighlightsSection() {
 
                         <div className="relative h-fit pl-6 md:pl-12">
                             <div className="bg-background overflow-hidden rounded-tl-lg border-l border-t pl-2 pt-2">
-                                <img
-                                    src="/images/feature-mockups/language-teachers/dark.png"
-                                    className="hidden dark:block w-full"
-                                    alt="Task creation interface dark"
-                                />
-                                <img
-                                    src="/images/feature-mockups/language-teachers/light.png"
-                                    className="shadow dark:hidden w-full"
-                                    alt="Task creation interface light"
+                                <ThemedImage
+                                    src={featureMockups.languageTeachers}
+                                    alt="Task creation interface"
+                                    className="w-full"
                                 />
                             </div>
                         </div>
@@ -56,15 +53,10 @@ export default function FeatureHighlightsSection() {
                         <CardContent className="mt-auto h-fit">
                             <div className="relative">
                                 <div className="overflow-hidden rounded-lg border">
-                                    <img
-                                        src="/images/feature-mockups/feedback-simple/dark.png"
-                                        className="hidden dark:block w-full"
-                                        alt="Evaluation interface dark"
-                                    />
-                                    <img
-                                        src="/images/feature-mockups/feedback-simple/light.png"
-                                        className="shadow dark:hidden w-full"
-                                        alt="Evaluation interface light"
+                                    <ThemedImage
+                                        src={featureMockups.feedbackSimple}
+                                        alt="Evaluation interface"
+                                        className="w-full"
                                     />
                                 </div>
                             </div>

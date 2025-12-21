@@ -7,7 +7,7 @@ namespace App\Http\Controllers\Auth;
 use App\DTOs\User\OTPCodeDTO;
 use App\Handlers\ServiceHandler;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Register\VerifyOTPCodeRequest;
+use App\Http\Requests\Auth\VerifyOTPCodeRequest;
 use App\Services\Register\VerifyOTPCodeService;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Response;
@@ -16,7 +16,7 @@ final class VerifyOTPCodeController extends Controller
 {
     public function create(): Response
     {
-        return inertia('Auth/Register/OTP');
+        return inertia('Auth/OTP');
     }
 
     public function store(VerifyOTPCodeRequest $request, ServiceHandler $handler): RedirectResponse

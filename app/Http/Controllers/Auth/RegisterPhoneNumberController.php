@@ -7,7 +7,7 @@ namespace App\Http\Controllers\Auth;
 use App\DTOs\User\PhoneNumberDTO;
 use App\Handlers\ServiceHandler;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Register\StorePhoneNumberRequest;
+use App\Http\Requests\Auth\StorePhoneNumberRequest;
 use App\Services\Register\RegisterPhoneNumberService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -19,7 +19,7 @@ final class RegisterPhoneNumberController extends Controller
     {
         $user = $request->user();
 
-        return inertia('Auth/Register/PhoneNumber', [
+        return inertia('Auth/PhoneNumber', [
             'phone_number' => $user->phone_number
         ]);
     }

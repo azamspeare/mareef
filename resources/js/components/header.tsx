@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/navigation-menu'
 import React from 'react'
 import { cn, getTeacherUrl } from '@/lib/utils'
-import { ThemeToggle } from '@/components/ThemeToggle'
+import { ThemeToggle } from '@/components/theme-toggle'
 import { MareefLogo } from '@/components/logo'
 
 const getMenuItems = (faqHref: string) => [
