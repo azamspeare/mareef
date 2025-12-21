@@ -71,7 +71,7 @@ export default defineConfig({
     },
     // Optimize dependency pre-bundling for faster dev server
     optimizeDeps: {
-        include: ['react', 'react-dom', '@inertiajs/react'],
+        include: ['react', 'react-dom', '@inertiajs/react', 'extend'],
         exclude: ['@blocknote/core', '@blocknote/react', '@blocknote/mantine'],
     },
 });

@@ -239,6 +239,10 @@ const LoginDrawer = memo(function LoginDrawer({ isOpen }: LoginDrawerProps) {
         window.location.href = route('student.auth.google.redirect');
     }, []);
 
+    const handleRegister = useCallback(() => {
+        window.location.href = route('student.auth.register');
+    }, []);
+
     return (
         <Drawer open={isOpen} dismissible={false}>
             <DrawerContent className="max-w-full">
@@ -259,7 +263,7 @@ const LoginDrawer = memo(function LoginDrawer({ isOpen }: LoginDrawerProps) {
                 </DrawerHeader>
 
                 <div className="px-4 pb-8">
-                    <div className="max-w-sm mx-auto">
+                    <div className="max-w-sm mx-auto space-y-3">
                         <Button
                             className="w-full"
                             size="default"
@@ -267,6 +271,24 @@ const LoginDrawer = memo(function LoginDrawer({ isOpen }: LoginDrawerProps) {
                         >
                             <UserCheck className="w-4 h-4 mr-2" />
                             Log In with Google
+                        </Button>
+
+                        <div className="relative">
+                            <div className="absolute inset-0 flex items-center">
+                                <span className="w-full border-t" />
+                            </div>
+                            <div className="relative flex justify-center text-xs uppercase">
+                                <span className="bg-background px-2 text-muted-foreground">or</span>
+                            </div>
+                        </div>
+
+                        <Button
+                            variant="outline"
+                            className="w-full"
+                            size="default"
+                            onClick={handleRegister}
+                        >
+                            Register Manually
                         </Button>
                     </div>
 

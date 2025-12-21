@@ -9,9 +9,6 @@ final class SetupTelegramUserAction
 {
     public function run(TelegramDTO $dto): TelegramUser
     {
-        return TelegramUser::query()->updateOrCreate(
-            ['chat_id' => $dto->chatId],
-            $dto->toArray()
-        );
+        return TelegramUser::query()->updateOrCreate(['chat_id' => $dto->chatId], $dto->toArray());
     }
 }

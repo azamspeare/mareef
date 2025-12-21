@@ -8,6 +8,7 @@ use App\Contracts\Abstracts\DTO\AbstractDataObject;
 use App\Contracts\Enums\RoleEnum;
 use Illuminate\Support\Str;
 use Laravel\Socialite\Two\User;
+use SensitiveParameter;
 
 final readonly class LoginDTO extends AbstractDataObject
 {
@@ -15,7 +16,7 @@ final readonly class LoginDTO extends AbstractDataObject
         public string $name,
         public string $email,
         public string $username,
-        public ?string $password,
+        #[SensitiveParameter] public ?string $password,
         public RoleEnum $role,
         public ?string $avatar = null
     ) {

@@ -2,6 +2,7 @@
 
 use App\Contracts\Enums\RoleEnum;
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\RegisterPhoneNumberController;
 use App\Http\Controllers\Auth\StudentAuthController;
 use App\Http\Controllers\Auth\TeacherAuthController;
@@ -72,6 +73,9 @@ Route::domain('student.' . config('app.domain'))->name('student.')->group(functi
 
     Route::middleware(['guest'])->group(function () {
         Route::prefix('auth')->name('auth.')->group(function () {
+            Route::get('register', [RegisterController::class, 'create'])->name('register');
+            Route::post('register', [RegisterController::class, 'store'])->name('register.store');
+
             Route::get('google/redirect', [StudentAuthController::class, 'redirect'])->name('google.redirect');
             Route::get('google/callback', [StudentAuthController::class, 'callback'])->name('google.callback')->middleware('throttle:auth');
         });
