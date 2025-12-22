@@ -21,6 +21,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
+import { TeacherLogo } from "@/components/logo"
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const user = usePage<PageProps>().props.auth.user;
@@ -73,10 +74,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               className="data-[slot=sidebar-menu-button]:!p-1.5"
             >
               <Link href={route('dashboard')}>
-                <div className="bg-primary text-primary-foreground flex size-5 items-center justify-center rounded-md">
-                    <span className="font-bold text-xs">M</span>
-                </div>
-                <span className="text-base font-semibold">Mareef</span>
+                <TeacherLogo size="xs" />
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>

@@ -1,4 +1,5 @@
 import { cn } from '@/lib/utils'
+import { logo } from '@/lib/images'
 
 interface MareefLogoProps {
     className?: string
@@ -46,4 +47,34 @@ export function MareefLogo({ className, showText = true, size = 'md' }: MareefLo
 
 export function MareefLogoIcon({ className }: { className?: string }) {
     return <LogoIcon className={cn('size-8 rounded-lg', className)} />
+}
+
+/**
+ * Teacher logo using bundled/optimized image
+ */
+export function TeacherLogo({ className, showText = true, size = 'md' }: MareefLogoProps) {
+    return (
+        <div className={cn('flex items-center gap-2', className)}>
+            <img
+                src={logo.svg}
+                alt="Mareef"
+                className={cn('rounded-md', sizes[size].icon)}
+            />
+            {showText && (
+                <span className={cn('font-semibold', sizes[size].text)}>
+                    Mareef
+                </span>
+            )}
+        </div>
+    )
+}
+
+export function TeacherLogoIcon({ className }: { className?: string }) {
+    return (
+        <img
+            src={logo.svg}
+            alt="Mareef"
+            className={cn('size-8 rounded-lg', className)}
+        />
+    )
 }

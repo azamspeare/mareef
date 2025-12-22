@@ -73,13 +73,13 @@ Route::domain('student.' . config('app.domain'))->name('student.')->group(functi
     Route::get('/', [LandingController::class, 'welcome']);
 
     Route::middleware(['guest'])->group(function () {
+        Route::get('register', [RegisterController::class, 'create'])->name('register');
+        Route::post('register', [RegisterController::class, 'store'])->name('register.store');
+
+        Route::get('login', [LoginStudentController::class, 'create'])->name('login');
+        Route::post('login', [LoginStudentController::class, 'store'])->name('login.store');
+
         Route::prefix('auth')->name('auth.')->group(function () {
-            Route::get('register', [RegisterController::class, 'create'])->name('register');
-            Route::post('register', [RegisterController::class, 'store'])->name('register.store');
-
-            Route::get('login', [LoginStudentController::class, 'create'])->name('login');
-            Route::post('login', [LoginStudentController::class, 'store'])->name('login.store');
-
             Route::get('google/redirect', [StudentAuthController::class, 'redirect'])->name('google.redirect');
             Route::get('google/callback', [StudentAuthController::class, 'callback'])->name('google.callback')->middleware('throttle:auth');
         });
@@ -98,7 +98,7 @@ Route::domain('student.' . config('app.domain'))->name('student.')->group(functi
     });
 
     Route::middleware(['auth'])->group(function () {
-        Route::post('logout', [LoginStudentController::class, 'destroy'])->name('auth.logout');
+        Route::post('logout', [LoginStudentController::class, 'destroy'])->name('logout');
     });
 });
 

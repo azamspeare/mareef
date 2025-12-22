@@ -1,4 +1,4 @@
-import { Head, Link, router, usePage } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
 import DashboardLayout from '@/Layouts/DashboardLayout.tsx';
 import { ActivityChart } from '@/components/activity-chart.tsx';
 import { Badge } from '@/components/ui/badge.tsx';
@@ -31,7 +31,19 @@ import {
     IconMail,
     IconUser,
 } from '@tabler/icons-react';
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipTrigger,
+} from '@/components/ui/tooltip.tsx';
+import { socialIcons } from '@/lib/images.ts';
 import { format } from 'date-fns';
+
+interface TelegramUser {
+    id: number;
+    chat_id: number;
+    username: string | null;
+}
 
 interface Student {
     id: number;
@@ -39,6 +51,7 @@ interface Student {
     email: string;
     username: string;
     created_at: string;
+    telegram_user: TelegramUser | null;
 }
 
 interface Submission {
@@ -142,8 +155,8 @@ export default function StudentShow({ student, submissions, activity, filters }:
 
                         {/* Student Details Card */}
                         <div className="rounded-lg border bg-card p-6 mb-6">
-                            <div className="flex items-start gap-4">
-                                <div className="bg-muted flex size-16 items-center justify-center rounded-full">
+                            <div className="flex items-stretch gap-4">
+                                <div className="bg-muted flex size-16 items-center justify-center rounded-full shrink-0">
                                     <IconUser className="text-muted-foreground size-8" />
                                 </div>
                                 <div className="flex-1">
@@ -156,12 +169,66 @@ export default function StudentShow({ student, submissions, activity, filters }:
                                     <p className="text-sm text-muted-foreground mt-2">
                                         Joined {format(new Date(student.created_at), 'MMMM d, yyyy')}
                                     </p>
+                                    {/* Mobile: Social accounts */}
+                                    {student.telegram_user && (
+                                        <div className="mt-3 sm:hidden">
+                                            {student.telegram_user.username ? (
+                                                <a
+                                                    href={`https://t.me/${student.telegram_user.username}`}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+                                                >
+                                                    <img src={socialIcons.telegram} alt="Telegram" className="size-5" />
+                                                </a>
+                                            ) : (
+                                                <Tooltip>
+                                                    <TooltipTrigger asChild>
+                                                        <span className="inline-flex items-center gap-2 text-sm text-muted-foreground cursor-default">
+                                                            <img src={socialIcons.telegram} alt="Telegram" className="size-5" />
+                                                        </span>
+                                                    </TooltipTrigger>
+                                                    <TooltipContent>
+                                                        User's Telegram profile is not public
+                                                    </TooltipContent>
+                                                </Tooltip>
+                                            )}
+                                        </div>
+                                    )}
                                 </div>
-                                <div className="text-right hidden sm:block">
-                                    <div className="text-3xl font-bold">{submissions.total}</div>
-                                    <div className="text-sm text-muted-foreground">
-                                        Total Submissions
+                                {/* Desktop: Submissions count and social accounts */}
+                                <div className="text-right hidden sm:flex flex-col justify-between">
+                                    <div id="submissions-count">
+                                        <div className="text-3xl font-bold">{submissions.total}</div>
+                                        <div className="text-sm text-muted-foreground">
+                                            Total Submissions
+                                        </div>
                                     </div>
+                                    {student.telegram_user && (
+                                        <div id="social-accounts">
+                                            {student.telegram_user.username ? (
+                                                <a
+                                                    href={`https://t.me/${student.telegram_user.username}`}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+                                                >
+                                                    <img src={socialIcons.telegram} alt="Telegram" className="size-5" />
+                                                </a>
+                                            ) : (
+                                                <Tooltip>
+                                                    <TooltipTrigger asChild>
+                                                        <span className="inline-flex items-center gap-2 text-sm text-muted-foreground cursor-default">
+                                                            <img src={socialIcons.telegram} alt="Telegram" className="size-5" />
+                                                        </span>
+                                                    </TooltipTrigger>
+                                                    <TooltipContent>
+                                                        User's Telegram profile is not public
+                                                    </TooltipContent>
+                                                </Tooltip>
+                                            )}
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         </div>

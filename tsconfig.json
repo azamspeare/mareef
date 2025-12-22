@@ -23,7 +23,8 @@
         /* Path mapping */
         "baseUrl": ".",
         "paths": {
-            "@/*": ["resources/js/*"]
+            "@/*": ["resources/js/*"],
+            "@images/*": ["resources/images/*"]
         }
     },
     "include": ["resources/js/**/*.ts", "resources/js/**/*.tsx"],

@@ -199,7 +199,7 @@ const LoginDrawer = memo(function LoginDrawer({ isOpen }: LoginDrawerProps) {
     }, []);
 
     const handleRegister = useCallback(() => {
-        window.location.href = route('student.auth.register');
+        window.location.href = route('student.register');
     }, []);
 
     return (

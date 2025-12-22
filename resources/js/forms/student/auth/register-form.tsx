@@ -48,7 +48,7 @@ export function RegisterForm({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    post(route('student.auth.register.store'), {
+    post(route('student.register.store'), {
       onSuccess: clearDraft,
       onFinish: () => reset('password'),
     })
@@ -140,7 +140,7 @@ export function RegisterForm({
         </Field>
         <p className="text-center text-sm text-muted-foreground">
           Already have an account?{" "}
-          <a href={route('student.auth.login')} className="underline underline-offset-4 hover:text-primary">
+          <a href={route('student.login')} className="underline underline-offset-4 hover:text-primary">
             Sign in
           </a>
         </p>

@@ -28,7 +28,7 @@ export function LoginForm({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    post(route('student.auth.login.store'), {
+    post(route('student.login.store'), {
       onFinish: () => reset('password'),
     })
   }
@@ -90,7 +90,7 @@ export function LoginForm({
         </Field>
         <p className="text-center text-sm text-muted-foreground">
           Don't have an account?{" "}
-          <a href={route('student.auth.register')} className="underline underline-offset-4 hover:text-primary">
+          <a href={route('student.register')} className="underline underline-offset-4 hover:text-primary">
             Sign up
           </a>
         </p>
