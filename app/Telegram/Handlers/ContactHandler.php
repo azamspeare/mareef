@@ -20,6 +20,7 @@ final class ContactHandler
     public function __invoke(Nutgram $bot): void
     {
         $contact = $bot->message()?->contact;
+        $uri = config('app.url');
 
         if ($contact === null) {
             return;
@@ -31,9 +32,12 @@ final class ContactHandler
         $result = $this->handler->handle(new VerifyUserPhoneNumberService($chatId, $phoneNumber));
         if (! $result) {
             $bot->sendMessage(
-                text: "Sorry, this phone number is not registered in our system.
+                text: <<<TEXT
+Sorry, this phone number is not registered in our system.
 
-Please make sure you're using the same phone number you registered with on the Mareef (mareef.uz)",
+Please make sure you're using the same phone number you registered with on the <a href="{$uri}">Mareef</a>
+TEXT,
+                parse_mode: 'HTML',
                 reply_markup: ReplyKeyboardRemove::make(remove_keyboard: true)
             );
 

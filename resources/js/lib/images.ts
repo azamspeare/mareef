@@ -33,7 +33,7 @@ import taskWritingDark from '@images/task-mockup/writing/dark.png'
 
 // Logo
 import logoSvg from '@images/logo/logo.svg'
-import faviconPng from '@images/logo/favicon.png'
+import faviconPng from '../../../public/favicon.png'
 
 // Social icons
 import telegramIcon from '@images/social-media/telegram.png'
