@@ -3,7 +3,9 @@
     "private": true,
     "type": "module",
     "pnpm": {
-        "onlyBuiltDependencies": ["sharp"]
+        "onlyBuiltDependencies": [
+            "sharp"
+        ]
     },
     "scripts": {
         "build": "vite build",

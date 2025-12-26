@@ -36,10 +36,9 @@ final class StudentAuthController extends Controller
      */
     public function redirect()
     {
-        // Store the intended URL (where the user came from) in session
-        if (request()->headers->has('referer')) {
+        // Only set intended URL from referer if no task page URL is already stored
+        if (! session()->has('student_auth_intended') && request()->headers->has('referer')) {
             $referer = request()->headers->get('referer');
-            // Extract the path from the full URL to ensure proper Inertia handling
             $intendedUrl = parse_url($referer, PHP_URL_PATH) ?? '/';
             session()->put('student_auth_intended', $intendedUrl);
         }

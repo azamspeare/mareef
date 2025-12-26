@@ -29,7 +29,7 @@ final class WritingTaskController extends Controller
     ) {
     }
 
-    public function create(Request $request, string $handle, string $slug): Response
+    public function create(Request $request, string $handle, string $slug): Response|RedirectResponse
     {
         $teacher = $this->teacherQuery->query(['username' => $handle]);
         if (! $teacher) {
@@ -41,11 +41,28 @@ final class WritingTaskController extends Controller
             abort(404);
         }
 
+        $user = $request->user();
+
+        // Store task page URL for redirect after login/register/verification
+        if (! $user || ! $user->phone_number || ! $user->hasVerifiedEmail()) {
+            session()->put('student_auth_intended', '/' . $request->path());
+        }
+
+        // If authenticated but phone not registered, redirect to phone registration
+        if ($user && ! $user->phone_number) {
+            return redirect()->route('register.phone-number');
+        }
+
+        // If authenticated but phone not verified (OTP pending), redirect to OTP verification
+        if ($user && $user->phone_number && ! $user->email_verified_at) {
+            return redirect()->route('register.otp');
+        }
+
         $submission = null;
-        if ($request->user()) {
+        if ($user) {
             $submission = $this->submissionQuery->query([
                 'writing_id' => $writing->id,
-                'student_id' => $request->user()->id
+                'student_id' => $user->id
             ]);
         }
 

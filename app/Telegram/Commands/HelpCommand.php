@@ -18,12 +18,13 @@ final class HelpCommand extends Command
         $bot->sendMessage(
             text: "ℹ️ Mareef Bot Help
 
+This bot helps you connect your Mareef account and receive important notifications.
+
 Available commands:
 /start — Start or restart setup
 /code — Generate a new verification code
 
-If you're stuck, return to the Mareef website
-and follow the instructions shown there."
+If you have any questions or issues, contact @mareef_support."
         );
     }
 }

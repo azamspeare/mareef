@@ -6,6 +6,7 @@ namespace App\Telegram\Commands;
 
 use App\Actions\Telegram\SetupTelegramUserAction;
 use App\DTOs\User\TelegramDTO;
+use App\Queries\Telegram\TelegramUserFindByChatIDQuery;
 use SergiX44\Nutgram\Handlers\Type\Command;
 use SergiX44\Nutgram\Nutgram;
 use SergiX44\Nutgram\Telegram\Types\Keyboard\KeyboardButton;
@@ -17,11 +18,18 @@ final class StartCommand extends Command
 
     protected ?string $description = 'Start the bot';
 
-    public function handle(Nutgram $bot, SetupTelegramUserAction $action): void
+    public function handle(Nutgram $bot, SetupTelegramUserAction $action, TelegramUserFindByChatIDQuery $query): void
     {
         $user = $bot->user();
 
         if (! $user) {
+            return;
+        }
+
+        if ($query->query(['chat_id' => $user->id])) {
+            $bot->sendMessage('You are already registered.
+
+Need help? Type /help.');
             return;
         }
 

@@ -16,7 +16,8 @@ final class LoginController extends Controller
 {
     public function create(): Response
     {
-        if (request()->headers->has('referer')) {
+        // Only set intended URL from referer if no task page URL is already stored
+        if (! session()->has('student_auth_intended') && request()->headers->has('referer')) {
             $referer = request()->headers->get('referer');
             $intendedUrl = parse_url($referer, PHP_URL_PATH) ?? '/';
             session()->put('student_auth_intended', $intendedUrl);

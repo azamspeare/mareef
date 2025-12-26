@@ -6,6 +6,7 @@ use App\Telegram\Commands\CodeCommand;
 use App\Telegram\Commands\HelpCommand;
 use App\Telegram\Commands\StartCommand;
 use App\Telegram\Handlers\ContactHandler;
+use SergiX44\Nutgram\Nutgram;
 
 /*
 |--------------------------------------------------------------------------
@@ -22,3 +23,7 @@ $bot->onContact(ContactHandler::class);
 
 $bot->registerCommand(CodeCommand::class);
 $bot->registerCommand(HelpCommand::class);
+
+$bot->fallback(function (Nutgram $bot) {
+   $bot->sendMessage('Sorry, we couldn\'t process your message.');
+});
