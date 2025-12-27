@@ -22,15 +22,6 @@ final class WritingSubmissionObserver
     public function created(WritingSubmission $submission): void
     {
         $this->invalidateTeacherCache($submission);
-
-        $teacher = $submission->writing->teacher;
-        $telegramUser = $teacher->telegramUser;
-
-        if (! $telegramUser) {
-            return;
-        }
-
-        defer(fn () => $this->notifier->send($telegramUser->chat_id, new StudentSubmissionNotification($submission)));
     }
 
     /**
@@ -41,6 +32,17 @@ final class WritingSubmissionObserver
         // Only invalidate cache if evaluation status changed
         if ($submission->isDirty('evaluated_at') || $submission->isDirty('status')) {
             $this->invalidateTeacherCache($submission);
+        }
+
+        if ($submission->isEvaluated()) {
+            $teacher = $submission->writing->teacher;
+            $telegramUser = $teacher->telegramUser;
+
+            if (! $telegramUser) {
+                return;
+            }
+
+            defer(fn () => $this->notifier->send($telegramUser->chat_id, new StudentSubmissionNotification($submission)));
         }
     }
 
