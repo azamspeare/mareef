@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { getTeacherUrl } from '@/lib/utils';
-import { WaitlistDialog } from '@/components/waitlist-dialog';
+import { WaitlistForm } from '@/forms/public/waitlist-form';
 
 interface CallToActionSectionProps {
     title?: string
@@ -38,11 +38,11 @@ export default function CallToActionSection({
 
                     <div className="mt-12 flex flex-wrap justify-center gap-4">
                         {isWaitlist ? (
-                            <WaitlistDialog>
+                            <WaitlistForm>
                                 <Button size="lg">
                                     <span>{primaryButtonText}</span>
                                 </Button>
-                            </WaitlistDialog>
+                            </WaitlistForm>
                         ) : (
                             <Button asChild size="lg">
                                 <a href={primaryHref}>

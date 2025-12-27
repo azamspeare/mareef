@@ -11,6 +11,17 @@ use Throwable;
 
 final class ServiceHandler
 {
+    private ?string $error;
+
+    public function getError(string $default): ?string
+    {
+        if (! $this->error) {
+            return $default;
+        }
+
+        return $this->error;
+    }
+
     public function handle(AbstractService $childService): array|false
     {
         try {
@@ -27,6 +38,7 @@ final class ServiceHandler
                 'data' => $childService->getResult()
             ];
         } catch (Throwable $throwable) {
+            $this->error = $throwable->getMessage();
             logger()->error($throwable->getMessage());
 
             return false;

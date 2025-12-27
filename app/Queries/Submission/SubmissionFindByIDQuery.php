@@ -24,7 +24,11 @@ final class SubmissionFindByIDQuery extends AbstractArrayQueryable implements Ar
                 return $query->where('teacher_id', '=', $teacher_id);
             })
             ->where('id', '=', $id)
-            ->with(['writing', 'student', 'feedback'])
+            ->with([
+                'writing:id,teacher_id,title,slug,content,allocated_time',
+                'student:id,name,email,username',
+                'feedback',
+            ])
             ->first();
     }
 }

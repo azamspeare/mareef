@@ -1,5 +1,6 @@
 import { AppSidebar } from "@/components/app-sidebar"
 import { SiteHeader } from "@/components/site-header"
+import { FlashToaster } from "@/components/flash-toaster"
 import {
   SidebarInset,
   SidebarProvider,
@@ -28,6 +29,7 @@ export default function DashboardLayout({ children, title = "Dashboard" }: Dashb
           {children}
         </div>
       </SidebarInset>
+      <FlashToaster />
       <Toaster />
     </SidebarProvider>
   )

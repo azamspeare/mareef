@@ -111,13 +111,11 @@ final class HandleInertiaRequests extends Middleware
 
         // Check for writing task page (dynamic route)
         if (str_starts_with($path, 'w/')) {
-            $meta = [
+            return [
                 'title' => 'Writing Task - Mareef',
                 'description' => 'Complete your writing task on Mareef.',
                 'image' => '/images/og/writing-task.png',
             ];
-
-            return $meta;
         }
 
         return $routeMeta[$routeName] ?? $meta;

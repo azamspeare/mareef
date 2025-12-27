@@ -1,6 +1,10 @@
 import { useState, useEffect } from "react"
 import { router, Link } from "@inertiajs/react"
 import {
+  getLocalStorageValue as getStoredFilter,
+  setLocalStorageValue as setStoredFilter,
+} from "@/hooks/use-local-storage"
+import {
   IconChevronLeft,
   IconChevronRight,
   IconChevronsLeft,
@@ -72,17 +76,6 @@ const STORAGE_KEYS = {
   SEARCH: 'students.filter.search',
   PAGE: 'students.filter.page',
   PER_PAGE: 'students.filter.per_page',
-}
-
-const getStoredFilter = (key: string, defaultValue: any) => {
-  if (typeof window === 'undefined') return defaultValue
-  const stored = localStorage.getItem(key)
-  return stored ? JSON.parse(stored) : defaultValue
-}
-
-const setStoredFilter = (key: string, value: any) => {
-  if (typeof window === 'undefined') return
-  localStorage.setItem(key, JSON.stringify(value))
 }
 
 export function StudentsTable({

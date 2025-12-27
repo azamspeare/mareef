@@ -8,6 +8,7 @@ import PricingSection from '@/components/sections/pricing-section';
 import CallToActionSection from '@/components/sections/call-to-action-section';
 import FaqSection from '@/components/sections/faq-section';
 import FooterSection from '@/components/sections/footer-section';
+import { ogImages } from '@/lib/images';
 
 export default function Welcome() {
     return (
@@ -15,12 +16,12 @@ export default function Welcome() {
             <Head title="Mareef - The Task Platform for Language Teachers">
                 <meta property="og:title" content="Mareef - The Task Platform for Language Teachers" />
                 <meta property="og:description" content="Create, share, and evaluate language tasks. Simplify your teaching workflow with Mareef." />
-                <meta property="og:image" content="/images/og/welcome.png" />
+                <meta property="og:image" content={ogImages.welcome} />
                 <meta property="og:type" content="website" />
                 <meta name="twitter:card" content="summary_large_image" />
                 <meta name="twitter:title" content="Mareef - The Task Platform for Language Teachers" />
                 <meta name="twitter:description" content="Create, share, and evaluate language tasks. Simplify your teaching workflow with Mareef." />
-                <meta name="twitter:image" content="/images/og/welcome.png" />
+                <meta name="twitter:image" content={ogImages.welcome} />
             </Head>
 
             {/* Hero Section */}

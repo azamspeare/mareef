@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\DB;
 
 final class SubmissionsRepository
 {
-    private const CACHE_TTL = 300; // 5 minutes cache
+    private const CACHE_TTL = 300; // 5-minute cache
 
     /**
      * Get all submission counts in a single optimized query.
@@ -43,30 +43,21 @@ final class SubmissionsRepository
 
     public function countTotalSubmissions(int $teacher_id): int
     {
-        return DB::table('writing_submissions as ws')
-            ->join('writings as w', 'ws.writing_id', '=', 'w.id')
-            ->where('w.teacher_id', $teacher_id)
-            ->whereNull('w.deleted_at')
-            ->count();
+        return $this->getAllCounts($teacher_id)['total'];
     }
 
     public function countNotReviewedSubmissions(int $teacher_id): int
     {
-        return DB::table('writing_submissions as ws')
-            ->join('writings as w', 'ws.writing_id', '=', 'w.id')
-            ->where('w.teacher_id', $teacher_id)
-            ->whereNull('w.deleted_at')
-            ->whereNull('ws.evaluated_at')
-            ->count();
+        return $this->getAllCounts($teacher_id)['not_reviewed'];
     }
 
     public function countEvaluatedSubmissions(int $teacher_id): int
     {
-        return DB::table('writing_submissions as ws')
-            ->join('writings as w', 'ws.writing_id', '=', 'w.id')
-            ->where('w.teacher_id', $teacher_id)
-            ->whereNull('w.deleted_at')
-            ->whereNotNull('ws.evaluated_at')
-            ->count();
+        return $this->getAllCounts($teacher_id)['evaluated'];
+    }
+
+    public function invalidateCache(int $teacher_id): void
+    {
+        Cache::forget("counts:submissions:{$teacher_id}");
     }
 }

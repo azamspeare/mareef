@@ -1,13 +1,11 @@
 <?php
 
-declare(strict_types=1);
-
 namespace App\DTOs\User;
 
 use App\Contracts\Abstracts\DTO\AbstractDataObject;
 use App\Contracts\Enums\RoleEnum;
 use Illuminate\Support\Str;
-use Laravel\Socialite\Two\User;
+use SensitiveParameter;
 
 final readonly class RegisterDTO extends AbstractDataObject
 {
@@ -15,21 +13,21 @@ final readonly class RegisterDTO extends AbstractDataObject
         public string $name,
         public string $email,
         public string $username,
-        public ?string $password,
+        public string $phoneNumber,
+        #[SensitiveParameter] public string $password,
         public RoleEnum $role,
-        public ?string $avatar = null
     ) {
     }
 
-    public static function make(User $user, RoleEnum $role): self
+    public static function make(array $data, RoleEnum $role): self
     {
-        $name = $user->getName();
-        $email = mb_strtolower($user->getEmail());
+        $name = $data['name'];
+        $email = mb_strtolower($data['email']);
         $username = Str::before($email, '@');
-        $password = null;
-        $avatar = $user->getAvatar();
+        $phoneNumber = $data['phone_number'];
+        $password = $data['password'];
 
-        return new self($name, $email, $username, $password, $role, $avatar);
+        return new self($name, $email, $username, $phoneNumber, $password, $role);
     }
 
     public function toArray(): array
@@ -38,10 +36,9 @@ final readonly class RegisterDTO extends AbstractDataObject
             'name' => $this->name,
             'email' => $this->email,
             'username' => $this->username,
-            'email_verified_at' => now(),
+            'phone_number' => $this->phoneNumber,
             'password' => $this->password,
             'role' => $this->role->value,
-            'avatar' => $this->avatar,
         ];
     }
 }

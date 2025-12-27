@@ -1,0 +1,36 @@
+import { Head } from '@inertiajs/react';
+import { DataTable, Counts, Submission } from "@/components/data-table.tsx"
+import { SectionCards, Metrics } from "@/components/section-cards.tsx"
+import DashboardLayout from '@/Layouts/DashboardLayout.tsx';
+import type { Paginated } from "@/types";
+
+interface HomeProps {
+  metrics: Metrics;
+  counts: Counts;
+  submissions: Paginated<Submission>;
+}
+
+export default function Home({ metrics, counts, submissions }: HomeProps) {
+  return (
+    <DashboardLayout title="Dashboard">
+      <Head title="Dashboard - Mareef" />
+      <div className="@container/main flex flex-1 flex-col gap-2">
+        <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
+          <SectionCards metrics={metrics} />
+          <DataTable
+            data={submissions.data}
+            counts={counts}
+            pagination={{
+              current_page: submissions.current_page,
+              last_page: submissions.last_page,
+              per_page: submissions.per_page,
+              total: submissions.total,
+              from: submissions.from,
+              to: submissions.to,
+            }}
+          />
+        </div>
+      </div>
+    </DashboardLayout>
+  )
+}

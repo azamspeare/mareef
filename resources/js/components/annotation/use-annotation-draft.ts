@@ -1,4 +1,9 @@
 import { useCallback, useEffect, useState } from 'react';
+import {
+    getLocalStorageValue,
+    setLocalStorageValue,
+    removeLocalStorageValue,
+} from '@/hooks/use-local-storage';
 import type { Annotation, AnnotationData } from './types';
 
 const DRAFT_KEY_PREFIX = 'annotation_draft_';
@@ -32,52 +37,35 @@ export function useAnnotationDraft({
             return existingAnnotations;
         }
 
-        if (typeof window === 'undefined') return [];
-
-        try {
-            const saved = localStorage.getItem(storageKey);
-            if (saved) {
-                const parsed: AnnotationData = JSON.parse(saved);
-                // Verify the draft is for the same content
-                if (parsed.originalText === originalText) {
-                    return parsed.annotations;
-                }
-                // Content changed, discard draft
-                localStorage.removeItem(storageKey);
-            }
-        } catch {
-            // Ignore parse errors
+        const saved = getLocalStorageValue<AnnotationData | null>(storageKey, null);
+        if (saved && saved.originalText === originalText) {
+            return saved.annotations;
         }
+
+        // Content changed or no saved draft, discard
+        if (saved) {
+            removeLocalStorageValue(storageKey);
+        }
+
         return [];
     });
 
     const [hasDraft, setHasDraft] = useState(() => {
-        if (typeof window === 'undefined') return false;
-        try {
-            const saved = localStorage.getItem(storageKey);
-            if (saved) {
-                const parsed: AnnotationData = JSON.parse(saved);
-                return parsed.originalText === originalText && parsed.annotations.length > 0;
-            }
-        } catch {
-            // Ignore
-        }
-        return false;
+        const saved = getLocalStorageValue<AnnotationData | null>(storageKey, null);
+        return saved !== null && saved.originalText === originalText && saved.annotations.length > 0;
     });
 
     // Save to localStorage whenever annotations change
     useEffect(() => {
-        if (typeof window === 'undefined') return;
-
         if (annotations.length > 0) {
             const data: AnnotationData = {
                 annotations,
                 originalText,
             };
-            localStorage.setItem(storageKey, JSON.stringify(data));
+            setLocalStorageValue(storageKey, data);
             setHasDraft(true);
         } else {
-            localStorage.removeItem(storageKey);
+            removeLocalStorageValue(storageKey);
             setHasDraft(false);
         }
     }, [annotations, originalText, storageKey]);
@@ -97,8 +85,7 @@ export function useAnnotationDraft({
     }, []);
 
     const clearDraft = useCallback(() => {
-        if (typeof window === 'undefined') return;
-        localStorage.removeItem(storageKey);
+        removeLocalStorageValue(storageKey);
         setHasDraft(false);
     }, [storageKey]);
 

@@ -9,7 +9,7 @@ use App\Models\Submission\WritingSubmission;
 use App\Models\User\User;
 use App\Observers\Feedback\WritingFeedbackObserver;
 use Carbon\CarbonInterface;
-use Database\Factories\WritingFeedbackFactory;
+use Database\Factories\Tasks\Writing\WritingFeedbackFactory;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Attributes\UseFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;

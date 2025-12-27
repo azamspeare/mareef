@@ -8,7 +8,7 @@ use App\Models\Submission\WritingSubmission;
 use App\Models\User\User;
 use App\Models\Writing\Traits\HasRelations;
 use Carbon\CarbonInterface;
-use Database\Factories\WritingFactory;
+use Database\Factories\Tasks\Writing\WritingFactory;
 use Illuminate\Database\Eloquent\Attributes\UseFactory;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Collection;

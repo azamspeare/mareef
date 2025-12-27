@@ -11,7 +11,7 @@ use App\Models\User\User;
 use App\Models\Writing\Writing;
 use App\Observers\Submission\WritingSubmissionObserver;
 use Carbon\CarbonInterface;
-use Database\Factories\WritingSubmissionFactory;
+use Database\Factories\Tasks\Writing\WritingSubmissionFactory;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Attributes\UseFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;

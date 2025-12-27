@@ -27,6 +27,7 @@ final class StudentFindByIDQuery extends AbstractArrayQueryable implements Array
         };
 
         $query = User::query()
+            ->with('telegramUser')
             ->where('role', '=', RoleEnum::STUDENT->value)
             ->where('id', '=', $id)
             ->whereHas('submissions', function ($q) use ($teacherWritingConstraint) {

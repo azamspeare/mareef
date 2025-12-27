@@ -6,6 +6,7 @@ import SolutionSection2, { Solution2 } from '@/components/sections/task/solution
 import CallToActionSection from '@/components/sections/call-to-action-section'
 import FooterSection from '@/components/sections/footer-section'
 import { Toaster } from '@/components/ui/sonner'
+import { dashboardMockups, ogImages } from '@/lib/images'
 import { FileText, ClipboardList, BarChart3, Upload, ListChecks, Timer } from 'lucide-react'
 
 const readingProblems: Problem[] = [
@@ -55,12 +56,12 @@ export default function Reading() {
             <Head title="Reading Tasks - Mareef">
                 <meta property="og:title" content="Reading Tasks - Mareef" />
                 <meta property="og:description" content="Build, assign, and auto-grade reading comprehension tasks. No more paper worksheets." />
-                <meta property="og:image" content="/images/og/tasks.png" />
+                <meta property="og:image" content={ogImages.tasks} />
                 <meta property="og:type" content="website" />
                 <meta name="twitter:card" content="summary_large_image" />
                 <meta name="twitter:title" content="Reading Tasks - Mareef" />
                 <meta name="twitter:description" content="Build, assign, and auto-grade reading comprehension tasks. No more paper worksheets." />
-                <meta name="twitter:image" content="/images/og/tasks.png" />
+                <meta name="twitter:image" content={ogImages.tasks} />
             </Head>
 
             {/* Header */}
@@ -74,10 +75,7 @@ export default function Reading() {
                     description="No more printing 50 worksheets and checking them by hand. Mareef's upcoming Reading Tasks will let you build, assign, and auto-grade comprehension tasks all in one flow."
                     primaryButtonText="Join Waitlist"
                     isWaitlist={true}
-                    imageSrc={{
-                        light: '/images/dashboard-mockups/light.png',
-                        dark: '/images/dashboard-mockups/dark.png',
-                    }}
+                    imageSrc={dashboardMockups}
                 />
 
                 {/* Problem Section */}

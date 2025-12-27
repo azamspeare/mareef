@@ -22,34 +22,39 @@ const explicitTheme: ThemeInput = {
     dark: ['#666666', '#39d353', '#26a641', '#006d32', '#0e4429'],
 };
 
-// 53 weeks in a year, 7 days per week
-const WEEKS_IN_YEAR = 53;
 const WEEKDAY_LABEL_WIDTH = 30; // approximate width for weekday labels
 const MIN_BLOCK_SIZE = 10;
 const MAX_BLOCK_SIZE = 16;
+const MOBILE_BREAKPOINT = 640; // sm breakpoint
+const DAYS_MOBILE = 90;
+const DAYS_DESKTOP = 365;
 
 export function ActivityChart({ data }: ActivityChartProps) {
     const { theme } = useTheme();
     const containerRef = useRef<HTMLDivElement>(null);
     const [blockSize, setBlockSize] = useState(12);
     const [blockMargin, setBlockMargin] = useState(4);
+    const [daysToShow, setDaysToShow] = useState(DAYS_DESKTOP);
 
-    // Calculate block size based on container width
+    // Calculate block size and days to show based on container width
     useEffect(() => {
-        const calculateBlockSize = () => {
+        const calculateLayout = () => {
             if (!containerRef.current) return;
 
             const containerWidth = containerRef.current.offsetWidth;
+
+            // Determine mobile or desktop
+            const isMobile = containerWidth < MOBILE_BREAKPOINT;
+            const days = isMobile ? DAYS_MOBILE : DAYS_DESKTOP;
+            const weeks = Math.ceil(days / 7);
+
+            setDaysToShow(days);
+
             // Available width = container - weekday labels - padding
             const availableWidth = containerWidth - WEEKDAY_LABEL_WIDTH - 16;
 
             // Calculate optimal block size + margin to fill the width
-            // totalWidth = weeks * (blockSize + margin) - margin
-            // availableWidth = 53 * (blockSize + margin) - margin
-            // availableWidth + margin = 53 * (blockSize + margin)
-            // (availableWidth + margin) / 53 = blockSize + margin
-
-            const optimalTotal = availableWidth / WEEKS_IN_YEAR;
+            const optimalTotal = availableWidth / weeks;
             // Keep margin as roughly 25-30% of total cell size
             const optimalMargin = Math.max(2, Math.floor(optimalTotal * 0.25));
             const optimalBlockSize = Math.floor(optimalTotal - optimalMargin);
@@ -62,9 +67,9 @@ export function ActivityChart({ data }: ActivityChartProps) {
             setBlockMargin(clampedMargin);
         };
 
-        calculateBlockSize();
+        calculateLayout();
 
-        const resizeObserver = new ResizeObserver(calculateBlockSize);
+        const resizeObserver = new ResizeObserver(calculateLayout);
         if (containerRef.current) {
             resizeObserver.observe(containerRef.current);
         }
@@ -79,9 +84,9 @@ export function ActivityChart({ data }: ActivityChartProps) {
         // Helper to format date as YYYY-MM-DD
         const formatDate = (date: Date) => format(date, 'yyyy-MM-dd');
 
-        // Iterate from 365 days ago to today
-        for (let d = 0; d <= 365; d++) {
-            const currentDate = subDays(today, 365 - d);
+        // Iterate from daysToShow days ago to today
+        for (let d = 0; d <= daysToShow; d++) {
+            const currentDate = subDays(today, daysToShow - d);
             const dateStr = formatDate(currentDate);
             const count = data[dateStr] || 0;
 
@@ -101,17 +106,19 @@ export function ActivityChart({ data }: ActivityChartProps) {
         }
 
         return dates;
-    }, [data]);
+    }, [data, daysToShow]);
 
     const totalSubmissions = useMemo(() => {
         return Object.values(data).reduce((sum, count) => sum + count, 0);
     }, [data]);
 
+    const periodLabel = daysToShow === DAYS_DESKTOP ? 'year' : `${daysToShow} days`;
+
     return (
         <div className="rounded-lg border bg-card p-4 w-full">
             <div className="flex items-center justify-between mb-4">
                 <h3 className="text-sm font-medium">
-                    {totalSubmissions} submission{totalSubmissions !== 1 ? 's' : ''} in the last year
+                    {totalSubmissions} submission{totalSubmissions !== 1 ? 's' : ''} in the last {periodLabel}
                 </h3>
             </div>
 

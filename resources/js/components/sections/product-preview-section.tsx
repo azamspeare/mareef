@@ -3,40 +3,43 @@ import { PenTool, Send, MessageSquareMore, LayoutDashboard } from 'lucide-react'
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import { BorderBeam } from '@/components/ui/border-beam'
+import { featureMockups, dashboardMockups, type ThemedImage } from '@/lib/images'
 
 type ImageKey = 'item-1' | 'item-2' | 'item-3' | 'item-4'
 
-const features = {
+const features: Record<ImageKey, {
+    icon: typeof PenTool
+    title: string
+    description: string
+    images: ThemedImage
+    alt: string
+}> = {
     'item-1': {
         icon: PenTool,
         title: 'Writing Task Creation',
         description: 'Block-based editor with title, instructions, and allocated time. Create structured assignments in under 2 minutes.',
-        image: '/images/feature-mockups/create-task/light.png',
-        imageDark: '/images/feature-mockups/create-task/dark.png',
+        images: featureMockups.createTask,
         alt: 'Writing task creation interface',
     },
     'item-2': {
         icon: Send,
         title: 'Student Submission View',
         description: 'Clean writing interface with autosave and one-click submit. No file uploads, no external tools needed.',
-        image: '/images/feature-mockups/submission-view/light.png',
-        imageDark: '/images/feature-mockups/submission-view/dark.png',
+        images: featureMockups.submissionView,
         alt: 'Student submission interface',
     },
     'item-3': {
         icon: MessageSquareMore,
         title: 'Teacher Evaluation Flow',
         description: 'Inline comments, highlights, scoring, and feedback popup. Every response is reviewable anytime.',
-        image: '/images/feature-mockups/evaluation-flow/light.png',
-        imageDark: '/images/feature-mockups/evaluation-flow/dark.png',
+        images: featureMockups.evaluationFlow,
         alt: 'Teacher evaluation interface',
     },
     'item-4': {
         icon: LayoutDashboard,
         title: 'Dashboard Overview',
         description: 'Analytics cards and filtered submission table. See Not Reviewed and Evaluated tasks at a glance.',
-        image: '/images/dashboard-mockups/light.png',
-        imageDark: '/images/dashboard-mockups/dark.png',
+        images: dashboardMockups,
         alt: 'Dashboard overview',
     },
 }
@@ -88,12 +91,12 @@ export default function ProductPreviewSection() {
                                     transition={{ duration: 0.2 }}
                                     className="size-full overflow-hidden rounded-xl border shadow-sm">
                                     <img
-                                        src={features[activeItem].image}
+                                        src={features[activeItem].images.light}
                                         className="size-full object-cover object-left-top dark:hidden"
                                         alt={features[activeItem].alt}
                                     />
                                     <img
-                                        src={features[activeItem].imageDark}
+                                        src={features[activeItem].images.dark}
                                         className="size-full object-cover object-left-top hidden dark:block"
                                         alt={features[activeItem].alt}
                                     />
