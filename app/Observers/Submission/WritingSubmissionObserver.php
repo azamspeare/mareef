@@ -34,7 +34,7 @@ final class WritingSubmissionObserver
             $this->invalidateTeacherCache($submission);
         }
 
-        if ($submission->isCompleted()) {
+        if ($submission->isCompleted() && $submission->isDirty('content')) {
             $teacher = $submission->writing->teacher;
             $telegramUser = $teacher->telegramUser;
 
