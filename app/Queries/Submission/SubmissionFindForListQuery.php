@@ -8,7 +8,7 @@ use App\Contracts\Abstracts\Filter\AbstractFilter;
 use App\Contracts\Abstracts\Query\AbstractFilterQueryable;
 use App\Contracts\Enums\SubmissionStatusEnum;
 use App\Contracts\Interfaces\Query\FilterQueryable;
-use App\Models\Submission\WritingSubmission;
+use App\Models\Submission\Writing\WritingSubmission;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 final class SubmissionFindForListQuery extends AbstractFilterQueryable implements FilterQueryable

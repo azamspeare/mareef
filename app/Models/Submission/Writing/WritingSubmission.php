@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace App\Models\Submission;
+namespace App\Models\Submission\Writing;
 
 use App\Models\Feedback\WritingFeedback;
-use App\Models\Submission\Traits\HasMethods;
-use App\Models\Submission\Traits\HasRelations;
+use App\Models\Submission\Writing\Traits\HasMethods;
+use App\Models\Submission\Writing\Traits\HasRelations;
 use App\Models\User\User;
 use App\Models\Writing\Writing;
 use App\Observers\Submission\WritingSubmissionObserver;

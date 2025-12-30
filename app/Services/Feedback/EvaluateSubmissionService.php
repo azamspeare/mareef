@@ -3,11 +3,10 @@
 namespace App\Services\Feedback;
 
 use App\Contracts\Abstracts\Service\AbstractService;
-use App\Contracts\Enums\SubmissionStatusEnum;
 use App\Contracts\Interfaces\Service\TransactionServiceable;
 use App\DTOs\Feedback\FeedbackDTO;
 use App\Models\Feedback\WritingFeedback;
-use App\Models\Submission\WritingSubmission;
+use App\Models\Submission\Writing\WritingSubmission;
 
 final class EvaluateSubmissionService extends AbstractService implements TransactionServiceable
 {

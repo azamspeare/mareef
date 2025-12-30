@@ -6,7 +6,7 @@ namespace Database\Seeders\defaults\Tasks;
 
 use App\Contracts\Enums\RoleEnum;
 use App\Models\Feedback\WritingFeedback;
-use App\Models\Submission\WritingSubmission;
+use App\Models\Submission\Writing\WritingSubmission;
 use App\Models\User\User;
 use App\Models\Writing\Writing;
 use Illuminate\Database\Seeder;

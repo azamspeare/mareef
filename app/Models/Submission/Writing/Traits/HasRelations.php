@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Models\Submission\Traits;
+namespace App\Models\Submission\Writing\Traits;
 
 use App\Models\Feedback\WritingFeedback;
 use App\Models\User\User;

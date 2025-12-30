@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Observers\Submission;
 
-use App\Models\Submission\WritingSubmission;
+use App\Models\Submission\Writing\WritingSubmission;
 use App\Repositories\MetricsRepository;
 use App\Telegram\Messages\StudentSubmissionNotification;
 use App\Telegram\Notifier;

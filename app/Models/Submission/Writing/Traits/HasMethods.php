@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models\Submission\Traits;
+namespace App\Models\Submission\Writing\Traits;
 
 use App\Contracts\Enums\SubmissionProcessEnum;
 

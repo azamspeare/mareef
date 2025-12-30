@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models\Writing\Traits;
 
-use App\Models\Submission\WritingSubmission;
+use App\Models\Submission\Writing\WritingSubmission;
 use App\Models\User\User;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;

@@ -6,7 +6,7 @@ namespace App\Queries\Student;
 
 use App\Contracts\Abstracts\Query\AbstractFilterQueryable;
 use App\Contracts\Interfaces\Query\ArrayQueryable;
-use App\Models\Submission\WritingSubmission;
+use App\Models\Submission\Writing\WritingSubmission;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 

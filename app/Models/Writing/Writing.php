@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models\Writing;
 
-use App\Models\Submission\WritingSubmission;
+use App\Models\Submission\Writing\WritingSubmission;
 use App\Models\User\User;
 use App\Models\Writing\Traits\HasRelations;
 use Carbon\CarbonInterface;

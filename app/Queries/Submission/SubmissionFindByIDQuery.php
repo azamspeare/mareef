@@ -6,7 +6,7 @@ namespace App\Queries\Submission;
 
 use App\Contracts\Abstracts\Query\AbstractArrayQueryable;
 use App\Contracts\Interfaces\Query\ArrayQueryable;
-use App\Models\Submission\WritingSubmission;
+use App\Models\Submission\Writing\WritingSubmission;
 
 final class SubmissionFindByIDQuery extends AbstractArrayQueryable implements ArrayQueryable
 {

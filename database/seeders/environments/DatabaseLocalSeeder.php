@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Database\Seeders\environments;
 
 use Database\Seeders\defaults\Codes\OtpCodesSeeder;
+use Database\Seeders\defaults\Tasks\QuizSeeder;
 use Database\Seeders\defaults\Tasks\WritingSeeder;
 use Database\Seeders\defaults\User\AdminSeeder;
 use Database\Seeders\defaults\User\StudentSeeder;
@@ -27,7 +28,8 @@ final class DatabaseLocalSeeder extends Seeder
             TelegramUserSeeder::class,
             OtpCodesSeeder::class,
             WritingSeeder::class,
-            WaitlistSeeder::class
+            WaitlistSeeder::class,
+            QuizSeeder::class
         ]);
     }
 }

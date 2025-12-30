@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Models\User\Traits;
 
 use App\Models\Feedback\WritingFeedback;
-use App\Models\Submission\WritingSubmission;
+use App\Models\Submission\Writing\WritingSubmission;
 use App\Models\Telegram\TelegramUser;
 use App\Models\Writing\Writing;
 use Illuminate\Database\Eloquent\Relations\HasMany;

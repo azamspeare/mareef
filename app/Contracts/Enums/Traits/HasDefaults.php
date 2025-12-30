@@ -13,4 +13,9 @@ trait HasDefaults
     {
         return array_flip(self::toArray());
     }
+
+    public static function implode($separator = ', '): string
+    {
+        return implode($separator, self::toArray());
+    }
 }

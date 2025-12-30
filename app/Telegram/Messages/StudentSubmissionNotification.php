@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Telegram\Messages;
 
 use App\Contracts\Abstracts\Telegram\TelegramMessage;
-use App\Models\Submission\WritingSubmission;
+use App\Models\Submission\Writing\WritingSubmission;
 
 final class StudentSubmissionNotification extends TelegramMessage
 {

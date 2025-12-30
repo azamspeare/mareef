@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Models\Feedback;
 
 use App\Models\Feedback\Traits\HasRelations;
-use App\Models\Submission\WritingSubmission;
+use App\Models\Submission\Writing\WritingSubmission;
 use App\Models\User\User;
 use App\Observers\Feedback\WritingFeedbackObserver;
 use Carbon\CarbonInterface;
