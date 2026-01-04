@@ -8,7 +8,7 @@ use App\Actions\Writing\Bulk\ArchiveWritingsAction;
 use App\Actions\Writing\Bulk\RestoreWritingsAction;
 use App\Filters\Writing\WritingFilter;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Teacher\Writing\BulkWritingRequest;
+use App\Http\Requests\Reusable\BulkActionRequest;
 use Illuminate\Http\RedirectResponse;
 
 final class WritingBulkController extends Controller
@@ -16,7 +16,7 @@ final class WritingBulkController extends Controller
     /**
      * Archive the specified resource from storage.
      */
-    public function archive(BulkWritingRequest $request, ArchiveWritingsAction $action): RedirectResponse
+    public function archive(BulkActionRequest $request, ArchiveWritingsAction $action): RedirectResponse
     {
         $teacher = $request->user();
         $attributes = $request->validated();
@@ -36,7 +36,7 @@ final class WritingBulkController extends Controller
     /**
      * Restore the specified resource from storage.
      */
-    public function restore(BulkWritingRequest $request, RestoreWritingsAction $action): RedirectResponse
+    public function restore(BulkActionRequest $request, RestoreWritingsAction $action): RedirectResponse
     {
         $teacher = $request->user();
         $attributes = $request->validated();

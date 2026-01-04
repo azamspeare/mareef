@@ -49,7 +49,7 @@ export function EvaluationForm({
         };
 
         router.post(
-            route('submissions.evaluate', submissionId),
+            route('writings.submissions.evaluate', submissionId),
             {
                 submission_id: submissionId,
                 content: JSON.stringify(annotationData),

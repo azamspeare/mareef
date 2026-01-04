@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Observers\Feedback;
 
 use App\Models\Feedback\WritingFeedback;
-use App\Telegram\Messages\TeacherEvaluationNotification;
+use App\Telegram\Messages\Writing\WritingEvaluationNotification;
 use App\Telegram\Notifier;
 
 final class WritingFeedbackObserver
@@ -40,6 +40,6 @@ final class WritingFeedbackObserver
             return;
         }
 
-        defer(fn () => $this->notifier->send($telegramUser->chat_id, new TeacherEvaluationNotification($feedback, $isUpdated)));
+        defer(fn () => $this->notifier->send($telegramUser->chat_id, new WritingEvaluationNotification($feedback, $isUpdated)));
     }
 }

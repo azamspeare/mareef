@@ -34,15 +34,15 @@ resources/js/
 │   │   └── Speaking.tsx
 │   ├── Students/
 │   │   ├── Index.tsx
-│   │   └── Show.tsx
+│   │   └── Submission.tsx
 │   ├── Submissions/
 │   │   ├── Index.tsx
-│   │   └── Show.tsx
+│   │   └── Submission.tsx
 │   ├── Writings/
 │   │   ├── Index.tsx
 │   │   ├── Create.tsx
 │   │   ├── Edit.tsx
-│   │   └── Show.tsx
+│   │   └── Submission.tsx
 │   └── WritingTask.tsx       # Student writing interface
 │
 ├── Layouts/
@@ -252,7 +252,7 @@ interface WritingFormProps {
 - Allocated time (time picker)
 - Publish date (date picker, optional)
 
-### 5.4 Submissions/Show
+### 5.4 Submissions/Submission
 
 **Route:** `/submissions/{id}`
 

@@ -13,7 +13,7 @@ Mareef makes writing tasks clean, trackable, and fast — for teachers and stude
 - [Create a Writing Task]
 
 ### Hero Visual
-Show the writing task creation screen + a preview of the student submission flow.
+Submission the writing task creation screen + a preview of the student submission flow.
 
 ---
 

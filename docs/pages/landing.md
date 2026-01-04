@@ -133,7 +133,7 @@ Just smart, repeatable workflows — designed for how language is actually taugh
 
 ## 4.4 Product Preview
 
-Show how Mareef works in real use.
+Submission how Mareef works in real use.
 
 ### Suggested UI Screens (animated or scroll-triggered):
 

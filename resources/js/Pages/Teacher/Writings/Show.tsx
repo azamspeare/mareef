@@ -249,7 +249,7 @@ export default function Show({ writing }: ShowProps) {
                                     {recentSubmissions.map((submission) => (
                                         <Link
                                             key={submission.id}
-                                            href={route('submissions.show', submission.id)}
+                                            href={route('writings.submissions.show', submission.id)}
                                             className="flex items-center gap-2 rounded-lg border bg-card py-1 px-1.5 hover:bg-accent transition-colors"
                                         >
                                             <Avatar className="size-7 rounded-md">

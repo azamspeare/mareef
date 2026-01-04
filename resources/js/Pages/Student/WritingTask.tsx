@@ -9,7 +9,7 @@ import { useCreateBlockNote } from '@blocknote/react';
 import { BlockNoteSchema, defaultBlockSpecs } from "@blocknote/core";
 import "@blocknote/mantine/style.css";
 import { Clock, ScanFace, GraduationCap, PenLine, ArrowUpRightIcon } from "lucide-react";
-import { ogImages } from "@/lib/images";
+import { ogImages, logo } from "@/lib/images";
 import { useTheme } from "next-themes";
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner.tsx";
@@ -107,9 +107,7 @@ const Header = memo(function Header({
             <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between md:gap-4">
                 <div className="flex items-center justify-between md:justify-start md:gap-3">
                     <div className="flex items-center gap-3">
-                        <div className="bg-primary text-primary-foreground flex size-6 items-center justify-center rounded-md">
-                            <span className="font-bold text-sm">M</span>
-                        </div>
+                        <img src={logo.svg} alt="Mareef" className="h-6 w-6" />
                         <h1 className="text-lg font-bold tracking-tight md:text-xl">Writing Task</h1>
                     </div>
                     <div className="md:hidden">
@@ -416,7 +414,7 @@ export default function WritingTask({ writing, submission }: WritingTaskProps) {
     const { isSaving, markDirty } = useAutoSave({
         isActive: isInProgress,
         interval: 60000,
-        routeName: 'student.tasks.submissions.save',
+        routeName: 'student.tasks.submissions.writing.save',
         getPayload: getAutoSavePayload,
     });
 
@@ -466,7 +464,7 @@ export default function WritingTask({ writing, submission }: WritingTaskProps) {
 
     // Start the task
     const handleStart = useCallback(() => {
-        router.post(route('student.tasks.submissions.start'), {
+        router.post(route('student.tasks.submissions.writing.start'), {
             writing_id: writing.id,
         });
     }, [writing.id]);
@@ -481,7 +479,7 @@ export default function WritingTask({ writing, submission }: WritingTaskProps) {
         if (timeLeft <= 0 && !isInProgress) return;
 
         setIsFinishDialogOpen(false);
-        router.post(route('student.tasks.submissions.finish'), {
+        router.post(route('student.tasks.submissions.writing.finish'), {
             writing_id: writing.id,
             content: JSON.stringify(writingEditor.document),
             spent_time: spentTime,

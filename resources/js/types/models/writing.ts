@@ -65,7 +65,7 @@ export interface WritingDetail extends Writing {
 }
 
 /**
- * Writing for student task page (public view)
+ * Writing for the student task page (public view)
  */
 export interface WritingTask {
     id: number;

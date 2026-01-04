@@ -18,7 +18,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property-read int $id
  * @property-read int $submission_id
  * @property-read int $question_id
- * @property-read string $options
+ * @property-read string|null $options
  * @property-read bool $is_correct
  * @property-read CarbonInterface $created_at
  * @property-read CarbonInterface $updated_at

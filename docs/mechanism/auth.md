@@ -37,7 +37,7 @@ We keep **Google login as the core auth system**, but add Telegram-based notific
 1. Check if `phone_number` exists on user record.
     - If not → force redirect to a phone number form.
 2. After phone is saved:
-    - Show instructions: “Open Telegram Bot to complete setup”
+    - Submission instructions: “Open Telegram Bot to complete setup”
     - Provide link to open bot directly (`t.me/bot_name`)
 3. Inside bot:
     - User sends their **phone number**

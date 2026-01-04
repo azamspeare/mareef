@@ -31,19 +31,21 @@ return new class extends Migration
             $table->id();
             $table->foreignId('quiz_id')->references('id')->on('quizzes')->cascadeOnDelete();
             $table->string('type', 30);
-            $table->string('content');
+            $table->mediumText('content');
             $table->unsignedInteger('order');
             $table->unsignedInteger('point')->default(1);
             $table->timestamps();
+            $table->softDeletes();
         });
 
         Schema::create('quiz_options', function (Blueprint $table) {
             $table->id();
             $table->foreignId('question_id')->references('id')->on('quiz_questions')->cascadeOnDelete();
-            $table->mediumText('content');
+            $table->string('content');
             $table->boolean('is_correct')->default(false);
             $table->unsignedInteger('order');
             $table->timestamps();
+            $table->softDeletes();
         });
 
         Schema::create('quiz_submissions', function (Blueprint $table) {
@@ -53,6 +55,8 @@ return new class extends Migration
             $table->unsignedInteger('score')->nullable();
             $table->time('spent_time')->nullable();
             $table->timestamp('submitted_at')->nullable();
+            $table->mediumText('feedback')->nullable();
+            $table->timestamp('evaluated_at')->nullable();
             $table->string('status')->default(SubmissionProcessEnum::IN_PROGRESS->value);
             $table->timestamps();
             $table->softDeletes();
@@ -62,7 +66,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('submission_id')->references('id')->on('quiz_submissions')->cascadeOnDelete();
             $table->foreignId('question_id')->references('id')->on('quiz_questions')->cascadeOnDelete();
-            $table->json('options');
+            $table->json('options')->nullable();
             $table->boolean('is_correct')->default(false);
             $table->timestamps();
         });

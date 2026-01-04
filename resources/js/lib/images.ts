@@ -112,4 +112,5 @@ export const ogImages = {
   pricing: '/images/og/pricing.png',
   tasks: '/images/og/tasks.png',
   writingTask: '/images/og/writing-task.png',
+  quizTask: '/images/og/quiz-task.png',
 } as const

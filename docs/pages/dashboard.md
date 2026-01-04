@@ -160,7 +160,7 @@ At the **top left above the table**, show three pill‑style filters with counts
 **Behavior:**
 
 - `ALL` (status: `all`)
-  - Show all submissions for this teacher.
+  - Submission all submissions for this teacher.
   - Count: Total submissions across all statuses
 
 - `NOT REVIEWED` (status: `not_reviewed`)
@@ -309,7 +309,7 @@ When a teacher evaluates a submission and provides feedback:
 
 If there are **no submissions** for the current teacher:
 
-- Show an empty state instead of the table:
+- Submission an empty state instead of the table:
 
   - Title: `No submissions yet`
   - Subtitle: `Create a writing task and share the link with your students to see submissions here.`
@@ -321,7 +321,7 @@ Cards may still show zeros.
 
 If filter = `NOT REVIEWED` and no rows:
 
-- Show an empty state inside the table:
+- Submission an empty state inside the table:
 
   - Title: `You’re all caught up`
   - Subtitle: `There are no submissions waiting for review.`
@@ -456,7 +456,7 @@ When implementing the dashboard UI:
   1. Submissions (with week-over-week CTR)
   2. Students (with new student percentage)
   3. Writings (with engagement rate)
-- Show **status badges** with counts from `counts` object
+- Submission **status badges** with counts from `counts` object
 - Implement **status filters**: `ALL`, `NOT REVIEWED`, `EVALUATED`
 - Display **submissions table** with:
   - Search (student name / writing title)

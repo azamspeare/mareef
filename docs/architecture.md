@@ -152,9 +152,9 @@ resources/js/
 │   ├── Auth/             # Login.tsx
 │   ├── Dashboard/        # Home.tsx
 │   ├── Landing/          # Welcome, Pricing, etc.
-│   ├── Students/         # Index.tsx, Show.tsx
-│   ├── Submissions/      # Index.tsx, Show.tsx
-│   ├── Writings/         # Index, Create, Edit, Show.tsx
+│   ├── Students/         # Index.tsx, Submission.tsx
+│   ├── Submissions/      # Index.tsx, Submission.tsx
+│   ├── Writings/         # Index, Create, Edit, Submission.tsx
 │   └── WritingTask.tsx   # Student writing interface
 │
 ├── Layouts/              # Layout components

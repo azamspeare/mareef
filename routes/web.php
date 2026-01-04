@@ -7,13 +7,17 @@ use App\Http\Controllers\ImageController;
 use App\Http\Controllers\Landing\LandingController;
 use App\Http\Controllers\Student\Auth\RegisterController;
 use App\Http\Controllers\Student\Auth\StudentAuthController;
+use App\Http\Controllers\Student\QuizTaskController;
 use App\Http\Controllers\Student\WritingTaskController;
 use App\Http\Controllers\Teacher\Auth\LoginController as LoginTeacherController;
 use App\Http\Controllers\Student\Auth\LoginController as LoginStudentController;
 use App\Http\Controllers\Teacher\Auth\TeacherAuthController;
 use App\Http\Controllers\Teacher\DashboardController;
+use App\Http\Controllers\Teacher\Quiz\QuizBulkController;
+use App\Http\Controllers\Teacher\Quiz\QuizController;
+use App\Http\Controllers\Teacher\Quiz\QuizSubmissionController;
 use App\Http\Controllers\Teacher\StudentController;
-use App\Http\Controllers\Teacher\Writing\SubmissionController;
+use App\Http\Controllers\Teacher\Writing\WritingSubmissionController;
 use App\Http\Controllers\Teacher\Writing\WritingBulkController;
 use App\Http\Controllers\Teacher\Writing\WritingController;
 use App\Http\Controllers\WaitlistController;
@@ -56,13 +60,38 @@ Route::domain('app.' . config('app.domain'))->group(function () {
             Route::patch('/{id}/archive', [WritingController::class, 'archive'])->name('archive')->where('id', '[0-9]+');
             Route::patch('/{id}/restore', [WritingController::class, 'restore'])->name('restore')->where('id', '[0-9]+');
             Route::delete('/{id}', [WritingController::class, 'delete'])->name('delete')->where('id', '[0-9]+');
+
+            Route::prefix('submissions')->name('submissions.')->group(function () {
+                Route::get('/{id}', [WritingSubmissionController::class, 'show'])->name('show')->where('id', '[0-9]+');
+                Route::post('/{id}/evaluate', [WritingSubmissionController::class, 'evaluate'])->name('evaluate')->where('id', '[0-9]+');
+                Route::patch('/{id}/archive', [WritingSubmissionController::class, 'archive'])->name('archive')->where('id', '[0-9]+');
+            });
+        });
+
+        Route::prefix('quizzes')->name('quizzes.')->group(function () {
+            Route::get('/', [QuizController::class, 'index'])->name('index');
+            Route::get('/create', [QuizController::class, 'create'])->name('create');
+            Route::post('/', [QuizController::class, 'store'])->name('store');
+
+            Route::patch('/archive', [QuizBulkController::class, 'archive'])->name('archive.bulk');
+            Route::patch('/restore', [QuizBulkController::class, 'restore'])->name('restore.bulk');
+
+            Route::get('/{id}', [QuizController::class, 'show'])->name('show')->where('id', '[0-9]+');
+            Route::get('/{id}/edit', [QuizController::class, 'edit'])->name('edit')->where('id', '[0-9]+');
+            Route::put('/{id}', [QuizController::class, 'update'])->name('update')->where('id', '[0-9]+');
+            Route::patch('/{id}/archive', [QuizController::class, 'archive'])->name('archive')->where('id', '[0-9]+');
+            Route::patch('/{id}/restore', [QuizController::class, 'restore'])->name('restore')->where('id', '[0-9]+');
+            Route::delete('/{id}', [QuizController::class, 'delete'])->name('delete')->where('id', '[0-9]+');
+
+            Route::prefix('submissions')->name('submissions.')->group(function () {
+                Route::get('/{id}', [QuizSubmissionController::class, 'show'])->name('show')->where('id', '[0-9]+');
+                Route::post('/{id}/evaluate', [QuizSubmissionController::class, 'evaluate'])->name('evaluate')->where('id', '[0-9]+');
+                Route::patch('/{id}/archive', [QuizSubmissionController::class, 'archive'])->name('archive')->where('id', '[0-9]+');
+            });
         });
 
         Route::prefix('submissions')->name('submissions.')->group(function () {
-            Route::get('/', [SubmissionController::class, 'index'])->name('index');
-            Route::get('/{id}', [SubmissionController::class, 'show'])->name('show')->where('id', '[0-9]+');
-            Route::post('/{id}/evaluate', [SubmissionController::class, 'evaluate'])->name('evaluate')->where('id', '[0-9]+');
-            Route::patch('/{id}/archive', [SubmissionController::class, 'archive'])->name('archive')->where('id', '[0-9]+');
+            Route::get('/', \App\Http\Controllers\Teacher\Submission\SubmissionController::class)->name('index');
         });
 
         Route::post('logout', [LoginTeacherController::class, 'destroy'])->name('logout');
@@ -87,12 +116,21 @@ Route::domain('student.' . config('app.domain'))->name('student.')->group(functi
 
     Route::prefix('tasks')->name('tasks.')->group(function () {
         Route::get('/{handle}/writing/{slug}', [WritingTaskController::class, 'create'])->name('writing');
+        Route::get('/{handle}/quiz/{slug}', [QuizTaskController::class, 'create'])->name('quiz');
 
         Route::middleware(['auth', 'is_role:' . RoleEnum::STUDENT->value, 'phone_registered'])->group(function () {
             Route::prefix('submissions')->name('submissions.')->group(function () {
-                Route::post('start', [WritingTaskController::class, 'start'])->name('start')->middleware('throttle:api');
-                Route::post('save', [WritingTaskController::class, 'update'])->name('save')->middleware('throttle:auto-save');
-                Route::post('finish', [WritingTaskController::class, 'finish'])->name('finish')->middleware('throttle:api');
+                Route::prefix('writing')->name('writing.')->group(function () {
+                    Route::post('start', [WritingTaskController::class, 'start'])->name('start')->middleware('throttle:api');
+                    Route::post('save', [WritingTaskController::class, 'update'])->name('save')->middleware('throttle:auto-save');
+                    Route::post('finish', [WritingTaskController::class, 'finish'])->name('finish')->middleware('throttle:api');
+                });
+
+                Route::prefix('quiz')->name('quiz.')->group(function () {
+                    Route::post('start', [QuizTaskController::class, 'start'])->name('start')->middleware('throttle:api');
+                    Route::post('save', [QuizTaskController::class, 'update'])->name('save');
+                    Route::post('finish', [QuizTaskController::class, 'finish'])->name('finish')->middleware('throttle:api');
+                });
             });
         });
     });

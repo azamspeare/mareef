@@ -41,3 +41,38 @@ export const ModelStatus = {
     ACTIVE: 'active' as const,
     ARCHIVED: 'archived' as const,
 } as const;
+
+/**
+ * Quiz question types matching backend QuizTypeEnum
+ */
+export type QuizQuestionType =
+    | 'single_choice'
+    | 'multiple_choice'
+    | 'true_false'
+    | 'short_answer'
+    | 'long_answer';
+
+export const QuizQuestionType = {
+    SINGLE_CHOICE: 'single_choice' as const,
+    MULTIPLE_CHOICE: 'multiple_choice' as const,
+    TRUE_FALSE: 'true_false' as const,
+    SHORT_ANSWER: 'short_answer' as const,
+    LONG_ANSWER: 'long_answer' as const,
+} as const;
+
+/**
+ * Quiz question type labels for display
+ */
+export const QuizQuestionTypeLabels: Record<QuizQuestionType, string> = {
+    [QuizQuestionType.SINGLE_CHOICE]: 'Single Choice',
+    [QuizQuestionType.MULTIPLE_CHOICE]: 'Multiple Choice',
+    [QuizQuestionType.TRUE_FALSE]: 'True/False',
+    [QuizQuestionType.SHORT_ANSWER]: 'Short Answer',
+    [QuizQuestionType.LONG_ANSWER]: 'Long Answer',
+};
+
+/**
+ * Get all quiz question types as array
+ */
+export const getQuizQuestionTypes = (): QuizQuestionType[] =>
+    Object.values(QuizQuestionType) as QuizQuestionType[];

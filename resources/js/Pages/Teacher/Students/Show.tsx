@@ -274,7 +274,7 @@ export default function StudentShow({ student, submissions, activity, filters }:
                                                             key={submission.id}
                                                             className="cursor-pointer"
                                                             onClick={() => {
-                                                                router.visit(route('submissions.show', submission.id));
+                                                                router.visit(route('writings.submissions.show', submission.id));
                                                             }}
                                                         >
                                                             <TableCell className="font-medium pl-6">

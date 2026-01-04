@@ -189,7 +189,7 @@ export function DataTable({
   });
 
   const [searchInputValue, setSearchInputValue] = React.useState(currentSearch);
-  const searchTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
+  const searchTimeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // On mount: load data with stored filters if no URL params
   React.useEffect(() => {
@@ -367,7 +367,7 @@ export function DataTable({
     if (!submissionToDelete) return;
 
     setIsDeleting(true);
-    router.patch(route('submissions.archive', submissionToDelete.id), {}, {
+    router.patch(route('writings.submissions.archive', submissionToDelete.id), {}, {
       preserveScroll: true,
       onSuccess: () => {
         setDeleteDialogOpen(false);
@@ -449,7 +449,7 @@ export function DataTable({
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-32">
             <DropdownMenuItem asChild>
-              <Link href={route('submissions.show', row.original.id)}>Review</Link>
+              <Link href={route('writings.submissions.show', row.original.id)}>Review</Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem

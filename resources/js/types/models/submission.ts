@@ -1,6 +1,6 @@
 import type { SubmissionStatus } from '../enums';
 import type { Student } from './user';
-import type { Writing, WritingTask } from './writing';
+import type { Writing } from './writing';
 import type { WritingFeedback } from './feedback';
 import type { BlockContent } from './writing';
 

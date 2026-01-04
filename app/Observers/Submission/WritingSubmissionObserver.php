@@ -6,7 +6,7 @@ namespace App\Observers\Submission;
 
 use App\Models\Submission\Writing\WritingSubmission;
 use App\Repositories\MetricsRepository;
-use App\Telegram\Messages\StudentSubmissionNotification;
+use App\Telegram\Messages\Writing\WritingSubmissionNotification;
 use App\Telegram\Notifier;
 
 final class WritingSubmissionObserver
@@ -42,7 +42,7 @@ final class WritingSubmissionObserver
                 return;
             }
 
-            defer(fn () => $this->notifier->send($telegramUser->chat_id, new StudentSubmissionNotification($submission)));
+            defer(fn () => $this->notifier->send($telegramUser->chat_id, new WritingSubmissionNotification($submission)));
         }
     }
 

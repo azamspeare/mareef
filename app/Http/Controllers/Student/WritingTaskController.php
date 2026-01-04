@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Student;
 
-use App\Actions\Submission\CreateSubmissionAction;
-use App\Actions\Submission\UpdateSubmissionAction;
+use App\Actions\Submission\Writing\CreateWritingSubmissionAction;
+use App\Actions\Submission\Writing\UpdateWritingSubmissionAction;
 use App\Contracts\Enums\SubmissionProcessEnum;
-use App\DTOs\Submission\SubmissionDTO;
+use App\DTOs\Writing\WritingSubmissionDTO;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Student\Submission\FinishSubmissionRequest;
-use App\Http\Requests\Student\Submission\StartSubmissionRequest;
-use App\Http\Requests\Student\Submission\StoreSubmissionRequest;
+use App\Http\Requests\Student\Writing\FinishWritingSubmissionRequest;
+use App\Http\Requests\Student\Writing\StartWritingSubmissionRequest;
+use App\Http\Requests\Student\Writing\StoreWritingSubmissionRequest;
 use App\Queries\Submission\SubmissionFindByWritingAndStudentIDQuery;
 use App\Queries\User\TeacherFindByUsernameQuery;
 use App\Queries\Writing\WritingFindBySlugQuery;
@@ -77,7 +77,7 @@ final class WritingTaskController extends Controller
         ]);
     }
 
-    public function start(StartSubmissionRequest $request, CreateSubmissionAction $action): RedirectResponse
+    public function start(StartWritingSubmissionRequest $request, CreateWritingSubmissionAction $action): RedirectResponse
     {
         $attributes = $request->validated();
 
@@ -88,14 +88,14 @@ final class WritingTaskController extends Controller
             return redirect()->back()->with('error', 'You have already started this task.');
         }
 
-        $dto = SubmissionDTO::make($attributes, $student->id);
+        $dto = WritingSubmissionDTO::make($attributes, $student->id);
 
         $action->run($dto);
 
         return redirect()->back()->with('success', 'Task started! Good luck!');
     }
 
-    public function update(StoreSubmissionRequest $request, UpdateSubmissionAction $action): RedirectResponse
+    public function update(StoreWritingSubmissionRequest $request, UpdateWritingSubmissionAction $action): RedirectResponse
     {
         $student = $request->user();
         $attributes = $request->validated();
@@ -110,14 +110,14 @@ final class WritingTaskController extends Controller
             return redirect()->back()->with('error', 'This task has already been completed.');
         }
 
-        $dto = SubmissionDTO::make($attributes, $student->id);
+        $dto = WritingSubmissionDTO::make($attributes, $student->id);
 
         $action->run($submission, $dto);
 
         return redirect()->back();
     }
 
-    public function finish(FinishSubmissionRequest $request, UpdateSubmissionAction $action): RedirectResponse
+    public function finish(FinishWritingSubmissionRequest $request, UpdateWritingSubmissionAction $action): RedirectResponse
     {
         $attributes = $request->validated();
 
@@ -135,7 +135,7 @@ final class WritingTaskController extends Controller
         $attributes['status'] = SubmissionProcessEnum::COMPLETED->value;
         $attributes['submitted_at'] = now();
 
-        $dto = SubmissionDTO::make($attributes, $student->id);
+        $dto = WritingSubmissionDTO::make($attributes, $student->id);
 
         $action->run($submission, $dto);
 

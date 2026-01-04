@@ -11,6 +11,7 @@ use Database\Factories\Quiz\QuizOptionFactory;
 use Illuminate\Database\Eloquent\Attributes\UseFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
  * Attributes:
@@ -21,6 +22,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property-read int $order
  * @property-read CarbonInterface $created_at
  * @property-read CarbonInterface $updated_at
+ * @property-read CarbonInterface|null $deleted_at
  *
  * Relationships:
  * @property-read QuizQuestion $question
@@ -28,7 +30,7 @@ use Illuminate\Database\Eloquent\Model;
 #[UseFactory(QuizOptionFactory::class)]
 final class QuizOption extends Model
 {
-    use HasFactory, HasRelations;
+    use HasFactory, HasRelations, SoftDeletes;
 
     protected $fillable = [
         'question_id',

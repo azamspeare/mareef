@@ -1,13 +1,14 @@
 import * as React from "react"
 import {
   BookOpen,
+  ClipboardList,
   LayoutDashboard,
   Users,
   Plus,
   HelpCircle,
 } from "lucide-react"
 import { Link, usePage } from "@inertiajs/react"
-import { PageProps } from "@/types"
+import type { SharedPageProps } from "@/types"
 
 import { NavMain } from "@/components/nav-main"
 import { NavSecondary } from "@/components/nav-secondary"
@@ -24,7 +25,8 @@ import {
 import { TeacherLogo } from "@/components/logo"
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const user = usePage<PageProps>().props.auth.user;
+  const { auth } = usePage<SharedPageProps>().props;
+  const user = auth.user;
 
   const data = {
     user: {
@@ -42,6 +44,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         title: "My Writings",
         url: route('writings.index'),
         icon: BookOpen,
+      },
+      {
+        title: "My Quizzes",
+        url: route('quizzes.index'),
+        icon: ClipboardList,
       },
       {
         title: "Students",
