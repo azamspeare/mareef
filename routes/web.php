@@ -148,6 +148,7 @@ Route::prefix('tasks')->name('tasks.')->group(function () {
     Route::get('reading', [LandingController::class, 'reading'])->name('reading');
     Route::get('writing', [LandingController::class, 'writing'])->name('writing');
     Route::get('speaking', [LandingController::class, 'speaking'])->name('speaking');
+    Route::get('quiz', [LandingController::class, 'quiz'])->name('quiz');
 });
 Route::prefix('images')->name('images.')->group(function () {
     Route::post('upload', [ImageController::class, 'store'])->name('store')->middleware(['auth', 'throttle:uploads']);

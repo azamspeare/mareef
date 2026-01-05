@@ -1,5 +1,5 @@
 import { Link } from '@inertiajs/react'
-import { Menu, X, Headphones, BookOpen, PenLine, Mic } from 'lucide-react'
+import { Menu, X, Headphones, BookOpen, PenLine, Mic, ClipboardCheck } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
     NavigationMenu,
@@ -21,6 +21,7 @@ const getMenuItems = (faqHref: string) => [
 
 const taskTypes = [
     { name: 'Writing', href: '/tasks/writing', icon: PenLine, description: 'Essay and text assignments' },
+    { name: 'Quiz', href: '/tasks/quiz', icon: ClipboardCheck, description: 'Auto-graded knowledge checks' },
     { name: 'Reading', href: '/tasks/reading', icon: BookOpen, description: 'Comprehension tasks' },
     { name: 'Listening', href: '/tasks/listening', icon: Headphones, description: 'Audio-based exercises' },
     { name: 'Speaking', href: '/tasks/speaking', icon: Mic, description: 'Voice recording tasks' },

@@ -58,4 +58,12 @@ final class LandingController extends Controller
     {
         return Inertia::render('Landing/Speaking');
     }
+
+    /**
+     * Handle the incoming request.
+     */
+    public function quiz(Request $request): Response
+    {
+        return Inertia::render('Landing/Quiz');
+    }
 }
