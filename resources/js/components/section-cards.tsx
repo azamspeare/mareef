@@ -26,6 +26,11 @@ export interface Metrics {
     submitted_writings: number;
     ctr: number;
   };
+  quizzes: {
+    total_quizzes: number;
+    submitted_quizzes: number;
+    ctr: number;
+  };
 }
 
 interface SectionCardsProps {
@@ -34,7 +39,7 @@ interface SectionCardsProps {
 
 export function SectionCards({ metrics }: SectionCardsProps) {
   return (
-    <div className="*:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card grid grid-cols-1 gap-4 px-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:shadow-xs lg:px-6 @xl/main:grid-cols-2 @5xl/main:grid-cols-3">
+    <div className="*:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card grid grid-cols-1 gap-4 px-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:shadow-xs lg:px-6 @xl/main:grid-cols-2 @5xl/main:grid-cols-4">
       {/* Card 1: Submissions */}
       <Card className="@container/card">
         <CardHeader>
@@ -103,6 +108,30 @@ export function SectionCards({ metrics }: SectionCardsProps) {
           </div>
           <div className="text-muted-foreground">
             {metrics.writings.submitted_writings} writings with submissions in last 7 days
+          </div>
+        </CardFooter>
+      </Card>
+
+      {/* Card 4: Quizzes */}
+      <Card className="@container/card">
+        <CardHeader>
+          <CardDescription>Quizzes</CardDescription>
+          <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
+            {metrics.quizzes.total_quizzes}
+          </CardTitle>
+          <CardAction>
+            <Badge variant="outline" className={metrics.quizzes.ctr > 0 ? "text-green-600 border-green-600" : metrics.quizzes.ctr < 0 ? "text-red-600 border-red-600" : ""}>
+              {metrics.quizzes.ctr > 0 ? <IconTrendingUp /> : metrics.quizzes.ctr < 0 ? <IconTrendingDown /> : <IconMinus />}
+              {metrics.quizzes.ctr > 0 ? "+" : ""}{metrics.quizzes.ctr}%
+            </Badge>
+          </CardAction>
+        </CardHeader>
+        <CardFooter className="flex-col items-start gap-1.5 text-sm">
+          <div className="line-clamp-1 flex gap-2 font-medium">
+            Total Active Quizzes
+          </div>
+          <div className="text-muted-foreground">
+            {metrics.quizzes.submitted_quizzes} quizzes with submissions in last 7 days
           </div>
         </CardFooter>
       </Card>

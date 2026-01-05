@@ -9,7 +9,6 @@ import {
   IconDotsVertical,
   IconLayoutColumns,
   IconLoader,
-  IconPlus,
   IconSearch,
   IconX,
 } from "@tabler/icons-react"
@@ -79,26 +78,16 @@ import {
 
 export const schema = z.object({
   id: z.number(),
-  writing_id: z.number(),
+  type: z.enum(['writing', 'quiz']),
+  task_id: z.number(),
+  task_title: z.string(),
   student_id: z.number(),
-  spent_time: z.string(),
+  student_name: z.string(),
+  spent_time: z.string().nullable(),
   submitted_at: z.string(),
   evaluated_at: z.string().nullable(),
   created_at: z.string(),
-  writing: z.object({
-    id: z.number(),
-    title: z.string(),
-    allocated_time: z.string(),
-  }),
-  student: z.object({
-    id: z.number(),
-    name: z.string(),
-  }),
-  feedback: z.object({
-    id: z.number(),
-    submission_id: z.number(),
-    score: z.number(),
-  }).nullable(),
+  score: z.number().nullable(),
 })
 
 export type Submission = z.infer<typeof schema>
@@ -121,6 +110,7 @@ export interface PaginationMeta {
 // LocalStorage keys for filter persistence
 const STORAGE_KEYS = {
   STATUS: 'dashboard.filter.status',
+  TASK_TYPE: 'dashboard.filter.task_type',
   PAGE: 'dashboard.filter.page',
   PER_PAGE: 'dashboard.filter.per_page',
   SEARCH: 'dashboard.filter.search',
@@ -188,18 +178,29 @@ export function DataTable({
     return getStoredFilter(STORAGE_KEYS.SEARCH, '');
   });
 
+  const [currentTaskType, setCurrentTaskType] = React.useState(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlTaskType = urlParams.get('task_type');
+    if (urlTaskType) {
+      setStoredFilter(STORAGE_KEYS.TASK_TYPE, urlTaskType);
+      return urlTaskType;
+    }
+    return getStoredFilter(STORAGE_KEYS.TASK_TYPE, 'all');
+  });
+
   const [searchInputValue, setSearchInputValue] = React.useState(currentSearch);
   const searchTimeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // On mount: load data with stored filters if no URL params
   React.useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
-    const hasParams = urlParams.has('status') || urlParams.has('page') || urlParams.has('per_page') || urlParams.has('search');
+    const hasParams = urlParams.has('status') || urlParams.has('page') || urlParams.has('per_page') || urlParams.has('search') || urlParams.has('task_type');
 
     if (!hasParams) {
       // No URL params means fresh page load - fetch with localStorage values
       const needsFetch =
         currentStatus !== 'not_reviewed' ||
+        currentTaskType !== 'all' ||
         currentPage !== 1 ||
         currentPerPage !== 10 ||
         currentSearch !== '';
@@ -208,6 +209,7 @@ export function DataTable({
         setIsLoadingFilters(true);
         router.get(route('dashboard'), {
           status: currentStatus,
+          task_type: currentTaskType,
           page: currentPage,
           per_page: currentPerPage,
           search: currentSearch || undefined,
@@ -239,6 +241,30 @@ export function DataTable({
 
     router.get(route('dashboard'), {
       status: value,
+      task_type: currentTaskType,
+      page: 1,
+      per_page: currentPerPage,
+      search: currentSearch || undefined,
+    }, {
+      preserveState: true,
+      preserveScroll: true,
+      replace: true,
+      only: ['submissions', 'counts'],
+      onSuccess: () => {
+        window.history.replaceState({}, '', route('dashboard'));
+      },
+    });
+  };
+
+  const handleTaskTypeChange = (value: string) => {
+    setCurrentTaskType(value);
+    setCurrentPage(1);
+    setStoredFilter(STORAGE_KEYS.TASK_TYPE, value);
+    setStoredFilter(STORAGE_KEYS.PAGE, 1);
+
+    router.get(route('dashboard'), {
+      status: currentStatus,
+      task_type: value,
       page: 1,
       per_page: currentPerPage,
       search: currentSearch || undefined,
@@ -260,6 +286,7 @@ export function DataTable({
     router.get(route('dashboard'), {
       page: page + 1,
       status: currentStatus,
+      task_type: currentTaskType,
       per_page: currentPerPage,
       search: currentSearch || undefined,
     }, {
@@ -283,6 +310,7 @@ export function DataTable({
       per_page: pageSize,
       page: 1,
       status: currentStatus,
+      task_type: currentTaskType,
       search: currentSearch || undefined,
     }, {
       preserveState: true,
@@ -315,6 +343,7 @@ export function DataTable({
         search: value || undefined,
         page: 1,
         status: currentStatus,
+        task_type: currentTaskType,
         per_page: currentPerPage,
       }, {
         preserveState: true,
@@ -342,6 +371,7 @@ export function DataTable({
     router.get(route('dashboard'), {
       page: 1,
       status: currentStatus,
+      task_type: currentTaskType,
       per_page: currentPerPage,
     }, {
       preserveState: true,
@@ -367,7 +397,11 @@ export function DataTable({
     if (!submissionToDelete) return;
 
     setIsDeleting(true);
-    router.patch(route('writings.submissions.archive', submissionToDelete.id), {}, {
+    const routeName = submissionToDelete.type === 'writing'
+      ? 'writings.submissions.archive'
+      : 'quizzes.submissions.archive';
+
+    router.patch(route(routeName, submissionToDelete.id), {}, {
       preserveScroll: true,
       onSuccess: () => {
         setDeleteDialogOpen(false);
@@ -382,18 +416,28 @@ export function DataTable({
 
   const columns: ColumnDef<Submission>[] = [
     {
-      accessorKey: "writing.title",
-      header: "Writing",
+      accessorKey: "task_title",
+      header: "Task",
       cell: ({ row }) => {
-        return <div className="font-medium">{row.original.writing.title.length > 40 ? row.original.writing.title.slice(0, 40) + "..." : row.original.writing.title}</div>
+        return <div className="font-medium">{row.original.task_title.length > 40 ? row.original.task_title.slice(0, 40) + "..." : row.original.task_title}</div>
       },
       enableHiding: false,
     },
     {
-      accessorKey: "student.name",
+      accessorKey: "type",
+      header: "Type",
+      cell: ({ row }) => (
+        <Badge variant="outline" className={row.original.type === 'writing' ? "text-blue-600 border-blue-600" : "text-purple-600 border-purple-600"}>
+          {row.original.type === 'writing' ? 'Writing' : 'Quiz'}
+        </Badge>
+      ),
+      enableHiding: false,
+    },
+    {
+      accessorKey: "student_name",
       header: "Student",
       cell: ({ row }) => {
-        return <div>{row.original.student.name}</div>
+        return <div>{row.original.student_name}</div>
       },
       enableHiding: false,
     },
@@ -401,7 +445,7 @@ export function DataTable({
       accessorKey: "spent_time",
       header: "Spent Time",
       cell: ({ row }) => {
-        return <div>{row.original.spent_time}</div>
+        return <div>{row.original.spent_time ?? "-"}</div>
       },
     },
     {
@@ -420,10 +464,10 @@ export function DataTable({
       enableHiding: false,
     },
     {
-      accessorKey: "feedback.score",
+      accessorKey: "score",
       header: "Score",
       cell: ({ row }) => {
-        return <div>{row.original.feedback?.score ?? "-"}</div>
+        return <div>{row.original.score ?? "-"}</div>
       },
     },
     {
@@ -435,35 +479,41 @@ export function DataTable({
     },
     {
       id: "actions",
-      cell: ({ row }) => (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="ghost"
-              className="data-[state=open]:bg-muted text-muted-foreground flex size-8"
-              size="icon"
-            >
-              <IconDotsVertical />
-              <span className="sr-only">Open menu</span>
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-32">
-            <DropdownMenuItem asChild>
-              <Link href={route('writings.submissions.show', row.original.id)}>Review</Link>
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-              variant="destructive"
-              onClick={() => {
-                setSubmissionToDelete(row.original);
-                setDeleteDialogOpen(true);
-              }}
-            >
-              Delete
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      ),
+      cell: ({ row }) => {
+        const reviewRoute = row.original.type === 'writing'
+          ? route('writings.submissions.show', row.original.id)
+          : route('quizzes.submissions.show', row.original.id);
+
+        return (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                className="data-[state=open]:bg-muted text-muted-foreground flex size-8"
+                size="icon"
+              >
+                <IconDotsVertical />
+                <span className="sr-only">Open menu</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-32">
+              <DropdownMenuItem asChild>
+                <Link href={reviewRoute}>Review</Link>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                variant="destructive"
+                onClick={() => {
+                  setSubmissionToDelete(row.original);
+                  setDeleteDialogOpen(true);
+                }}
+              >
+                Delete
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        );
+      },
     },
   ]
 
@@ -551,8 +601,21 @@ export function DataTable({
           </TabsList>
         </div>
 
-        {/* Row 2 on mobile: Columns + Add Writing */}
+        {/* Row 2 on mobile: Task Type Filter + Columns */}
         <div className="flex items-center justify-between gap-2 md:justify-end">
+          <Label htmlFor="task-type-selector" className="sr-only">
+            Task Type
+          </Label>
+          <Select value={currentTaskType} onValueChange={handleTaskTypeChange}>
+            <SelectTrigger className="w-[130px]" id="task-type-selector">
+              <SelectValue placeholder="Task Type" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Tasks</SelectItem>
+              <SelectItem value="writing">Writing</SelectItem>
+              <SelectItem value="quiz">Quiz</SelectItem>
+            </SelectContent>
+          </Select>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline">
@@ -586,12 +649,6 @@ export function DataTable({
                 })}
             </DropdownMenuContent>
           </DropdownMenu>
-          <Button asChild>
-            <Link href={route('writings.create')}>
-              <IconPlus />
-              Add Writing
-            </Link>
-          </Button>
         </div>
       </div>
       <TabsContent
@@ -727,9 +784,9 @@ export function DataTable({
           <DialogHeader>
             <DialogTitle>Delete Submission</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete the submission by{" "}
-              <span className="font-medium">{submissionToDelete?.student.name}</span> for{" "}
-              <span className="font-medium">{submissionToDelete?.writing.title}</span>?
+              Are you sure you want to delete the {submissionToDelete?.type} submission by{" "}
+              <span className="font-medium">{submissionToDelete?.student_name}</span> for{" "}
+              <span className="font-medium">{submissionToDelete?.task_title}</span>?
               This action cannot be undone.
             </DialogDescription>
           </DialogHeader>

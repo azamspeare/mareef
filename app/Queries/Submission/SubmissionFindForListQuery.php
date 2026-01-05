@@ -7,60 +7,134 @@ namespace App\Queries\Submission;
 use App\Contracts\Abstracts\Filter\AbstractFilter;
 use App\Contracts\Abstracts\Query\AbstractFilterQueryable;
 use App\Contracts\Enums\SubmissionStatusEnum;
+use App\Contracts\Enums\SubmissionTaskTypeEnum;
 use App\Contracts\Interfaces\Query\FilterQueryable;
-use App\Models\Submission\Writing\WritingSubmission;
+use App\Filters\Submission\SubmissionFilter;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\DB;
 
 final class SubmissionFindForListQuery extends AbstractFilterQueryable implements FilterQueryable
 {
+    /**
+     * @param SubmissionFilter $filter
+     */
     public function query(AbstractFilter $filter): LengthAwarePaginator
     {
-        $query = WritingSubmission::query()
+        $teacherId = $filter->teacherId;
+        $search = $filter->search ? '%' . $filter->search . '%' : null;
+
+        // Build writing submissions query
+        $writingQuery = DB::table('writing_submissions as ws')
+            ->join('writings as w', 'ws.writing_id', '=', 'w.id')
+            ->join('users as s', 'ws.student_id', '=', 's.id')
+            ->leftJoin('writing_feedbacks as wf', 'ws.id', '=', 'wf.submission_id')
+            ->where('w.teacher_id', $teacherId)
+            ->whereNull('w.deleted_at')
+            ->whereNotNull('ws.submitted_at')
             ->select([
-                'writing_submissions.id',
-                'writing_submissions.writing_id',
-                'writing_submissions.student_id',
-                'writing_submissions.spent_time',
-                'writing_submissions.submitted_at',
-                'writing_submissions.evaluated_at',
-                'writing_submissions.created_at',
-            ])
-            ->join('writings', 'writing_submissions.writing_id', '=', 'writings.id')
-            ->where('writings.teacher_id', $filter->teacherId)
-            ->whereNull('writings.deleted_at')
-            ->with([
-                'writing:id,title,allocated_time',
-                'student:id,name',
-                'feedback:id,submission_id,score',
+                'ws.id',
+                DB::raw("'writing' as type"),
+                'ws.writing_id as task_id',
+                'w.title as task_title',
+                'ws.student_id',
+                's.name as student_name',
+                'ws.spent_time',
+                'ws.submitted_at',
+                'ws.evaluated_at',
+                'ws.created_at',
+                'wf.score',
             ]);
 
-        // Search filter: search in student name or writing title
-        if ($filter->search) {
-            $search = '%' . $filter->search . '%';
-            $query->where(function ($q) use ($search) {
-                $q->whereHas('student', function ($q) use ($search) {
-                    $q->whereAny(['name', 'username'], 'like', $search);
-                })->orWhereHas('writing', function ($q) use ($search) {
-                    $q->whereAny(['title', 'slug'], 'like', $search);
-                });
+        // Build quiz submissions query
+        $quizQuery = DB::table('quiz_submissions as qs')
+            ->join('quizzes as q', 'qs.quiz_id', '=', 'q.id')
+            ->join('users as s', 'qs.student_id', '=', 's.id')
+            ->where('q.teacher_id', $teacherId)
+            ->whereNull('q.deleted_at')
+            ->whereNotNull('qs.submitted_at')
+            ->select([
+                'qs.id',
+                DB::raw("'quiz' as type"),
+                'qs.quiz_id as task_id',
+                'q.title as task_title',
+                'qs.student_id',
+                's.name as student_name',
+                'qs.spent_time',
+                'qs.submitted_at',
+                'qs.evaluated_at',
+                'qs.created_at',
+                'qs.score',
+            ]);
+
+        // Apply search filter to both queries
+        if ($search) {
+            $writingQuery->where(function ($q) use ($search) {
+                $q->where('s.name', 'like', $search)
+                    ->orWhere('s.username', 'like', $search)
+                    ->orWhere('w.title', 'like', $search)
+                    ->orWhere('w.slug', 'like', $search);
+            });
+
+            $quizQuery->where(function ($q) use ($search) {
+                $q->where('s.name', 'like', $search)
+                    ->orWhere('s.username', 'like', $search)
+                    ->orWhere('q.title', 'like', $search)
+                    ->orWhere('q.slug', 'like', $search);
             });
         }
 
-        // Status filter: match expression for cleaner code
+        // Apply status filter to both queries
         match ($filter->status) {
-            SubmissionStatusEnum::NOT_REVIEWED => $query->whereNull('writing_submissions.evaluated_at'),
-            SubmissionStatusEnum::EVALUATED => $query->whereNotNull('writing_submissions.evaluated_at'),
-            SubmissionStatusEnum::ALL => null, // No filter for 'all'
+            SubmissionStatusEnum::NOT_REVIEWED => (function () use ($writingQuery, $quizQuery) {
+                $writingQuery->whereNull('ws.evaluated_at');
+                $quizQuery->whereNull('qs.evaluated_at');
+            })(),
+            SubmissionStatusEnum::EVALUATED => (function () use ($writingQuery, $quizQuery) {
+                $writingQuery->whereNotNull('ws.evaluated_at');
+                $quizQuery->whereNotNull('qs.evaluated_at');
+            })(),
+            SubmissionStatusEnum::ALL => null,
         };
 
-        // Sorting: ensure we use qualified column names
+        // Build final query based on task type filter
+        $finalQuery = match ($filter->taskType) {
+            SubmissionTaskTypeEnum::WRITING => $writingQuery,
+            SubmissionTaskTypeEnum::QUIZ => $quizQuery,
+            SubmissionTaskTypeEnum::ALL => $writingQuery->union($quizQuery),
+        };
+
+        // Wrap in subquery for sorting and pagination
+        $query = DB::table(DB::raw("({$finalQuery->toSql()}) as submissions"))
+            ->mergeBindings($finalQuery);
+
+        // Sorting
         $sortColumn = match ($filter->sortBy) {
-            'id', 'spent_time', 'submitted_at', 'evaluated_at', 'created_at' => 'writing_submissions.' . $filter->sortBy,
-            default => 'writing_submissions.submitted_at',
+            'id', 'spent_time', 'submitted_at', 'evaluated_at', 'created_at' => $filter->sortBy,
+            default => 'submitted_at',
         };
 
-        return $query
-            ->orderBy($sortColumn, $filter->sortDirection)
-            ->paginate($filter->perPage);
+        $query->orderBy($sortColumn, $filter->sortDirection);
+
+        // Paginate
+        $paginated = $query->paginate($filter->perPage);
+
+        // Transform results to include nested task object for frontend compatibility
+        $paginated->through(function ($item) {
+            return [
+                'id' => $item->id,
+                'type' => $item->type,
+                'task_id' => $item->task_id,
+                'task_title' => $item->task_title,
+                'student_id' => $item->student_id,
+                'student_name' => $item->student_name,
+                'spent_time' => $item->spent_time,
+                'submitted_at' => $item->submitted_at,
+                'evaluated_at' => $item->evaluated_at,
+                'created_at' => $item->created_at,
+                'score' => $item->score,
+            ];
+        });
+
+        return $paginated;
     }
 }

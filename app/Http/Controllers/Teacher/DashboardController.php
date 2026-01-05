@@ -28,6 +28,7 @@ final class DashboardController extends Controller
                 'submissions' => $metricsRepository->calculateSubmissionsMetrics($teacher->id),
                 'students' => $metricsRepository->calculateStudentsMetrics($teacher->id),
                 'writings' => $metricsRepository->calculateWritingMetrics($teacher->id),
+                'quizzes' => $metricsRepository->calculateQuizMetrics($teacher->id),
             ],
             'counts' => $submissionsRepository->getAllCounts($teacher->id),
             'submissions' => $query->query($filter),

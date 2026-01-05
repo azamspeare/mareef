@@ -7,6 +7,7 @@ namespace App\Filters\Submission;
 use App\Contracts\Abstracts\Filter\AbstractFilter;
 use App\Contracts\Enums\ModelStatusEnum;
 use App\Contracts\Enums\SubmissionStatusEnum;
+use App\Contracts\Enums\SubmissionTaskTypeEnum;
 use Illuminate\Http\Request;
 
 final readonly class SubmissionFilter extends AbstractFilter
@@ -19,6 +20,7 @@ final readonly class SubmissionFilter extends AbstractFilter
         int $perPage,
         ModelStatusEnum $trashed,
         public SubmissionStatusEnum $status,
+        public SubmissionTaskTypeEnum $taskType,
     ) {
         parent::__construct($teacherId, $search, $sortBy, $sortDirection, $perPage, $trashed);
     }
@@ -34,6 +36,7 @@ final readonly class SubmissionFilter extends AbstractFilter
 
         $sortBy = self::validateSortBy($request->input('sort_by', 'submitted_at'));
         $status = self::validateStatus($request->input('status', 'not_reviewed'));
+        $taskType = self::validateTaskType($request->input('task_type', 'all'));
 
         return new self(
             teacherId: $teacher_id,
@@ -43,6 +46,7 @@ final readonly class SubmissionFilter extends AbstractFilter
             perPage: $perPage,
             trashed: $trashed,
             status: $status,
+            taskType: $taskType,
         );
     }
 
@@ -51,5 +55,12 @@ final readonly class SubmissionFilter extends AbstractFilter
         $enum = SubmissionStatusEnum::tryFrom((string) $input);
 
         return $enum ?? SubmissionStatusEnum::NOT_REVIEWED;
+    }
+
+    protected static function validateTaskType(mixed $input): SubmissionTaskTypeEnum
+    {
+        $enum = SubmissionTaskTypeEnum::tryFrom((string) $input);
+
+        return $enum ?? SubmissionTaskTypeEnum::ALL;
     }
 }
