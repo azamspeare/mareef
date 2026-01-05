@@ -219,7 +219,7 @@ export default function Submission({ submission }: SubmissionProps) {
     return (
         <DashboardLayout title="Quiz Submission">
             <Head title={`Submission by ${submission.student.name}`} />
-            <div className="max-w-full lg:max-w-5xl 2xl:max-w-7xl mx-auto px-4 md:px-6 lg:px-8 overflow-hidden">
+            <div className="flex flex-col h-full max-w-4xl mx-auto w-full p-6">
                 {/* Header */}
                 <div className="flex items-start gap-3 py-6 md:gap-4">
                     <Link href={route('quizzes.show', submission.quiz.id)} className="shrink-0 mt-1">

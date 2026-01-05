@@ -66,6 +66,8 @@ export interface QuizSubmission {
     score: number;
     spent_time: string | null;
     submitted_at: string | null;
+    feedback: string | null;
+    evaluated_at: string | null;
     status: SubmissionStatus;
     created_at: string;
     answers: QuizAnswer[];

@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useMemo, memo } from "react";
 import { Head, usePage, router } from "@inertiajs/react";
 import { Button } from "@/components/ui/button.tsx";
 import { ThemeToggle } from "@/components/theme-toggle.tsx";
-import { Clock, ScanFace, GraduationCap, ClipboardList, ChevronLeft, ChevronRight, Check, X } from "lucide-react";
+import { Clock, ScanFace, GraduationCap, ClipboardList, ChevronLeft, ChevronRight, Check, X, MessageSquare, Trophy, CircleCheck, CircleX } from "lucide-react";
 import { ogImages, logo } from "@/lib/images";
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner.tsx";
@@ -510,6 +510,79 @@ const QuestionPagination = memo(function QuestionPagination({
     );
 });
 
+// Feedback Panel Component
+interface FeedbackPanelProps {
+    score: number;
+    totalPoints: number;
+    totalQuestions: number;
+    correctCount: number;
+    incorrectCount: number;
+    feedback: string | null;
+}
+
+const FeedbackPanel = memo(function FeedbackPanel({
+    score,
+    totalPoints,
+    totalQuestions,
+    correctCount,
+    incorrectCount,
+    feedback,
+}: FeedbackPanelProps) {
+    const scorePercentage = totalPoints > 0 ? Math.round((score / totalPoints) * 100) : 0;
+
+    return (
+        <div className="bg-card border border-border rounded-lg p-5 space-y-5">
+            {/* Score Section */}
+            <div className="text-center">
+                <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-primary/10 mb-3">
+                    <Trophy className="w-7 h-7 text-primary" />
+                </div>
+                <div className="text-3xl font-bold text-foreground">
+                    {score} / {totalPoints}
+                </div>
+                <p className="text-sm text-muted-foreground mt-1">
+                    {scorePercentage}% Score
+                </p>
+            </div>
+
+            {/* Stats Section */}
+            <div className="grid grid-cols-3 gap-3">
+                <div className="text-center p-3 rounded-lg bg-muted/50">
+                    <div className="text-lg font-semibold text-foreground">{totalQuestions}</div>
+                    <p className="text-xs text-muted-foreground">Questions</p>
+                </div>
+                <div className="text-center p-3 rounded-lg bg-green-500/10">
+                    <div className="flex items-center justify-center gap-1">
+                        <CircleCheck className="w-4 h-4 text-green-600 dark:text-green-400" />
+                        <span className="text-lg font-semibold text-green-600 dark:text-green-400">{correctCount}</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground">Correct</p>
+                </div>
+                <div className="text-center p-3 rounded-lg bg-red-500/10">
+                    <div className="flex items-center justify-center gap-1">
+                        <CircleX className="w-4 h-4 text-red-600 dark:text-red-400" />
+                        <span className="text-lg font-semibold text-red-600 dark:text-red-400">{incorrectCount}</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground">Incorrect</p>
+                </div>
+            </div>
+
+            {/* Teacher Feedback Section */}
+            {feedback && (
+                <div className="border-t border-border pt-4">
+                    <div className="flex items-center gap-2 mb-2">
+                        <MessageSquare className="w-4 h-4 text-muted-foreground" />
+                        <h3 className="text-sm font-medium text-foreground">Teacher Feedback</h3>
+                    </div>
+                    <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap">
+                        {feedback}
+                    </p>
+                </div>
+            )}
+        </div>
+    );
+});
+
 // Main Component
 export default function QuizTask({ quiz, submission }: QuizTaskProps) {
     const { props } = usePage<{
@@ -684,6 +757,26 @@ export default function QuizTask({ quiz, submission }: QuizTaskProps) {
         return submission.answers.find(a => a.question_id === currentQuestion.id) || null;
     }, [currentQuestion, submission?.answers]);
 
+    // Calculate feedback panel data
+    const feedbackData = useMemo(() => {
+        if (!isCompleted || !submission?.answers) {
+            return null;
+        }
+
+        const totalPoints = sortedQuestions.reduce((sum, q) => sum + q.point, 0);
+        const correctCount = submission.answers.filter(a => a.is_correct).length;
+        const incorrectCount = submission.answers.filter(a => !a.is_correct).length;
+
+        return {
+            score: submission.score,
+            totalPoints,
+            totalQuestions: sortedQuestions.length,
+            correctCount,
+            incorrectCount,
+            feedback: submission.feedback,
+        };
+    }, [isCompleted, submission, sortedQuestions]);
+
     return (
         <div className="h-screen flex flex-col bg-background text-foreground overflow-hidden">
             <Head>
@@ -715,20 +808,42 @@ export default function QuizTask({ quiz, submission }: QuizTaskProps) {
                     <>
                         {/* Question Content */}
                         <div className="flex-1 overflow-y-auto">
-                            <div className="h-full flex items-center justify-center p-6">
-                                {currentQuestion && (
-                                    <QuestionDisplay
-                                        question={currentQuestion}
-                                        currentIndex={currentQuestionIndex}
-                                        totalQuestions={sortedQuestions.length}
-                                        selectedOptions={answers[currentQuestion.id] || []}
-                                        correctOptionIds={currentQuestionAnswer?.correct_options || []}
-                                        isCompleted={isCompleted}
-                                        isAnswerCorrect={isCompleted ? (currentQuestionAnswer?.is_correct ?? null) : null}
-                                        disabled={!isInProgress}
-                                        onOptionSelect={handleOptionSelect}
-                                    />
+                            <div className={cn(
+                                "min-h-full p-6 flex items-center justify-center",
+                                feedbackData ? "flex-col lg:flex-row gap-6" : ""
+                            )}>
+                                {/* Feedback Panel - Top on mobile, Left on desktop */}
+                                {feedbackData && (
+                                    <div className="w-full lg:w-80 shrink-0">
+                                        <FeedbackPanel
+                                            score={feedbackData.score}
+                                            totalPoints={feedbackData.totalPoints}
+                                            totalQuestions={feedbackData.totalQuestions}
+                                            correctCount={feedbackData.correctCount}
+                                            incorrectCount={feedbackData.incorrectCount}
+                                            feedback={feedbackData.feedback}
+                                        />
+                                    </div>
                                 )}
+
+                                {/* Questions */}
+                                <div className={cn(
+                                    feedbackData ? "w-full lg:max-w-2xl" : ""
+                                )}>
+                                    {currentQuestion && (
+                                        <QuestionDisplay
+                                            question={currentQuestion}
+                                            currentIndex={currentQuestionIndex}
+                                            totalQuestions={sortedQuestions.length}
+                                            selectedOptions={answers[currentQuestion.id] || []}
+                                            correctOptionIds={currentQuestionAnswer?.correct_options || []}
+                                            isCompleted={isCompleted}
+                                            isAnswerCorrect={isCompleted ? (currentQuestionAnswer?.is_correct ?? null) : null}
+                                            disabled={!isInProgress}
+                                            onOptionSelect={handleOptionSelect}
+                                        />
+                                    )}
+                                </div>
                             </div>
                         </div>
 
